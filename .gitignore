@@ -1,0 +1,11 @@
+*.pyc
+*.egg-info
+*.swp
+activate
+__pycache__
+build
+develop-eggs
+dist
+eggs
+parts
+.DS_Store
