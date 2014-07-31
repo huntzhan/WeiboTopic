@@ -14,7 +14,12 @@ setup(
     description='',
     # long_description=open('README.rst').read(),
 
-    install_requires=['Scrapy>=0.24.2'],
+    install_requires=[
+        'Scrapy>=0.24.2',
+        'rsa',
+        'mechanize',
+        'BeautifulSoup4',
+    ],
 
     packages=[''],
     # entry_points={
