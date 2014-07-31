@@ -15,3 +15,6 @@ NEWSPIDER_MODULE = 'weibo_spider.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'weibo_spider (+http://www.yourdomain.com)'
+CONCURRENT_REQUESTS = 1
+CONCURRENT_REQUESTS_PER_IP = 1
+DOWNLOAD_DELAY = 1
