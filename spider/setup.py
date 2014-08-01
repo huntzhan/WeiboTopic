@@ -15,10 +15,12 @@ setup(
     # long_description=open('README.rst').read(),
 
     install_requires=[
-        'Scrapy>=0.24.2',
-        'rsa',
+        # 'Scrapy>=0.24.2',
         'mechanize',
+        'python-dateutil',
         'BeautifulSoup4',
+        'mongoengine',
+        'rsa',
     ],
 
     packages=[''],
