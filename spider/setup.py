@@ -16,11 +16,16 @@ setup(
 
     install_requires=[
         # 'Scrapy>=0.24.2',
+        # dependencies of cola.
         'mechanize',
         'python-dateutil',
         'BeautifulSoup4',
         'mongoengine',
         'rsa',
+        # dependencies of weibo_cn.
+        'selenium',
+        'requests>=2.3.0',
+        'lxml',
     ],
 
     packages=[''],
