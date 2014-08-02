@@ -52,7 +52,7 @@ def simple_run_spider(strategy):
     while strategy.valid():
         next_element = strategy.next_element()
         processor = next_element.processor
-        result = processor(next_element)
+        result = processor.process_element(next_element)
 
         if isinstance(result, collections.Iterable):
             for element in result:
