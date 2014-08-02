@@ -2,7 +2,6 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 
 import re
 from selenium import webdriver
-from easy_spider import ElementProcessor
 
 
 class LoginHandler(object):
@@ -59,7 +58,8 @@ class LoginHandler(object):
     def login_and_get_cookies(cls):
         """
         @brief: Login base on GUI, with consideration of vetification.
-        @return: A dict contains key/value pairs of cookies.
+        @return: A dict contains key/value pairs of cookies, which contains
+                 bytes instead of unicode.
         """
 
         driver = webdriver.Firefox()
