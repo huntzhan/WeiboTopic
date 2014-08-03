@@ -36,8 +36,11 @@ class LoginSpider(CrawlSpider):
         login_cookies = {item.name: item.value for item in cola_opener.cj}
         print login_cookies
         print "###############"
-        return [Request('http://weibo.com/3211200050/follow',
-                        cookies=login_cookies)]
+        result = [
+            Request('http://weibo.com/3211200050/follow', cookies=login_cookies)
+            for _ in range(1000)
+        ]
+        return result
 
     def parse_follower(self, response):
-        print response
+        return Request('http://weibo.com/3211200050/follow')
