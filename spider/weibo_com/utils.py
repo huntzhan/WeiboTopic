@@ -115,6 +115,7 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         LOGIN_URL_PATTERNS = [
             "weibo.com/login",
             "login.sina.com.cn",
+            "weibo.com/signup",
         ]
         for pattern in LOGIN_URL_PATTERNS:
             if re.search(pattern, url):
@@ -143,6 +144,8 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
                 cls._submit(driver)
             except:
                 break
+        # After login sina.com, we need to get login session from weibo.com.
+        driver.get("http://weibo.com/")
         return driver
 
     @classmethod

@@ -7,7 +7,7 @@ from .search_strategy import BFS
 
 
 def run():
-    fans_page = UrlElement("http://weibo.cn/1191258123/fans")
+    fans_page = UrlElement("")
     fans_page_processor = FansPageProcessor()
     fans_page.set_processor(fans_page_processor)
 
