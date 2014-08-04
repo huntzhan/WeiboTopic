@@ -4,8 +4,7 @@ int main()
 {
 	std::set<std::string> stopwords;
 	MakeStopSet(stopwords);
-	std::string ID="3566050291450093";
-	Get_StringVector(ID,stopwords);
+	Get_StringVector("3566050291450093",stopwords);
 	return 1;
 }	
 
