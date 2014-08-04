@@ -1,7 +1,22 @@
+
 import unittest
+from weibo_com.processor import UrlProcessor
 
 
 class TestUrlProcessor(unittest.TestCase):
 
+    def setUp(self):
+        self.url_processor = UrlProcessor()
+
+    def test_cookies(self):
+        self.url_processor._get_login_cookies()
+        for key, value in\
+                self.url_processor._cookies_after_login.items():
+            self.assertTrue(isinstance(key, str))
+            self.assertTrue(isinstance(value, str))
+
     def test_login_url(self):
-        self.assertTrue(True)
+        is_login_url = "http://weibo.com/login.php"
+        not_login_url = "http://weibo.com/u/2243807243"
+        self.assertTrue(self.url_processor._check_login_url(is_login_url))
+        self.assertFalse(self.url_processor._check_login_url(not_login_url))
