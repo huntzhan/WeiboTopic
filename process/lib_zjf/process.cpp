@@ -10,49 +10,26 @@ History    :
 
 
 
-/*
-//中文字符
 
+//中文字符
+#ifdef DEBUG
 int main()
 {
 	std::set<std::string> stopwordsSet;
-/*	std::vector< std::vector<std::string> > result;
-	std::vector<std::string> v;
 
-	
-	result=mysql_query("select * from weibo limit 3");
-	display(result);
-	
-   std::set<std::string> stopwords;
-	std::ofstream fout("out.text");
-	std::string output= ICTspilt(result[1][3].c_str());
-	std::cout<<output<<std::endl;
-	goodWordsinPieceArticle(result[1][3].c_str(),stopwords);	*/
+// std::cout<<RegexReplace("累死了，累死了@我是米米米米 [泪][泪][泪]还差点死在你手上！！！ 我在:http://t.cn/zYT63A2    你打击嗲   \o(*￣▽￣*)o  *()我是5.5号，JAers，我不一一@你们啦，\o(*￣▽￣*)o  *()我是5.5号，你们懂的～～[爱你]//@毛-叔: @唓哩_Yuen @佳玲Brenda @FLY--ying @西米_ \	__狠爽 @小头米非 @_LIyu 各位，小弟4月底5月初去西藏旅游，如果错过你们的毕业照，请见谅。你们是我大学非经贸学院的好朋友，希望你们能来。你们出了毕业照时间，都告诉我一声啊")<<std::endl;
 
-
-	//std::cout<<result[0][0]<<std::endl;
-/*	time_t t_of_day;
-	struct tm *time;
-	struct tm timetmep;
-	timetmep=tranformTime("2014-12-07    12:3:11");
-	time=&timetmep;
-	t_of_day=mktime(time)+10;	
-	time=localtime(&t_of_day);
-	printf("%d-%d-%d %d:%d:%d",time->tm_year+1900,time->tm_mon+1,time->tm_mday,time->tm_hour,time->tm_min,time->tm_sec);
-*/
-//	RegexReplace("[[中文标签]], [你好], inijsa, colourize");
-	
 
 //	MakeStopSet(stopwordsSet);
 /*	Get_MIDs("2013-04-12 00:01:41",120);*/
-/*	std::string ID="3566050391654043";
+	std::string ID="3566051122059043";
 	Get_StringVector(ID,stopwordsSet);
-	//printf("%d-%d-%d %d:%d:%d",time.tm_year,time.tm_mon,time.tm_mday,time.tm_hour,time.tm_min,time.tm_sec);
+
 	getchar();
 	return 1;
 }
 
-*/
+#endif
 /**
  * 		分词函数
  */
@@ -93,10 +70,9 @@ static std::string ICTspilt(const char * sinput){
 /*****************************************************************************************
  * 		去噪分割函数
  */
-static std::vector <std::string> goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords){
+static std::vector <std::string> goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword){
 
   std::vector<std::string> goodWordstemp;
-  std::vector<std::string> goodword;
 	//= ICTspilt(rawtext);
 //	boost::wregex wreg(L"\\d+");//去掉中文的空格
   const std::string temp=RegexReplace(rawtext);  //先正则表达式
@@ -108,7 +84,6 @@ static std::vector <std::string> goodWordsinPieceArticle(const std::string &rawt
     boost::trim(temp);
     if(!stopwords.count(temp)&&!temp.empty()){
        goodword.push_back(temp);
-	   std::cout<<temp<<std::endl;
 	  }
 	}
 	return goodword;
@@ -238,18 +213,16 @@ std::vector<std::string> Get_MIDs(std::string &starttimes, int seconds)
 	
 }
 
-std::vector<std::string > Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet){
+void Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet,std::vector<std::string> &vec){
 	char  sql_query[60];
-	std::vector<std::string> vec;
 	std::vector< std::vector<std::string> > temp;	
 	if(mid.empty()){
 		printf("____________________Get_StringVector funciton imput error_____________\n");
-		return vec ;
+		return ;
 	}
 	sprintf(sql_query,"select text from weibo where mid=%s ",mid.c_str());
 	temp=mysql_query( sql_query);
-	goodWordsinPieceArticle(temp[0][0],stopwordsSet);
-	return vec;
+	goodWordsinPieceArticle(temp[0][0],stopwordsSet,vec);
 }
 
 
@@ -315,9 +288,20 @@ static std::string RegexReplace(std::string input)
 {
 	std::string output;
 	std::wstring put;
-	boost::wregex reg(L"\\[([^x00-xff]*)\\]", boost::regex::perl);
+	//去掉表情
+	boost::wregex reg(L"\\[([^x00-xff]*)\\]|/?/?\@([^ ]*)[ ]|[a-zA-z]+://[^s]* ", boost::regex::perl);
 	put=boost::regex_replace(StringToWide(input),reg,std::wstring(L""));
-	return WidetoString(put);;
+	input=WidetoString(put);
+
+
+	//去掉@人名转发     思路去输掉空格                  @非空格+空格
+//	boost::wregex reg2(L"/?/?\@([^ ]*)[ ]", boost::regex::perl);
+	//匹配非数字英文中文等特殊符号
+	boost::wregex reg2(L"[()——_*$#]*", boost::regex::perl);
+	put=boost::regex_replace(StringToWide(input),reg2,std::wstring(L""));
+	input=WidetoString(put);
+
+	return input;
 	
 }
 
