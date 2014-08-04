@@ -13,10 +13,14 @@ from .element import UrlElement
 class UrlProcessor(ElementProcessor):
 
     # A trick to avoid initialization of _cookies_after_login.
-    _cookies_after_login = {}
+    _cookies_dict = {}
+    _cookies_jar = {}
 
-    def _get_login_cookies(self):
-        self._cookies_after_login = LoginHandler.login_and_get_cookies()
+    def _get_login_cookies_dict(self):
+        self._cookies_dict = LoginHandler.get_login_cookies_dict()
+
+    def _get_login_cookies_jar(self):
+        self._cookies_jar = LoginHandler.get_login_cookies_jar()
 
     def _check_login_url(self, url):
         return LoginHandler.check_login_url(url)

@@ -1,7 +1,11 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
+import time
 import re
+import cookielib
+
 from selenium import webdriver
+from requests.cookies import create_cookie
 
 
 class LoginHandler(object):
@@ -46,15 +50,32 @@ class LoginHandler(object):
     def _trans_unicode_element_of_dict(cls, source_dicts):
         trans = lambda x: x.encode("utf-8")
         target_dict = {}
-        for temp_dict in source_dicts:
-            key = temp_dict['name']
-            value = temp_dict['value']
+        for cookie_dict in source_dicts:
+            key = cookie_dict['name']
+            value = cookie_dict['value']
             if isinstance(key, unicode):
                 key = trans(key)
             if isinstance(value, unicode):
                 value = trans(value)
             target_dict[key] = value
         return target_dict
+
+    @classmethod
+    def _trans_cookies_from_dict(cls, source_dicts):
+        target_cookie_jar = cookielib.CookieJar()
+
+        for cookie_dict in source_dicts:
+            # extract name and value.
+            name = cookie_dict.pop('name', None)
+            value = cookie_dict.pop('value', None)
+            # change key name.
+            expiry_value = cookie_dict.pop('expiry', None)
+            cookie_dict['expires'] = expiry_value
+
+            cookie = create_cookie(name, value, **cookie_dict)
+            target_cookie_jar.set_cookie(cookie)
+
+        return target_cookie_jar
 
     @classmethod
     def check_login_url(cls, url):
@@ -88,11 +109,10 @@ class LoginHandler(object):
         button.click()
 
     @classmethod
-    def login_and_get_cookies(cls):
+    def _get_login_driver(cls):
         """
         @brief: Login base on GUI, with consideration of vetification.
-        @return: A dict contains key/value pairs of cookies, which contains
-                 bytes instead of unicode.
+        @return: A browser driver was successfully logined.
         """
 
         driver = webdriver.Firefox()
@@ -102,15 +122,37 @@ class LoginHandler(object):
         cls._submit(driver)
 
         while True:
+            # wait for page load.
+            time.sleep(0.3)
             try:
                 cls._fill_username_and_password(driver)
                 cls._fill_vertification(driver)
                 cls._submit(driver)
             except:
                 break
+        return driver
 
+    @classmethod
+    def get_login_cookies_dict(cls):
+        """
+        @return: A dict contains key/value pairs of cookies, which contains
+                 bytes instead of unicode.
+        """
+
+        driver = cls._get_login_driver()
         # extract cookies and return.
         cookies_dict = cls._trans_unicode_element_of_dict(
             driver.get_cookies())
         driver.close()
         return cookies_dict
+
+    @classmethod
+    def get_login_cookies_jar(cls):
+        """
+        @return: A CookieJar object.
+        """
+
+        driver = cls._get_login_driver()
+        cookiejar = cls._trans_cookies_from_dict(driver.get_cookies())
+        driver.close()
+        return cookiejar
