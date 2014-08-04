@@ -8,16 +8,10 @@ from selenium import webdriver
 from requests.cookies import create_cookie
 
 
-class LoginHandler(object):
+class _SeleniumOperator(object):
     """
-    @brief: Login to weibo.cn and return cookies.
+    @brief: Element operations based on selenium.
     """
-
-    LOGIN_URL = "http://login.sina.com.cn/signup/signin.php?entry=sso"
-    # Currently set username and password as class variable, should be changed
-    # when simulating multiple users.
-    USERNAME = "13570322748"
-    PASSWORD = "huntzhan"
 
     @classmethod
     def _find_username_password_elements(cls, driver):
@@ -34,6 +28,7 @@ class LoginHandler(object):
     @classmethod
     def _fill_username_password_elements(cls, driver,
                                          user_ele, passwd_ele):
+        # USERNAME and PASSWORD is defined as sub-class variables.
         user_ele.clear()
         user_ele.send_keys(cls.USERNAME)
         passwd_ele.clear()
@@ -45,6 +40,29 @@ class LoginHandler(object):
         keys = raw_input("Enter vertification code> ")
         vertify_ele.clear()
         vertify_ele.send_keys(keys)
+
+    @classmethod
+    def _fill_username_and_password(cls, driver):
+        user_ele, passwd_ele = cls._find_username_password_elements(driver)
+        cls._fill_username_password_elements(driver, user_ele, passwd_ele)
+        # remove stupid box.
+        passwd_ele.click()
+
+    @classmethod
+    def _fill_vertification(cls, driver):
+        vertify_ele = cls._find_verify_element(driver)
+        cls._fill_vertify_element(driver, vertify_ele)
+
+    @classmethod
+    def _submit(cls, driver):
+        button = driver.find_element_by_xpath("//input[@type='submit']")
+        button.click()
+
+
+class _Adaptor(object):
+    """
+    @brief: Adaptor functions.
+    """
 
     @classmethod
     def _trans_unicode_element_of_dict(cls, source_dicts):
@@ -77,6 +95,18 @@ class LoginHandler(object):
 
         return target_cookie_jar
 
+
+class LoginHandler(_SeleniumOperator, _Adaptor):
+    """
+    @brief: Login to weibo.cn and return cookies.
+    """
+
+    LOGIN_URL = "http://login.sina.com.cn/signup/signin.php?entry=sso"
+    # Currently set username and password as class variable, should be changed
+    # when simulating multiple users.
+    USERNAME = "13570322748"
+    PASSWORD = "huntzhan"
+
     @classmethod
     def check_login_url(cls, url):
         """
@@ -90,23 +120,6 @@ class LoginHandler(object):
             if re.search(pattern, url):
                 return True
         return False
-
-    @classmethod
-    def _fill_username_and_password(cls, driver):
-        user_ele, passwd_ele = cls._find_username_password_elements(driver)
-        cls._fill_username_password_elements(driver, user_ele, passwd_ele)
-        # remove stupid box.
-        passwd_ele.click()
-
-    @classmethod
-    def _fill_vertification(cls, driver):
-        vertify_ele = cls._find_verify_element(driver)
-        cls._fill_vertify_element(driver, vertify_ele)
-
-    @classmethod
-    def _submit(cls, driver):
-        button = driver.find_element_by_xpath("//input[@type='submit']")
-        button.click()
 
     @classmethod
     def _get_login_driver(cls):
