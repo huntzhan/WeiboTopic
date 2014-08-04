@@ -1,0 +1,10 @@
+#include "process.h"
+#include <iostream>
+int main()
+{
+	std::set<std::string> stopwords;
+	MakeStopSet(stopwords);
+	Get_StringVector("3566050291450093",stopwords);
+	return 1;
+}	
+
