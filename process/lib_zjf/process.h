@@ -16,13 +16,13 @@
 #include <locale>
 
 
-#define DEBUG
+//#define DEBUG
 
 #include "ICTCLAS50.h"
 #include "time.h"
 
 static std::string ICTspilt(const char * sinput);
-static  std::vector <std::string> goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords);
+static std::vector <std::string> goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword);
 
 
 static void select_time(char * sql_query,char *result);
@@ -49,17 +49,16 @@ std::vector<std::string> Get_MIDs(std::string starttimes, int seconds=3600);
 
 /**********************************************************
  * 描述  输入ID号 返回分好词的微博内容
- * input   mid   eg :"3566050266282005"  停词表set<string>
+ * input   mid   eg :"3566050266282005"  停词表set<string>   vec用来接收分好的词
  *
- * output  分好词内容
+ *
  * 如   mid="3566050266282005"           微博内容为    中华人民共和国
  * vector[0]=中华
  * vector[1]=人民
  * vector[2]=共和国
  */
 
-std::vector<std::string > Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet);
-
+void Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet,std::vector<std::string> &vec);
 /************************************************************
  *
  * input   sql_query   eg :"selcet * from weibo "
