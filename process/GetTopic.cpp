@@ -1,7 +1,7 @@
 /*
  * GetTopic.cpp
  *
- *  Created on: 2014Äê8ÔÂ3ÈÕ
+ *  Created on: 2014å¹´8æœˆ3æ—¥
  *      Author: hogachen
  */
 
@@ -35,17 +35,17 @@ void GetTopic::AddKeyToMap(map<string,double>&filterMap,string key){
 				}
 }
 /*
- * return ÊÇÏú»Ù²¢´´½¨Ò»¸öĞÂµÄ¶ÔÏó·µ»Ø
+ * return æ˜¯é”€æ¯å¹¶åˆ›å»ºä¸€ä¸ªæ–°çš„å¯¹è±¡è¿”å›
  */
 void GetTopic::GetEveryWordInCurrentHour(){
-	this->GetCurrentHourWeiboList("time");//»ñÈ¡µ±Ç°Ê±¼ä¶ÎÎ¢²©IDÁĞ±í
+	this->GetCurrentHourWeiboList("time");//è·å–å½“å‰æ—¶é—´æ®µå¾®åšIDåˆ—è¡¨
 	list<string>::iterator m_c_iter;
 	for(m_c_iter=this->m_current_messageList.begin();
 			m_c_iter!=this->m_current_messageList.end();++m_c_iter){
 
 		string oneWeiboId=*m_c_iter;
 		Weibo oneWeibo = GetEveryWeiboFromDatabase(oneWeiboId);
-		vector<string> * oneWeiboContent=oneWeibo.GetWords();//ÕâÀïÊÇ´´½¨ÁËĞÂ¶ÔÏóÄØ»¹ÊÇÖ±½ÓÖ¸Õë
+		vector<string> * oneWeiboContent=oneWeibo.GetWords();//è¿™é‡Œæ˜¯åˆ›å»ºäº†æ–°å¯¹è±¡å‘¢è¿˜æ˜¯ç›´æ¥æŒ‡é’ˆ
 		vector<string>::iterator it;
 		for(it=oneWeiboContent->begin();it!=oneWeiboContent->end();++it){
 			string key=*it;
@@ -56,7 +56,7 @@ void GetTopic::GetEveryWordInCurrentHour(){
 
 void GetTopic::GenTopicWord(){
 
-	this->GetEveryWordInCurrentHour();//»ñÈ¡µ±Ç°Ò»Ğ¡Ê±ÄÚ²»ÖØ¸´µÄ´Ê
+	this->GetEveryWordInCurrentHour();//è·å–å½“å‰ä¸€å°æ—¶å†…ä¸é‡å¤çš„è¯
 	this->CalTopicWordInKhours();
 	map<string,double>::iterator t_it=this->m_topic_word.begin();
 
@@ -72,7 +72,7 @@ void GetTopic::GenTopicWord(){
 }
 
 /**
- * µ÷ÓÃ½ø·¢µÄÊı¾İ¿âDAO½Ó¿Ú
+ * è°ƒç”¨è¿›å‘çš„æ•°æ®åº“DAOæ¥å£
  */
 Weibo GetTopic::GetEveryWeiboFromDatabase(string weiboID){
 	Weibo weibo;
@@ -80,7 +80,7 @@ Weibo GetTopic::GetEveryWeiboFromDatabase(string weiboID){
 }
 
 /*
- * Ö±½Ó¸ù¾İ³ÉÔ±º¯Êı½øĞĞÅÅĞò
+ * ç›´æ¥æ ¹æ®æˆå‘˜å‡½æ•°è¿›è¡Œæ’åº
  */
 void GetTopic::TopicWordSort(){
 	map<string,double>::iterator mapIt;
@@ -101,16 +101,16 @@ void GetTopic::TopicWordSort(){
 		double value=v_it->second;
 		map_topicwordResult.insert(make_pair(key,value));
 	}
-	//ÕâÀï½«Î¢²©Ö÷Ìâ´ÊÁĞ±íÖ¸ÏòĞÂµÄ¶ÔÏó£¬Ô­À´¶ÔÏóÊÇ·ñÊÍ·Å£¿£¿
+	//è¿™é‡Œå°†å¾®åšä¸»é¢˜è¯åˆ—è¡¨æŒ‡å‘æ–°çš„å¯¹è±¡ï¼ŒåŸæ¥å¯¹è±¡æ˜¯å¦é‡Šæ”¾ï¼Ÿï¼Ÿ
 	this->m_topic_word=map_topicwordResult;
 }
 /*
- * ¼ÆËãÈ¡³öÀ´µÄ´ÊÔÚÇ§Ã×°ºµÄ¸ÅÂÊ
+ * è®¡ç®—å–å‡ºæ¥çš„è¯åœ¨åƒç±³æ˜‚çš„æ¦‚ç‡
  */
-void GetTopic::CalTopicWordInKhours(){//ÕâÀï²»ÄÜÓÃÒıÓÃ´«Öµ
+void GetTopic::CalTopicWordInKhours(){//è¿™é‡Œä¸èƒ½ç”¨å¼•ç”¨ä¼ å€¼
 
 
-	this->GetKHourWeiboList("time_from","time_to");//???????????????????????????????ÕâÀïĞèÒªÊµÏÖº¯ÊıÈ¥»ñÈ¡Ç°
+	this->GetKHourWeiboList("time_from","time_to");//???????????????????????????????è¿™é‡Œéœ€è¦å®ç°å‡½æ•°å»è·å–å‰
 	map<string,double >::iterator  t_w_it=this->m_topic_word.begin();
 	for(;t_w_it!=this->m_topic_word.end();++t_w_it){
 		this->k_hour_topic_word.insert(make_pair(t_w_it->first,0.0));
@@ -120,7 +120,7 @@ void GetTopic::CalTopicWordInKhours(){//ÕâÀï²»ÄÜÓÃÒıÓÃ´«Öµ
 	for(;m_K_it!=this->m_k_messageList.end();++m_K_it){
 		string weiboID = *m_K_it;
 		Weibo oneWeibo = GetEveryWeiboFromDatabase(weiboID);
-		vector<string>* oneWeiboContent=oneWeibo.GetWords();//ÕâÀïÊÇÖ±½ÓÒıÓÃÔ­ÓĞµÄÎ¢²©ÄÚÈİµÄ¶ÔÏó
+		vector<string>* oneWeiboContent=oneWeibo.GetWords();//è¿™é‡Œæ˜¯ç›´æ¥å¼•ç”¨åŸæœ‰çš„å¾®åšå†…å®¹çš„å¯¹è±¡
 		vector<string>::iterator it;
 		for(it=oneWeiboContent->begin();it!=oneWeiboContent->end();++it){
 			string key=*it;
@@ -132,7 +132,7 @@ void GetTopic::CalTopicWordInKhours(){//ÕâÀï²»ÄÜÓÃÒıÓÃ´«Öµ
 	}
 
 	/**
-	 * ÕâÑùÊÍ·ÅÄÚ´æ£¿£¿£¿£¿£¿£¿»¹ÊÇ½«ÄÚ´æĞ¹Â©ÁË£¿£¿£¿
+	 * è¿™æ ·é‡Šæ”¾å†…å­˜ï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿè¿˜æ˜¯å°†å†…å­˜æ³„æ¼äº†ï¼Ÿï¼Ÿï¼Ÿ
 	 */
 	map<string,double> temp_map ;
 	this->k_hour_topic_word=temp_map;

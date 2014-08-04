@@ -1,7 +1,7 @@
 /*
  * Main.cpp
  *
- *  Created on: 2014Äê8ÔÂ3ÈÕ
+ *  Created on: 2014å¹´8æœˆ3æ—¥
  *      Author: hogachen
  */
 

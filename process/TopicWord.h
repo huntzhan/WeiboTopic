@@ -1,10 +1,10 @@
 /*
  * topicWords.h
  *
- *  Created on: 2014Äê7ÔÂ31ÈÕ
+ *  Created on: 2014å¹´7æœˆ31æ—¥
  *      Author: hogachen
  *  Discription:
- *  	Ö÷Ìâ´ÊÀà£¬°üÀ¨µ¥´ÊºÍÕâ¸öÖ÷Ìâ´ÊµÄÈ¨Öµ
+ *  	ä¸»é¢˜è¯ç±»ï¼ŒåŒ…æ‹¬å•è¯å’Œè¿™ä¸ªä¸»é¢˜è¯çš„æƒå€¼
  */
 
 #ifndef TOPICWORDS_H_

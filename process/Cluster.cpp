@@ -1,7 +1,7 @@
 /*
  * cluster.cpp
  *
- *  Created on: 2014ƒÍ7‘¬31»’
+ *  Created on: 2014Âπ¥7Êúà31Êó•
  *      Author: hogachen
  */
 
@@ -14,12 +14,40 @@ using namespace std;
 typedef map<string,double> MAP
 #define THROD 10.0
 #define MAXVALUE 100000.0
-class ClusterProcess{
+class CooccurrenceWord{
 public:
+	map<string,double>word_cooccurrence;
+	map<string,double> * GetWordCooccurrence(){
+		return & word_cooccurrence;
+	}
 
+};
+class Cluster{
+public:
+	map<string,CooccurrenceWord> co_ccur_matrix;
+	map<string,CooccurrenceWord> * GetCooccurrence(){
+		return & co_ccur_matrix;
+	}
 	double Cal_Words_Cluster_Distance(Cluster cluster,TopicWord t_word);
 	void Singlepass(map<string,double> m_topicWord);
+	void CalWordsCooccurrence(map<string,double> &topicword);
 };
+void Cluster::CalWordsCooccurrence(map<string,double> &topicword,list<string>& weibo_id_list){
+	map<string,double>::topic_it = topicword.begin();
+	for(;topic_it!= topicword.end();++topic_it){
+
+	}
+	list<string>::iterator weiboit= weibo_id_list.begin();
+	for(;weiboit!= weibo_id_list.end();++weiboit){
+		string key = *weiboit;
+		Weibo oneweibo =
+	}
+
+}
+void FindWordInTopicWordMap(string key,map<string,double> &topicword){
+	if(topicword.count(key));
+
+}
 void Cluster::Singlepass(map<string,double> &m_topicWord){
 
 	vector<Cluster> v_clusterList;
@@ -36,7 +64,7 @@ void Cluster::Singlepass(map<string,double> &m_topicWord){
 
 		vector<Cluster>::iterator vec_clu_it=v_clusterList.begin();
 		double minDistance=MAXVALUE;
-		vector<Cluster>::iterator belong_clus_it=vec_clu_it;//’‚¿Ô”¶∏√ «∏≥÷µªπ «÷∏’Î£ø£ø£ø£ø
+		vector<Cluster>::iterator belong_clus_it=vec_clu_it;//ËøôÈáåÂ∫îËØ•ÊòØËµãÂÄºËøòÊòØÊåáÈíàÔºüÔºüÔºüÔºü
 		for(;vec_clu_it != v_clusterList.end();++vec_clu_it){
 			double words_distance=cal_Words_Cluster_Distance(vec_clu_it,t_words);
 			if(minDistance > words_distance){
@@ -52,7 +80,7 @@ void Cluster::Singlepass(map<string,double> &m_topicWord){
 		}
 	}
 }
-double ClusterProcess::Cal_Words_Cluster_Distance(Cluster *cluster,TopicWord t_word){
+double Cluster::Cal_Words_Cluster_Distance(Cluster *cluster,TopicWord t_word){
 	vector<TopicWord>::iterator clu_it=cluster->getsTopic().begin();
 	for(;clu_it!=)
 }

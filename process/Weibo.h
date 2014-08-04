@@ -1,10 +1,10 @@
 /*
  * Weibo.h
  *
- * Created on: 2014Äê7ÔÂ31ÈÕ
+ * Created on: 2014å¹´7æœˆ31æ—¥
  *      Author: hogachen
  * Discription:
- * 		Ò»ÌõÎ¢²©
+ * 		ä¸€æ¡å¾®åš
  */
 
 #ifndef MESSAGE_H_

@@ -1,7 +1,7 @@
 /*
  * GetTopic.h
  *
- *  Created on: 2014Äê8ÔÂ3ÈÕ
+ *  Created on: 2014å¹´8æœˆ3æ—¥
  *      Author: hogachen
  */
 
@@ -11,13 +11,13 @@
 /*
  * GetTopic.cpp
  *
- *  Created on: 2014Äê7ÔÂ31ÈÕ
+ *  Created on: 2014å¹´7æœˆ31æ—¥
  *      Author: hogachen
  */
 
 
 /*
- * ¿ÉÒÔ¸Ä½øµÄµØ·½£º¿ÉÒÔ²»±ØÃ¿´Î¶¼¼ÆËãÆß¸öĞ¡Ê±µÄÆµÂÊ£¬Ö»Òª¼õÈ¥×îÇ°Ò»¸öĞ¡Ê±¾Í¿ÉÒÔÁË
+ * å¯ä»¥æ”¹è¿›çš„åœ°æ–¹ï¼šå¯ä»¥ä¸å¿…æ¯æ¬¡éƒ½è®¡ç®—ä¸ƒä¸ªå°æ—¶çš„é¢‘ç‡ï¼Œåªè¦å‡å»æœ€å‰ä¸€ä¸ªå°æ—¶å°±å¯ä»¥äº†
  */
 
 #include "Weibo.h"
@@ -33,25 +33,25 @@ typedef pair<string,double> PAIR;
 
 
 class GetTopic{
-	int TOPIC_WORD_NUM = 1000;									//ÏëÒªµÃµ½Ç°¼¸¸öÖ÷Ìâ´Ê£¬Õâ¸öÄ¬ÈÏÊÇÇ°1000¸ö
-	int K_WINDOW = 7;											//Ê±¼ä´°¿ÚµÄ´óĞ¡
-	list<string> m_current_messageList;							//¸ù¾İÊ±¼ä»ñÈ¡µ½µÄÎ¢²©IDÁĞ±í
+	int TOPIC_WORD_NUM = 1000;									//æƒ³è¦å¾—åˆ°å‰å‡ ä¸ªä¸»é¢˜è¯ï¼Œè¿™ä¸ªé»˜è®¤æ˜¯å‰1000ä¸ª
+	int K_WINDOW = 7;											//æ—¶é—´çª—å£çš„å¤§å°
+	list<string> m_current_messageList;							//æ ¹æ®æ—¶é—´è·å–åˆ°çš„å¾®åšIDåˆ—è¡¨
 	list<string> m_k_messageList;
-	map<string,double> m_topic_word;							//ÌáÈ¡³öµÄÃ»ÓĞÖØ¸´´ÊÁĞ±í£¬°üÀ¨µ¥´ÊºÍ´ÊµÄÈ¨Öµ
-	map<string,double> k_hour_topic_word;						//Ç°K¸öĞ¡Ê±µÄµ¥´ÊµÄ³öÏÖÆµÂÊ£¬´Ê¸úm_topicwordÄÚÈİÒ»Ñù,ÓÃÍêÖ®ºóÒªÊÍ·Åµô
+	map<string,double> m_topic_word;							//æå–å‡ºçš„æ²¡æœ‰é‡å¤è¯åˆ—è¡¨ï¼ŒåŒ…æ‹¬å•è¯å’Œè¯çš„æƒå€¼
+	map<string,double> k_hour_topic_word;						//å‰Kä¸ªå°æ—¶çš„å•è¯çš„å‡ºç°é¢‘ç‡ï¼Œè¯è·Ÿm_topicwordå†…å®¹ä¸€æ ·,ç”¨å®Œä¹‹åè¦é‡Šæ”¾æ‰
 public:
 
-	void GetCurrentHourWeiboList(string time);          		//¸ù¾İ½ø·¢¸øµÄ½Ó¿ÚÉú³Éµ±Ç°Ò»Ğ¡Ê±ÄÚÎ¢²©ÁĞ±í
-	void GetKHourWeiboList(string time_from,string time_to);	//¸ù¾İgetMessageList»ñÈ¡Ç°Æß¸öĞ¡Ê±µÄÎ¢²©IDÁĞ±í
+	void GetCurrentHourWeiboList(string time);          		//æ ¹æ®è¿›å‘ç»™çš„æ¥å£ç”Ÿæˆå½“å‰ä¸€å°æ—¶å†…å¾®åšåˆ—è¡¨
+	void GetKHourWeiboList(string time_from,string time_to);	//æ ¹æ®getMessageListè·å–å‰ä¸ƒä¸ªå°æ—¶çš„å¾®åšIDåˆ—è¡¨
 
 	void GetEveryWordInCurrentHour();
 
 
 
-    Weibo GetEveryWeiboFromDatabase(string weiboID); 			//Õâ¸öº¯ÊıÊÇÓÃÀ´´ÓÊı¾İ¿â±ß¶ÁÈ¡Ç°Æß¸öĞ¡Ê±µÄÎ¢²©£¬±ÜÃâ¶ÁÈ¡½øÈ¥ÄÚ´æ¡£
-    															//ĞèÒªÏÈÉú³ÉÇ°Æß¸öĞ¡Ê±µÄÎ¢²©ID£¬ÔÙ¸ù¾İIDÈ¥²éÑ¯Êı¾İ¿â
+	Weibo GetEveryWeiboFromDatabase(string weiboID); 			//è¿™ä¸ªå‡½æ•°æ˜¯ç”¨æ¥ä»æ•°æ®åº“è¾¹è¯»å–å‰ä¸ƒä¸ªå°æ—¶çš„å¾®åšï¼Œé¿å…è¯»å–è¿›å»å†…å­˜ã€‚
+    															//éœ€è¦å…ˆç”Ÿæˆå‰ä¸ƒä¸ªå°æ—¶çš„å¾®åšIDï¼Œå†æ ¹æ®IDå»æŸ¥è¯¢æ•°æ®åº“
 
-    void TopicWordSort();								        //¸ù¾İ»ñµÃµÄÖ÷Ìâ´ÊÁĞ±íÓëÖ®Ç°µÄK¸öÊ±¼ä´°¿ÚÄÚµÄ´ÊµÄÈ¨ÖØ±È½ÏÖ®ºó°´ÕÕÈ¨ÖØÅÅĞò£¬×îºó¸üĞÂÖ÷Ìâ´ÊÖ¸Õë
+    void TopicWordSort();								        //æ ¹æ®è·å¾—çš„ä¸»é¢˜è¯åˆ—è¡¨ä¸ä¹‹å‰çš„Kä¸ªæ—¶é—´çª—å£å†…çš„è¯çš„æƒé‡æ¯”è¾ƒä¹‹åæŒ‰ç…§æƒé‡æ’åºï¼Œæœ€åæ›´æ–°ä¸»é¢˜è¯æŒ‡é’ˆ
 
     void AddKeyToMap(map<string,double>&filterMap,string key);
 
