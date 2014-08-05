@@ -9,3 +9,5 @@ dist
 eggs
 parts
 .DS_Store
+Makefile~
+*.cpp~
