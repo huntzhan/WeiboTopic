@@ -8,6 +8,7 @@ import lxml.html
 from easy_spider import ElementProcessor
 from .utils import LoginHandler
 from .element import UrlElement
+from tests.test_weibo_com.opener import MechanizeOpener
 
 
 class UrlProcessor(ElementProcessor):
