@@ -1,5 +1,0 @@
-€}q(Utmp]q(UtestqU	TestSoup2qeUweibo_com.error]q(UDependencyNotInstalledErrorqULoginFailureqeUweibo_com.weibo_user]q(UWeiboUserBundleq	UBundleq
-UUrlqUuserqeUweibo_com.storage]q(UWorkInfoqUEduInfoqUForwardqUFriendqUCommentqULikeqU	WeiboUserqUGeoqUUserInfoqU	MicroBlogqeUweibo_com.parser]q(U	urldecodeqUParserqUWeiboParserqUTIMEOUTqUUserFriendParserqeUweibo_com.run]qUrunqaUweibo_com.beautiful_soup]q Ubeautiful_soupq!aUweibo_com.conf]q"(U
-mongo_portq#Udb_nameq$U	main_confq%Uconf_dirq&U	instancesq'UConfigq(U
-mongo_hostq)UPropertyObjectq*U	shard_keyq+U	user_confq,Uuser_configq-Ubaseq.Ufetch_commentq/Ustartsq0U
-fetch_likeq1Ufetch_forwardq2eUtests.test_weibo_com.test_soup]q3UTestSoupq4aUweibo_com.opener]q5(UMechanizeOpenerq6UOpenerq7UDependencyNotInstalledErrorq8eUweibo_com.processor]q9(UMessagePageProcessorq:UUserInfoPageProcessorq;UFansPageProcessorq<UUrlProcessorq=eUtests.test_weibo_com.test_fans]q>UTestFansq?au.
