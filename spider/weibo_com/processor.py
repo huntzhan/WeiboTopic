@@ -5,7 +5,7 @@ import requests
 import re
 
 from easy_spider import ElementProcessor
-from .utils import LoginHandler, PageLoader, FansPageParser
+from .utils import LoginHandler, PageLoader, FriendPageParser
 from .element import UrlElement
 
 
@@ -25,27 +25,31 @@ class UrlProcessor(ElementProcessor):
         return LoginHandler.check_login_url(url)
 
 
-class FansPageProcessor(UrlProcessor):
+class FriendPageProcessor(UrlProcessor):
+
+    def prepare_cookie_and_loader(self):
+        self._get_login_cookies_jar()
+        self.page_loader = PageLoader(self._cookies_jar)
 
     def _load_page(self, url):
-        page_loader = PageLoader(self._cookies_jar)
-        return page_loader.load_url(url)
+        return self.page_loader.load_url(url)
+
+    def _process_url(self, url):
+        # loading page.
+        response_url, response_content = self._load_page(url)
+        if self._check_login_url(response_url):
+            self._get_login_cookies_jar()
+            response_url, response_content = self._load_page(url)
+
+        # extract information.
+        friend_page_parser = FriendPageParser()
+        result = friend_page_parser.parse(url, response_content)
+        return result
 
     def process_element(self, element):
         """
         get url, load page, get fans' uids, build elements.
         """
-
-        # loading page.
-        response_url, response_content = self._load_page(element.url)
-        if self._check_login_url(response_url):
-            self._get_login_cookies_jar()
-            response_url, response_content = self._load_page(url)
-        # extract information.
-
-        parser = FansPageParser()
-        new_uids = parser.parse(element.url, response_content)
-        print(new_uids)
         return None
 
 
