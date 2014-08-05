@@ -7,8 +7,10 @@ from .search_strategy import BFS
 
 
 def run():
-    fans_page = UrlElement("")
     fans_page_processor = FansPageProcessor()
+    fans_page_processor._get_login_cookies_jar()
+
+    fans_page = UrlElement("http://weibo.com/3211200050/follow")
     fans_page.set_processor(fans_page_processor)
 
     bfs = BFS()
