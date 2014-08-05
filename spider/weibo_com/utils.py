@@ -79,7 +79,7 @@ class _Adaptor(object):
         return target_dict
 
     @classmethod
-    def _trans_cookies_from_dict(cls, source_dicts):
+    def _trans_cookies_from_dict_to_cookiejar(cls, source_dicts):
         target_cookie_jar = cookielib.CookieJar()
 
         for cookie_dict in source_dicts:
@@ -88,7 +88,8 @@ class _Adaptor(object):
             value = cookie_dict.pop('value', None)
             # change key name.
             expiry_value = cookie_dict.pop('expiry', None)
-            cookie_dict['expires'] = expiry_value
+            if expiry_value:
+                cookie_dict['expires'] = expiry_value
 
             cookie = create_cookie(name, value, **cookie_dict)
             target_cookie_jar.set_cookie(cookie)
@@ -169,6 +170,7 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         """
 
         driver = cls._get_login_driver()
-        cookiejar = cls._trans_cookies_from_dict(driver.get_cookies())
+        cookiejar = cls._trans_cookies_from_dict_to_cookiejar(
+            driver.get_cookies())
         driver.close()
         return cookiejar

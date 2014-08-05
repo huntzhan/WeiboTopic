@@ -7,8 +7,9 @@
 #include <iostream>
 #include <string>
 #include <set>
-#include <vector>
+#include <list>
 #include <fstream>
+#include <list>
 #include "mysql.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
@@ -16,62 +17,63 @@
 #include <locale>
 
 
+
 //#define DEBUG
 
 #include "ICTCLAS50.h"
 #include "time.h"
 
-static std::string ICTspilt(const char * sinput);
-static std::vector <std::string> goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword);
 
+class Process{
+private:
+	   std::set<std::string> stopwordsSet;
+	   std::list< std::list<std::string> > result;
+	   char  sql_query[100];
+	   std::string  rawtext;
+	   std::list<std::string> re;
+	   MYSQL my_connection;
+public:
+	Process();
+	~Process(){
+		 ICTCLAS_Exit();	//释放资源退?
+	};
+	/*********************************************************
+	 * 描述  输入开始时间和时间段   返回该时间段的IDs
+	 * input 开始时间  "2014-11-31 12:10:10"
+	 *       second   秒数
+	 *       这个时间段的微博ID
+	 * 使用方法
+	 *		Process process;
+	 * 		std::list<std::string> IDs;
+	 * 		process.Get_MIDs("2013-04-12 08:38:16",1600,IDs);
+	 *		IDs[0]="3566050434068596"
+	 */
+	void Get_MIDs(std::string starttimes, int seconds,std::list<std::string> &MIDs);
+	/**********************************************************
+	 * 描述  输入ID号 返回分好词的微博内容
+	 * input   mid   eg :"3566050266282005"  停词表set<string>   vec用来接收分好的词
+	 *
+	 *					std::string ID="3566050266282005"
+	 * 					process.Get_Stringlist(ID,vec);
+	 * list[0]=中华
+	 * list[1]=人民
+	 * list[2]=共和国
+	 */
+	void Get_Stringlist(std::string &mid,std::list<std::string> &vec);
+	void Query_DB();
+	void display(std::list< std::list<std::string> > &msg);
+    std::list< std::list<std::string> >  Get_result();
+    void set_mysql_query(const char *);
 
-static void select_time(char * sql_query,char *result);
-static std::string RegexReplace(std::string input);
-static  std::wstring StringToWide(std::string &sToMatch);
-static  std::string WidetoString(std::wstring &wsm);
+private:
+	void MakeStopSet(const char * path);
+	void goodWordsinPieceArticle(std::list<std::string> &goodword);
+	std::string WidetoString(std::wstring &wsm);
+	std::wstring StringToWide(std::string &sToMatch);
+	std::string Regex_Replace(std::string input);
+	struct tm tranformTime(std::string &starttime );
+	std::string ICTspilt(const char * sinput);
+};
 
-static struct tm tranformTime(std::string &starttime );
-
-/*********************************************************
- * 描述  输入开始时间和时间段   返回该时间段的ID
- * input 开始时间  "2014-11-31 12:10:10"
- *       second   秒数
- * output  这个时间段的微博ID
- * 使用方法
- * 		vector<string> IDs=Get_MIDs("2014-11-31 12:10:10",3600);
- * 		for(vector<string>::iterator it=IDs.begin() ;it!=IDs.end(),it++)
- *
- */
-
-std::vector<std::string> Get_MIDs(std::string starttimes, int seconds=3600);
-
-
-
-/**********************************************************
- * 描述  输入ID号 返回分好词的微博内容
- * input   mid   eg :"3566050266282005"  停词表set<string>   vec用来接收分好的词
- *
- *
- * 如   mid="3566050266282005"           微博内容为    中华人民共和国
- * vector[0]=中华
- * vector[1]=人民
- * vector[2]=共和国
- */
-
-void Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet,std::vector<std::string> &vec);
-/************************************************************
- *
- * input   sql_query   eg :"selcet * from weibo "
- *
- * output 	二维的vector  可以调用display来显示
- *
- *    diallay(mysql_query("selcet * from weibo "));
- */
-
-std::vector<std::vector<std::string> > mysql_query(char * sql_query);
-
-
-void MakeStopSet(std::set<std::string> &stopwordsSet);
-void display(std::vector< std::vector<std::string> > &msg);
 
 #endif
