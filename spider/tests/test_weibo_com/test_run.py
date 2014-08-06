@@ -6,8 +6,8 @@ logging.basicConfig(level=20)
 from weibo_com.run import run
 
 
-@unittest.skipIf(True, "It takes times.")
 class TestRun(unittest.TestCase):
 
+    @unittest.skipIf(True, "It takes times.")
     def test_run(self):
         run()

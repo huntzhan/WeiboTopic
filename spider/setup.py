@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
+import multiprocessing
 # from some_interface import __version__
 
 setup(

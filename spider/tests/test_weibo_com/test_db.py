@@ -4,7 +4,6 @@ import unittest
 from weibo_com.model import DB
 
 
-@unittest.skipIf(True, "It takes times.")
 class TestDB(unittest.TestCase):
 
     def setUp(self):
@@ -27,7 +26,3 @@ class TestDB(unittest.TestCase):
         DB.del_user(u.uid)
         u = DB.get_user_by_uid('110')
         self.assertTrue(u is None)
-
-
-if __name__ == '__main__':
-    unittest.main()
