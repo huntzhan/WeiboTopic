@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy.orm.exc import NoResultFound
 
 from weibo_com.config import Config
 
@@ -13,7 +14,7 @@ Base = declarative_base()
 class WeiboUser(Base):
     __tablename__ = 'WeiboUser'
 
-    uid = Column(Integer, primary_key=True)
+    uid = Column(String(255), primary_key=True)
     name = Column(String(255))
     followees = Column(Integer)
     fans = Column(Integer)
@@ -46,12 +47,23 @@ class DB:
 
     @classmethod
     def add_user(cls, uid, name=None, followees=0, fans=0, num_post=0):
+        if cls.test_user(uid):
+            return
         u = WeiboUser(uid=uid,
                       name=name,
                       followees=followees,
                       fans=fans,
                       num_post=num_post)
         cls.session.add(u)
+        cls.session.commit()
+
+    @classmethod
+    def test_user(cls, uid):
+        try:
+            cls.session.query(WeiboUser).filter(WeiboUser.uid == uid).one()
+        except NoResultFound:
+            return False
+        return True
 
     @classmethod
     def get_user_by_uid(cls, uid):
@@ -61,14 +73,14 @@ class DB:
     @classmethod
     def update_user(cls, uid, name=None, followees=-1, fans=-1, num_post=-1):
         u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
-        u.name = name if name is not None else 0
-        u.followees = followees if followees != -1 else 0
-        u.fans = fans if fans != -1 else 0
-        u.num_post = num_post if num_post != 1 else 0
+        u.name = u.name if name is None else name
+        u.followees = u.followees if followees == -1 else followees
+        u.fans = u.fans if fans == -1 else fans
+        u.num_post = u.num_post if num_post == -1 else num_post
         cls.session.commit()
 
     @classmethod
     def del_user(cls, uid):
         u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
         cls.session.delete(u)
-        cls.session.flush()
+        cls.session.commit()

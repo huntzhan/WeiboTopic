@@ -40,8 +40,8 @@ class _SeleniumOperator(object):
     @classmethod
     def _fill_vertify_element(cls, driver,
                               vertify_ele):
-        keys = raw_input("Enter vertification code> ")
         vertify_ele.clear()
+        keys = raw_input("Enter vertification code> ")
         vertify_ele.send_keys(keys)
 
     @classmethod
