@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import logging
 import requests
 import re
+from collections import namedtuple
 
 from easy_spider import ElementProcessor
 from .utils import LoginHandler, PageLoader
@@ -35,7 +37,32 @@ class UrlProcessor(ElementProcessor):
 
 class FriendPageProcessor(UrlProcessor):
 
+    def _generate_url_of_fans_page(self, uid):
+        URL_TEMPLATE = 'http://weibo.com/{}/follow'
+        return URL_TEMPLATE.format(uid)
+
+    def _extract_user_properties(self, response_content):
+        # holly shit.
+        pattern_template = (
+            br"<strong.*?>(\d+)<\\/strong>"
+            br"\\r\\n\\t\\t\\t"
+            br"<span>{}.*?<"
+        )
+
+        def extract_by_key(key):
+            pattern = pattern_template.format(key)
+            match = re.search(pattern, response_content)
+            return match.group(1)
+
+        fans_size = extract_by_key(b"粉丝")
+        followers_size = extract_by_key(b"关注")
+        messages_size = extract_by_key(b"微博")
+        return fans_size, followers_size, messages_size
+
     def _process_url(self, url):
+        # handling return data encapsulation.
+        data_interface = namedtuple("_", ['parser', 'extractor'])
+
         # loading page.
         response_url, response_content = self._load_page(url)
         if self._check_login_url(response_url):
@@ -44,14 +71,14 @@ class FriendPageProcessor(UrlProcessor):
             # reload.
             response_url, response_content = self._load_page(url)
 
-        # extract information.
+        # extract information by parser.
         friend_page_parser = FriendPageParser()
-        result = friend_page_parser.parse(url, response_content)
-        return result
+        parser_result = friend_page_parser.parse(url, response_content)
 
-    def _generate_url_of_fans_page(self, uid):
-        URL_TEMPLATE = 'http://weibo.com/{}/follow'
-        return URL_TEMPLATE.format(uid)
+        # get information by extractor.
+        extractor_result = self._extract_user_properties(response_content)
+        return data_interface(parser=parser_result,
+                              extractor=extractor_result)
 
     def process_element(self, element):
         """
@@ -59,9 +86,11 @@ class FriendPageProcessor(UrlProcessor):
         """
 
         result = self._process_url(element.url)
-        if result is None:
+        if result.parser is None:
             return None
-        uids, next_page, fans_page = result
+        # unpackage.
+        uids, next_page, fans_page = result.parser
+        fans_size, followers_size, messages_size = result.extractor
 
         elements = []
         # create element for next_page.
@@ -83,6 +112,7 @@ class FriendPageProcessor(UrlProcessor):
             elements.append(url_element)
 
         print(uids)
+        print(fans_size, followers_size, messages_size)
 
         return elements
 
