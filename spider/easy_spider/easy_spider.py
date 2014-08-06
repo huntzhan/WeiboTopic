@@ -98,9 +98,8 @@ def run_spider_asynchronously(strategy, max_worker=2, error_recovery=True):
             for future in futures:
                 try:
                     result = future.result()
-                except:
-                    print("Error Happens.")
-                    raw_input()
+                except Exception as e:
+                    print(e)
                     continue
 
                 if isinstance(result, collections.Iterable):

@@ -122,6 +122,12 @@ class FriendPageProcessor(UrlProcessor):
             if not DB.is_user_exist(uid):
                 DB.add_user(uid)
 
+        print("#begin#")
+        print(current_uid)
+        print(fans_size, followees_size, messages_size)
+        print(uids)
+        print("#end#")
+
         ########################
         # Processor Operations #
         ########################
