@@ -33,33 +33,38 @@ int main()
 				std::cout<<*it<<std::endl;
 	}
 
-
+	double total;
+	time_t startT,endT;
+	startT=time(NULL);
 	for(std::list<std::string>::iterator it_ids=IDs.begin();it_ids!=IDs.end();it_ids++){
 			ID=*it_ids;
 
 			process.Get_Stringlist(ID,vec);
 
 			for(std::list<std::string>::iterator it=vec.begin() ; it!=vec.end();it++){
-					std::cout<<*it<<"|";
+				std::cout<<*it<<"|";
 				}
 			std::cout<<std::endl;
 
 
-			char sql_query[60];
-			sprintf(sql_query,"select text from weibo where mid=%s ",ID.c_str());
-			process.set_mysql_query(sql_query);
+			//char sql_query[60];
+		//	sprintf(sql_query,"select text from weibo where mid=%s ",ID.c_str());
+			//process.set_mysql_query(sql_query);
 
-			process.Query_DB();
+			//process.Query_DB();
 
-			std::list<std::list<std::string> >	resutlt=process.Get_result();
-			std::cout<<resutlt.front().front()<<std::endl;
+		//	std::list<std::list<std::string> >	resutlt=process.Get_result();
+		//	std::cout<<resutlt.front().front()<<std::endl;
 
-			std::cout<<"-----------------------------------------------------------------------"<<std::endl;
+			//std::cout<<"-----------------------------------------------------------------------"<<std::endl;
 
 			vec.clear();
 
 		}
 
+	endT=time(NULL);
+	total=difftime(endT,startT);
+	std::cout<<"程序运行时间"<<total<<"   num"<<IDs.size()<<std::endl;
 
 	// example for mysql_query
 	process.set_mysql_query("select * from weibo limit 2");
@@ -121,17 +126,20 @@ int main()
   std::string result;
 
   //设置词性标注集(0 计算所二级标注集，1 计算所一级标注集，2 北大二级标注集，3 北大一级标注集)
-  ICTCLAS_SetPOSmap(2);
+ // ICTCLAS_SetPOSmap(2);
 
   unsigned int nPaLen=strlen(sinput); // 需要分词的长度
-  char* sRst=0;   //用户自行分配空间，用于保存结果；
-  sRst=(char *)malloc(nPaLen*6); //建议长度为字符串长度的倍。
+ // =0;   //用户自行分配空间，用于保存结果；
+  char* sRst=(char *)malloc(nPaLen*10); //建议长度为字符串长度的倍。
+
+  if(sRst==NULL)
+	  return NULL;
   int nRstLen=0; //分词结果的长度
 
-  nRstLen = ICTCLAS_ParagraphProcess(sinput,nPaLen,sRst,CODE_TYPE_UNKNOWN,0);  //字符串处理
+  nRstLen = ICTCLAS_ParagraphProcess(sinput,nPaLen,sRst,CODE_TYPE_UTF8,0);  //字符串处理
   result=sRst;
   free(sRst);
-
+  sRst=0;
   boost::wregex reg(L"\\s+", boost::regex::perl);
   std::wstring wresult=boost::regex_replace(StringToWide(result),reg,std::wstring(L"|"));
 
@@ -151,6 +159,8 @@ void Process::goodWordsinPieceArticle(std::list<std::string> &goodword){
   std::list<std::wstring> goodWordstemp;
   const std::string temp=Regex_Replace(rawtext);  //先正则表达式
   std::string  result=ICTspilt(temp.c_str());
+  if(result.empty())
+	  return ;
 
   boost::wregex reg(L"\\d+", boost::regex::perl);  //去掉空格
   std::wstring wrtesult=boost::regex_replace(StringToWide(result),reg,std::wstring(L""));
@@ -175,7 +185,7 @@ void Process::goodWordsinPieceArticle(std::list<std::string> &goodword){
     boost::trim(temp);
 
     if(!stopwordsSet.count(temp)&&!temp.empty()){
-       goodword.push_back(temp);
+    	goodword.push_back(temp);
 	  }
 
 
@@ -241,7 +251,10 @@ void Process::MakeStopSet(const char * path){
 						if (mysql_errno(&my_connection)){
 							fprintf(stderr, "Retrive error: %s\n", mysql_error(&my_connection));
 							}
-							mysql_free_result(res_ptr);
+
+						mysql_free_result(res_ptr);
+
+
 							}
 				}
 
@@ -298,10 +311,15 @@ void Process::Get_Stringlist(std::string &mid,std::list<std::string> &vec){
 
 	sprintf(sql_query,"select text from weibo where mid=%s ",mid.c_str());
 	Query_DB();
-	rawtext=result.front().front();
+	if(result.front().size())
+	{
+		rawtext=result.front().front();
+		if(!rawtext.empty())
+		goodWordsinPieceArticle(vec);
+	}
 
-	if(!rawtext.empty())
-	goodWordsinPieceArticle(vec);
+
+
 
 }
 
@@ -421,7 +439,7 @@ Process::Process(){
 	  //设置词性标注集(0 计算所二级标注集，1 计算所一级标注集，2 北大二级标注集，3 北大一级标注集)
 	  ICTCLAS_SetPOSmap(2);
 
-	  ICTCLAS_ImportUserDictFile("userdict.txt",CODE_TYPE_GB);
+	  ICTCLAS_ImportUserDictFile("userdict.txt",CODE_TYPE_UTF8);
 	  ICTCLAS_SaveTheUsrDic();//保存用户词典
 
 
@@ -443,7 +461,7 @@ Process::Process(){
 	 		}
 	 	  }
 
-	  MakeStopSet("stopwords.txt");
+	//MakeStopSet("stopwords.txt");
 }
 
 
