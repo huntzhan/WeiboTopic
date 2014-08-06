@@ -18,5 +18,5 @@ class BFS(Strategy):
         self.queue.append(element)
 
     def next_element(self):
-        time.sleep(0.1)
+        # time.sleep(0.1)
         return self.queue.pop(0)

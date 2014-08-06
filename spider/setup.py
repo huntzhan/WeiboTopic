@@ -26,6 +26,8 @@ setup(
         'selenium',
         'requests>=2.3.0',
         'lxml',
+        # dependencies of weibo_com.
+        'sqlalchemy',
     ],
 
     packages=[''],
