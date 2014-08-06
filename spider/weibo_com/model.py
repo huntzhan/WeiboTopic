@@ -46,3 +46,18 @@ class DB:
     def get_user_by_uid(cls, uid):
         u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
         return u
+
+    @classmethod
+    def update_user(cls, uid, name=None, followees=-1, fans=-1, num_post=-1):
+        u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
+        u.name = name if name is not None else 0
+        u.followees = followees if followees != -1 else 0
+        u.fans = fans if fans != -1 else 0
+        u.num_post = num_post if num_post != 1 else 0
+        cls.session.commit()
+
+    @classmethod
+    def del_user(cls, uid):
+        u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
+        cls.session.delete(u)
+        cls.session.flush()
