@@ -14,7 +14,6 @@
 #include <locale>
 
 
-
 //#define DEBUG
 
 #include "src/ICTCLAS50.h"
@@ -25,7 +24,7 @@ class Process{
 private:
 	   std::set<std::string> stopwordsSet;
 	   std::list< std::list<std::string> > result;
-	   char  sql_query[100];
+	   char  sql_query[150];
 	   std::string  rawtext;
 	   std::list<std::string> re;
 	   MYSQL my_connection;
