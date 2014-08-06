@@ -58,9 +58,9 @@ class FriendPageProcessor(UrlProcessor):
             return match.group(1)
 
         fans_size = extract_by_key(b"粉丝")
-        followers_size = extract_by_key(b"关注")
+        followees_size = extract_by_key(b"关注")
         messages_size = extract_by_key(b"微博")
-        return fans_size, followers_size, messages_size
+        return fans_size, followees_size, messages_size
 
     def _process_url(self, url):
         # handling return data encapsulation.
@@ -95,13 +95,13 @@ class FriendPageProcessor(UrlProcessor):
             return None
         # unpackage data.
         current_uid, uids, next_page, fans_page = result.parser
-        fans_size, followers_size, messages_size = result.extractor
+        fans_size, followees_size, messages_size = result.extractor
 
         #######################
         # Database Operations #
         #######################
         print(current_uid)
-        print(fans_size, followers_size, messages_size)
+        print(fans_size, followees_size, messages_size)
         print(uids)
 
         ########################
