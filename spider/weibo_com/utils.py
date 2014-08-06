@@ -4,7 +4,6 @@ import time
 import re
 import cookielib
 import urllib
-import json
 
 from selenium import webdriver
 from requests.cookies import create_cookie
@@ -182,6 +181,9 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         return cookiejar
 
 
+#############
+# from cola #
+#############
 class PageLoader(object):
 
     def __init__(self, cookie_jar, user_agent=None, timeout=None):
@@ -241,6 +243,9 @@ class PageLoader(object):
         return br.geturl(), br.response().read()
 
 
+#############
+# from cola #
+#############
 def beautiful_soup(html, logger=None):
     try:
         from bs4 import BeautifulSoup, FeatureNotFound
@@ -252,6 +257,9 @@ def beautiful_soup(html, logger=None):
         return BeautifulSoup(html)
 
 
+#############
+# from cola #
+#############
 def urldecode(link):
     decodes = {}
     if '?' in link:
@@ -260,177 +268,3 @@ def urldecode(link):
             k, v = tuple(param.split('='))
             decodes[k] = urllib.unquote(v)
     return decodes
-
-
-class FansPageParser(object):
-
-    def parse(self, requested_url, response_content):
-        """
-        @input: requested url, content page being loaded.
-        @output: is_follow, True if requested_url points to followers, False if
-                 requested_url points fans; new_uids, list of new uids.
-        """
-        variables = self._gen_internal_variables(requested_url, response_content)
-        if variables is None:
-            return None
-        else:
-            html, decodes, is_follow, is_new_mode = variables
-
-        new_uids = self._extract_uids(html, decodes)
-        return new_uids
-
-    ###############
-    # refactoring #
-    ###############
-    def _gen_internal_variables(self, requested_url, response_content):
-        """
-        @return: html, decodes, is_follow, is_new_mode.
-        """
-        # if self.bundle.exists == False:
-        #     return [], []
-
-        # url = url or self.url
-
-        # br, soup = None, None
-        # try:
-        #     br = self.opener.browse_open(url)
-        #     self.logger.debug('load %s finish' % url)
-        #     soup = beautiful_soup(br.response().read())
-        # except Exception as e:
-        #     return self._error(url, e)
-
-        # if not self.check(url, br):
-        #     return [], []
-
-        # weibo_user = self.get_weibo_user()
-        soup = beautiful_soup(response_content)
-
-        html = None
-        decodes = urldecode(requested_url)
-        is_follow = True
-        is_new_mode = False
-        for script in soup.find_all('script'):
-            text = script.text
-            if text.startswith('FM.view'):
-                text = text.strip().replace(
-                    ';', '').replace(
-                    'FM.view(', '')[
-                    :-1]
-                data = None
-                try:
-                    data = json.loads(text)
-                except ValueError as e:
-                    # return self._error(url, e)
-                    return None
-
-                domid = data['domid']
-                if domid.startswith('Pl_Official_LeftHisRelation__'):
-                    html = beautiful_soup(data['html'])
-                if 'relate' in decodes and decodes['relate'] == 'fans':
-                    is_follow = False
-                is_new_mode = True
-            elif 'STK' in text:
-                text = text.replace(
-                    'STK && STK.pageletM && STK.pageletM.view(', '')[
-                    :-1]
-                data = json.loads(text)
-                if data['pid'] == 'pl_relation_hisFollow' or \
-                        data['pid'] == 'pl_relation_hisFans':
-                    html = beautiful_soup(data['html'])
-                if data['pid'] == 'pl_relation_hisFans':
-                    is_follow = False
-
-        return html, decodes, is_follow, is_new_mode
-
-    ###############
-    # refactoring #
-    ###############
-    def _extract_uids(self, html, decodes):
-        """
-        @return: new uids.
-        """
-        new_uids = []
-
-        ul = None
-        try:
-            ul = html.find(
-                attrs={
-                    'class': 'cnfList',
-                    'node-type': 'userListBox'})
-        except AttributeError as e:
-            # if br.geturl().startswith('http://e.weibo.com'):
-            #     return [], []
-            # return self._error(url, e)
-            return None
-        if ul is None:
-            # urls = []
-            # if is_follow is True:
-            #     if is_new_mode:
-            #         urls.append(
-            #             'http://weibo.com/%s/follow?relate=fans' %
-            #             self.uid)
-            #     else:
-            #         urls.append('http://weibo.com/%s/fans' % self.uid)
-            return None
-
-        # current_page = decodes.get('page', 1)
-        # if current_page == 1:
-        #     if is_follow:
-        #         weibo_user.follows = []
-        #     else:
-        #         weibo_user.fans = []
-        for li in ul.find_all(attrs={'class': 'S_line1',
-                                     'action-type': 'itemClick'}):
-            data = dict([l.split('=') for l in li['action-data'].split('&')])
-
-            # friend = Friend()
-            # friend.uid = data['uid']
-            # friend.nickname = data['fnick']
-            # friend.sex = True if data['sex'] == u'm' else False
-
-            # bundles.append(WeiboUserBundle(str(friend.uid)))
-            # if is_follow:
-            #     weibo_user.follows.append(friend)
-            # else:
-            #     weibo_user.fans.append(friend)
-
-            new_uids.append(data['uid'])
-
-        # weibo_user.save()
-        # self.logger.debug('parse %s finish' % url)
-        return new_uids
-
-    ###############
-    # refactoring #
-    ###############
-    def _gen_next_page(self, html, decodes):
-        pages = html.find(
-            'div',
-            attrs={
-                'class': 'W_pages',
-                'node-type': 'pageList'})
-        if pages is not None:
-            a = pages.find_all('a')
-            if len(a) > 0:
-                next_ = a[-1]
-                if next_['class'] == ['W_btn_c']:
-                    decodes['page'] = int(decodes.get('page', 1)) + 1
-                    query_str = urllib.urlencode(decodes)
-                    url = '%s?%s' % (url.split('?')[0], query_str)
-
-                    # return urls, bundles
-                    return url
-        return None
-
-        # if is_follow is True:
-        #     if is_new_mode:
-        #         urls.append(
-        #             'http://weibo.com/%s/follow?relate=fans' %
-        #             self.uid)
-        #     else:
-        #         urls.append('http://weibo.com/%s/fans' % self.uid)
-        #
-        # return urls, bundles
-
-    def _gen_fans_page(self, uid):
-        pass

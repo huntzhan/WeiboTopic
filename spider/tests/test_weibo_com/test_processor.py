@@ -2,8 +2,7 @@
 import unittest
 import cookielib
 
-from weibo_com.processor import UrlProcessor
-from tests.test_weibo_com.opener import MechanizeOpener
+from weibo_com.processor import UrlProcessor, FriendPageProcessor
 
 
 SKIP_LOGIN_TEST = True
@@ -40,24 +39,29 @@ class TestUrlProcessor(unittest.TestCase):
             self.assertTrue(self.url_processor._check_login_url(url))
 
 
-# @unittest.skipIf(SKIP_LOGIN_TEST, "It takes times.")
-class TestLoignedJar(unittest.TestCase):
+class TestFansPage(unittest.TestCase):
 
-    def setUp(self):
-        url_processor = UrlProcessor()
-        url_processor._get_login_cookies_jar()
+    @classmethod
+    def setUpClass(cls):
+        cls.processor = FriendPageProcessor()
+        cls.processor.prepare_cookie_and_loader()
 
-        self.cookiejar = url_processor._cookies_jar
-        self.check_login = url_processor._check_login_url
-
-    def test_cookie_jar(self):
-        opener = MechanizeOpener(self.cookiejar)
+    def test_fans_page(self):
         test_url = "http://weibo.com/3211200050/follow?relate=fans"
-        br = opener.browse_open(test_url)
-        content = br.response().read()
+        result = self.processor._process_url(test_url)
+        self.assertIsNone(result[-1])
 
-        # print content
-        self.assertIn("FM.view", content)
-        self.assertFalse(
-            self.check_login(br.geturl()),
-        )
+    def test_nonfans_page(self):
+        test_url = "http://weibo.com/3211200050/follow"
+        result = self.processor._process_url(test_url)
+        self.assertIsNotNone(result[-1])
+
+    def test_next_page(self):
+        test_url = "http://weibo.com/3211200050/follow"
+        result = self.processor._process_url(test_url)
+        self.assertIn('page=2', result[1])
+
+    def test_uids(self):
+        test_url = "http://weibo.com/3211200050/follow"
+        result = self.processor._process_url(test_url)
+        self.assertGreater(len(result[0]), 5)
