@@ -4,6 +4,8 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
+from weibo_com.config import Config
+
 
 Base = declarative_base()
 
@@ -20,13 +22,22 @@ class WeiboUser(Base):
     def __repr__(self):
         return "<User(uid='%s', name='%s', followees='%s', \
                 fans='%s', num_post='%s')>" % (
-                self.uid, self.name, self.followees,
-                self.fans, self.num_post)
+            self.uid, self.name, self.followees,
+            self.fans, self.num_post)
 
 
 class DB:
     # connect to db
-    engine = create_engine('sqlite:///:memory:', echo=False)
+    # URL syntax: dialect+driver://username:password@host:port/database
+    # engine = create_engine('sqlite:///:memory:', echo=False)
+    conf = Config.values
+    engine = create_engine('mysql://%s:%s@%s:%s/%s' % (
+                           conf['db_username'],
+                           conf['db_password'],
+                           conf['db_ip'],
+                           conf['db_port'],
+                           conf['db_name']
+                           ))
     # create schemas
     WeiboUser.metadata.create_all(engine)
 
