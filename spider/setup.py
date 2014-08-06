@@ -20,7 +20,7 @@ setup(
         'mechanize',
         'python-dateutil',
         'BeautifulSoup4',
-        'mongoengine',
+        # 'mongoengine',
         'rsa',
         # dependencies of weibo_cn.
         'selenium',
@@ -28,6 +28,7 @@ setup(
         'lxml',
         # dependencies of weibo_com.
         'sqlalchemy',
+        'mysql-python',
     ],
 
     packages=[''],
