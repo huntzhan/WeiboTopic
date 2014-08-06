@@ -1,22 +1,38 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
-import time
-from easy_spider import Strategy
+import random
+from easy_spider import ConcurrentStrategy
 
 
-class BFS(Strategy):
+class BFS(ConcurrentStrategy):
 
     def __init__(self):
-        self.queue = []
+        self.id_queue_mapping = {}
 
     def valid(self):
-        if len(self.queue) > 0:
-            return True
-        return False
+        flag = False
+        for id, queue in self.id_queue_mapping.items():
+            flag = flag or (len(queue) > 0)
+        return flag
 
-    def receive_element(self, element):
-        self.queue.append(element)
+    def receive_element(self, element, force=False):
+        element_id = id(element.processor)
+        queue = self.id_queue_mapping.get(element_id, None)
+        if queue is None:
+            if not force:
+                raise Exception("What the fuck.")
+            else:
+                queue = []
+                self.id_queue_mapping[element_id] = queue
+        queue.append(element)
 
-    def next_element(self):
-        # time.sleep(0.1)
-        return self.queue.pop(0)
+    def next_independent_elements(self, max):
+        # select avaliable queue.
+        valid_queues = [q for q in
+                        self.id_queue_mapping.values() if len(q) > 0]
+        random.shuffle(valid_queues)
+        # tricks here.
+        valid_queues = valid_queues[:max]
+        # pop first element of all valid queues.
+        result = [q.pop(0) for q in valid_queues]
+        return result

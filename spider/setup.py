@@ -28,9 +28,10 @@ setup(
         'lxml',
         # dependencies of weibo_com.
         'sqlalchemy',
+        'futures',
     ],
 
-    packages=[''],
+    packages=['easy_spider', 'weibo_com'],
     # entry_points={
     #     'console_scripts': [
     #         'somecmd = somepackage:main',

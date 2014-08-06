@@ -45,7 +45,7 @@ class FriendPageProcessor(UrlProcessor):
         # holly shit.
         pattern_template = (
             br"<strong.*?>(\d+)<\\/strong>"
-            br"\\r\\n\\t\\t\\t"
+            br"((\\r)|(\\n)|(\\t)|( ))*"
             br"<span>{}.*?<"
         )
 
@@ -55,11 +55,16 @@ class FriendPageProcessor(UrlProcessor):
             """
             pattern = pattern_template.format(key)
             match = re.search(pattern, response_content)
-            return match.group(1)
+            number = None if match is None else match.group(1)
+            return number
 
         fans_size = extract_by_key(b"粉丝")
         followees_size = extract_by_key(b"关注")
         messages_size = extract_by_key(b"微博")
+        # debug
+        if fans_size is None:
+            print(response_content)
+            raw_input()
         return fans_size, followees_size, messages_size
 
     def _process_url(self, url):

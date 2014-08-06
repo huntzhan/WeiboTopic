@@ -4,6 +4,7 @@ import unittest
 from weibo_com.model import DB
 
 
+@unittest.skipIf(True, "It takes times.")
 class TestDB(unittest.TestCase):
 
     def setUp(self):

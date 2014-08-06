@@ -1,6 +1,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import collections
+from concurrent.futures import ThreadPoolExecutor
 
 
 class Element(object):
@@ -29,7 +30,7 @@ class ElementProcessor(object):
 
 class Strategy(object):
     """
-    @brief: Defines interface of schedule strategy.
+    @brief: Defines common interface of schedule strategy.
     """
 
     def valid(self):
@@ -41,9 +42,26 @@ class Strategy(object):
     def receive_element(self, element):
         raise NotImplementedError
 
+
+class SequentialStrategy(Strategy):
+
     def next_element(self):
         """
         @return: element to be processed. None if nothing should be processed.
+        """
+        raise NotImplementedError
+
+
+class ConcurrentStrategy(Strategy):
+    """
+    @brief: Defines additional interfaces for concurrency.
+    """
+
+    def next_independent_elements(self, max):
+        """
+        @return: Itarable that generates elements that are bounded to
+                 independent processor, length of returned iterable should
+                 be <= max.
         """
         raise NotImplementedError
 
@@ -59,3 +77,34 @@ def simple_run_spider(strategy):
                 strategy.receive_element(element)
         elif result:
             strategy.receive_element(result)
+
+
+def run_spider_asynchronously(strategy, max_worker=2, error_recovery=True):
+    while strategy.valid():
+        with ThreadPoolExecutor(max_worker) as executor:
+            # retrive elements.
+            elements = [ele for ele in
+                        strategy.next_independent_elements(max_worker)]
+            if len(elements) > max_worker:
+                raise Exception("Exceeded maximum worker.")
+
+            # submits.
+            futures = []
+            for element in elements:
+                func = element.processor.process_element
+                future = executor.submit(func, element)
+                futures.append(future)
+            # get results.
+            for future in futures:
+                try:
+                    result = future.result()
+                except:
+                    print("Error Happens.")
+                    raw_input()
+                    continue
+
+                if isinstance(result, collections.Iterable):
+                    for element in result:
+                        strategy.receive_element(element)
+                elif result:
+                    strategy.receive_element(result)
