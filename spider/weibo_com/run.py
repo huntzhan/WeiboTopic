@@ -7,7 +7,7 @@ from .search_strategy import BFS
 
 
 def run():
-    fans_page_processor = FansPageProcessor()
+    fans_page_processor = FriendPageProcessor()
     fans_page_processor.prepare_cookie_and_loader()
 
     fans_page = UrlElement("http://weibo.com/3211200050/follow?relate=fans")

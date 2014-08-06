@@ -126,9 +126,11 @@ class FriendPageParser(object):
     def parse(self, requested_url, response_content):
         """
         @input: requested url, content page being loaded.
-        @output: is_follow, True if requested_url points to followers, False if
-                 requested_url points fans; new_uids, list of new uids.
+        @output: new_uids, list of new uids; next_page, url of next page, None
+                 if there's no such page; fans_page, url of fans page, None if
+                 requested_url points exactly to a fans page.
         """
+
         variables = self._gen_internal_variables(
             requested_url,
             response_content,

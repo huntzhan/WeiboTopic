@@ -49,11 +49,42 @@ class FriendPageProcessor(UrlProcessor):
         result = friend_page_parser.parse(url, response_content)
         return result
 
+    def _generate_url_of_fans_page(self, uid):
+        URL_TEMPLATE = 'http://weibo.com/{}/follow'
+        return URL_TEMPLATE.format(uid)
+
     def process_element(self, element):
         """
         get url, load page, get fans' uids, build elements.
         """
-        return None
+
+        result = self._process_url(element.url)
+        if result is None:
+            return None
+        uids, next_page, fans_page = result
+
+        elements = []
+        # create element for next_page.
+        if next_page:
+            elements.append(
+                UrlElement(next_page, self),
+            )
+        # create element for next_page.
+        if fans_page:
+            elements.append(
+                UrlElement(fans_page, self),
+            )
+        # create new elements.
+        for uid in uids:
+            url_element = UrlElement(
+                self._generate_url_of_fans_page(uid),
+                self,
+            )
+            elements.append(url_element)
+
+        print(uids)
+
+        return elements
 
 
 class UserInfoPageProcessor(UrlProcessor):
