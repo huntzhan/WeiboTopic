@@ -10,6 +10,7 @@ from easy_spider import ElementProcessor
 from .utils import LoginHandler, PageLoader
 from .parser import FriendPageParser
 from .element import UrlElement
+from .model import DB
 
 
 class UrlProcessor(ElementProcessor):
@@ -103,6 +104,21 @@ class FriendPageProcessor(UrlProcessor):
         print(current_uid)
         print(fans_size, followees_size, messages_size)
         print(uids)
+        if not DB.test_user(current_uid):
+            DB.add_user(current_uid,
+                        name=None,
+                        followees=followees_size,
+                        fans=fans_size,
+                        num_post=messages_size)
+        else:
+            DB.update_user(current_uid,
+                           name=None,
+                           followees=followees_size,
+                           fans=fans_size,
+                           num_post=messages_size)
+        for uid in uids:
+            if not DB.test_user(uid):
+                DB.add_user(uid)
 
         ########################
         # Processor Operations #
