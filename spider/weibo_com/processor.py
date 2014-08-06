@@ -25,9 +25,6 @@ class UrlProcessor(ElementProcessor):
     def _check_login_url(self, url):
         return LoginHandler.check_login_url(url)
 
-
-class FriendPageProcessor(UrlProcessor):
-
     def prepare_cookie_and_loader(self):
         self._get_login_cookies_jar()
         self.page_loader = PageLoader(self._cookies_jar)
@@ -35,11 +32,16 @@ class FriendPageProcessor(UrlProcessor):
     def _load_page(self, url):
         return self.page_loader.load_url(url)
 
+
+class FriendPageProcessor(UrlProcessor):
+
     def _process_url(self, url):
         # loading page.
         response_url, response_content = self._load_page(url)
         if self._check_login_url(response_url):
-            self._get_login_cookies_jar()
+            # refresh cookiesjar and page_loader.
+            self.prepare_cookie_and_loader()
+            # reload.
             response_url, response_content = self._load_page(url)
 
         # extract information.

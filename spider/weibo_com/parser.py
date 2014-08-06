@@ -12,31 +12,6 @@ from .utils import beautiful_soup, urldecode
 #############
 class FriendPageParser(object):
 
-    def parse(self, requested_url, response_content):
-        """
-        @input: requested url, content page being loaded.
-        @output: is_follow, True if requested_url points to followers, False if
-                 requested_url points fans; new_uids, list of new uids.
-        """
-        variables = self._gen_internal_variables(requested_url,
-                                                 response_content)
-        if variables is None:
-            return None
-        else:
-            html, decodes, is_follow, is_new_mode = variables
-
-        # extract uids in page.
-        new_uids = self._extract_uids(html, decodes)
-        # gen url of next page.
-        next_page = self._gen_next_page(requested_url, html, decodes)
-        # gen url of fans page if currently points to follows page.
-        if is_follow:
-            fans_page = self._gen_fans_page(requested_url, is_new_mode)
-        else:
-            fans_page = None
-
-        return new_uids, next_page, fans_page
-
     def _gen_internal_variables(self, requested_url, response_content):
         """
         @return: html, decodes, is_follow, is_new_mode.
@@ -147,3 +122,30 @@ class FriendPageParser(object):
         else:
             url_template = 'http://weibo.com/{}/fans'
         return url_template.format(uid)
+
+    def parse(self, requested_url, response_content):
+        """
+        @input: requested url, content page being loaded.
+        @output: is_follow, True if requested_url points to followers, False if
+                 requested_url points fans; new_uids, list of new uids.
+        """
+        variables = self._gen_internal_variables(
+            requested_url,
+            response_content,
+        )
+        if variables is None:
+            return None
+        else:
+            html, decodes, is_follow, is_new_mode = variables
+
+        # extract uids in page.
+        new_uids = self._extract_uids(html, decodes)
+        # gen url of next page.
+        next_page = self._gen_next_page(requested_url, html, decodes)
+        # gen url of fans page if currently points to follows page.
+        if is_follow:
+            fans_page = self._gen_fans_page(requested_url, is_new_mode)
+        else:
+            fans_page = None
+
+        return new_uids, next_page, fans_page
