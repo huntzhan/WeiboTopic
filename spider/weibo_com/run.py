@@ -4,6 +4,7 @@ from easy_spider import run_spider_asynchronously
 from .processor import FriendPageProcessor
 from .element import UrlElement
 from .search_strategy import BFS
+from .model import DB
 
 
 def _init_element(url):
@@ -18,9 +19,9 @@ def run():
 
     init_elements = [
         _init_element("http://weibo.com/3211200050/follow?relate=fans"),
-        _init_element("http://weibo.com/1898353550/follow?relate=fans"),
-        _init_element("http://weibo.com/1671222043/follow?relate=fans"),
-        _init_element("http://weibo.com/1737823322/follow?relate=fans"),
+        # _init_element("http://weibo.com/1898353550/follow?relate=fans"),
+        # _init_element("http://weibo.com/1671222043/follow?relate=fans"),
+        # _init_element("http://weibo.com/1737823322/follow?relate=fans"),
     ]
 
     bfs = BFS()
@@ -28,3 +29,5 @@ def run():
         bfs.receive_element(ele, force=True)
 
     run_spider_asynchronously(bfs, 4)
+
+    DB.close()

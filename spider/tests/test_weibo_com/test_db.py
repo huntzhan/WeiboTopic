@@ -23,7 +23,6 @@ class TestDB(unittest.TestCase):
                     num_post=1000)
         u = DB.get_user_by_uid('110')
         self.assertTrue(u.name == 'jan')
-        print u.uid.__class__
         self.assertFalse(u.uid == '110')
         self.assertTrue(u.uid == 110)
 
@@ -32,11 +31,12 @@ class TestDB(unittest.TestCase):
         u = DB.get_user_by_uid('110')
         self.assertTrue(u.followees == 100)
 
-        is_exist = DB.test_user('110')
-        print 'before del: ', is_exist
+        is_exist = DB.is_user_exist('110')
         self.assertTrue(is_exist)
 
         DB.del_user('110')
-        is_exist = DB.test_user('110')
-        print 'after del: ', is_exist
+        is_exist = DB.is_user_exist('110')
         self.assertFalse(is_exist)
+
+    def tearDown(self):
+        DB.close()

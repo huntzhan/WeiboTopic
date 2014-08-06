@@ -106,7 +106,7 @@ class FriendPageProcessor(UrlProcessor):
         #######################
         # Database Operations #
         #######################
-        if not DB.test_user(current_uid):
+        if not DB.is_user_exist(current_uid):
             DB.add_user(current_uid,
                         name=None,
                         followees=followees_size,
@@ -119,7 +119,7 @@ class FriendPageProcessor(UrlProcessor):
                            fans=fans_size,
                            num_post=messages_size)
         for uid in uids:
-            if not DB.test_user(uid):
+            if not DB.is_user_exist(uid):
                 DB.add_user(uid)
 
         ########################

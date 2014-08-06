@@ -32,13 +32,19 @@ class DB:
     # URL syntax: dialect+driver://username:password@host:port/database
     # engine = create_engine('sqlite:///:memory:', echo=False)
     conf = Config.values
-    engine = create_engine('mysql://%s:%s@%s:%s/%s' % (
-                           conf['db_username'],
-                           conf['db_password'],
-                           conf['db_ip'],
-                           conf['db_port'],
-                           conf['db_name']
-                           ))
+    engine = None
+    try:
+        dburl = 'mysql://%s:%s@%s:%s/%s' % (
+            conf['db_username'],
+            conf['db_password'],
+            conf['db_ip'],
+            conf['db_port'],
+            conf['db_name']
+            )
+        engine = create_engine(dburl)
+    except:
+        raise Exception("fail to connect to MySQL with URL: %s" %
+                        dburl)
     # create schemas
     WeiboUser.metadata.create_all(engine)
 
@@ -63,7 +69,7 @@ class DB:
 
     @classmethod
     def add_user(cls, uid, name=None, followees=0, fans=0, num_post=0):
-        if cls.test_user(uid):
+        if cls.is_user_exist(uid):
             return
 
         uid = cls.tostr(uid)
@@ -80,7 +86,7 @@ class DB:
         cls.session.commit()
 
     @classmethod
-    def test_user(cls, uid):
+    def is_user_exist(cls, uid):
         uid = cls.tostr(uid)
         try:
             cls.session.query(WeiboUser).filter(WeiboUser.uid == uid).one()
@@ -115,3 +121,7 @@ class DB:
         u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
         cls.session.delete(u)
         cls.session.commit()
+
+    @classmethod
+    def close(cls):
+        cls.session.close_all()

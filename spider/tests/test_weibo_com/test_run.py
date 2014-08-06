@@ -8,6 +8,6 @@ from weibo_com.run import run
 
 class TestRun(unittest.TestCase):
 
-    @unittest.skipIf(True, "It takes times.")
+    # @unittest.skipIf(True, "It takes times.")
     def test_run(self):
         run()
