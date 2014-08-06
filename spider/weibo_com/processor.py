@@ -5,7 +5,8 @@ import requests
 import re
 
 from easy_spider import ElementProcessor
-from .utils import LoginHandler, PageLoader, FriendPageParser
+from .utils import LoginHandler, PageLoader
+from .parser import FriendPageParser
 from .element import UrlElement
 
 
