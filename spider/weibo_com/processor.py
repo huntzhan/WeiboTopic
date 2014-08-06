@@ -50,6 +50,9 @@ class FriendPageProcessor(UrlProcessor):
         )
 
         def extract_by_key(key):
+            """
+            @brief: Let it crash.
+            """
             pattern = pattern_template.format(key)
             match = re.search(pattern, response_content)
             return match.group(1)
@@ -77,6 +80,8 @@ class FriendPageProcessor(UrlProcessor):
 
         # get information by extractor.
         extractor_result = self._extract_user_properties(response_content)
+
+        # package data.
         return data_interface(parser=parser_result,
                               extractor=extractor_result)
 
@@ -88,21 +93,27 @@ class FriendPageProcessor(UrlProcessor):
         result = self._process_url(element.url)
         if result.parser is None:
             return None
-        # unpackage.
-        uids, next_page, fans_page = result.parser
+        # unpackage data.
+        current_uid, uids, next_page, fans_page = result.parser
         fans_size, followers_size, messages_size = result.extractor
 
+        #######################
+        # Database Operations #
+        #######################
+        print(current_uid)
+        print(fans_size, followers_size, messages_size)
+        print(uids)
+
+        ########################
+        # Processor Operations #
+        ########################
         elements = []
         # create element for next_page.
         if next_page:
-            elements.append(
-                UrlElement(next_page, self),
-            )
+            elements.append(UrlElement(next_page, self))
         # create element for next_page.
         if fans_page:
-            elements.append(
-                UrlElement(fans_page, self),
-            )
+            elements.append(UrlElement(fans_page, self))
         # create new elements.
         for uid in uids:
             url_element = UrlElement(
@@ -110,10 +121,6 @@ class FriendPageProcessor(UrlProcessor):
                 self,
             )
             elements.append(url_element)
-
-        print(uids)
-        print(fans_size, followers_size, messages_size)
-
         return elements
 
 

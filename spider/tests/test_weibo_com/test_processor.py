@@ -59,12 +59,17 @@ class TestFansPage(unittest.TestCase):
     def test_next_page(self):
         test_url = "http://weibo.com/3211200050/follow"
         result = self.processor._process_url(test_url).parser
-        self.assertIn('page=2', result[1])
+        self.assertIn('page=2', result[2])
 
     def test_uids(self):
         test_url = "http://weibo.com/3211200050/follow"
         result = self.processor._process_url(test_url).parser
-        self.assertGreater(len(result[0]), 5)
+        self.assertGreater(len(result[1]), 5)
+
+    def test_uids(self):
+        test_url = "http://weibo.com/3211200050/follow"
+        result = self.processor._process_url(test_url).parser
+        self.assertEqual((result[0]), '3211200050')
 
     def test_user_properties(self):
         test_url = "http://weibo.com/3211200050/follow"

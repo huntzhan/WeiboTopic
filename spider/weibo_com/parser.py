@@ -109,7 +109,7 @@ class FriendPageParser(object):
 
     def _gen_fans_page(self, requested_url, is_new_mode):
         """
-        @return: url points to fans page of user.
+        @return: current_uid; url points to fans page of user.
         """
 
         match = re.match(r"http://weibo.com/(\d+)/", requested_url)
@@ -121,14 +121,15 @@ class FriendPageParser(object):
             url_template = 'http://weibo.com/{}/follow?relate=fans'
         else:
             url_template = 'http://weibo.com/{}/fans'
-        return url_template.format(uid)
+        return uid, url_template.format(uid)
 
     def parse(self, requested_url, response_content):
         """
         @input: requested url, content page being loaded.
-        @output: new_uids, list of new uids; next_page, url of next page, None
-                 if there's no such page; fans_page, url of fans page, None if
-                 requested_url points exactly to a fans page.
+        @output: current_uid; new_uids, list of new uids; next_page, url of
+                 next page, None if there's no such page; fans_page, url of
+                 fans page, None if requested_url points exactly to a fans
+                 page.
         """
 
         variables = self._gen_internal_variables(
@@ -145,9 +146,11 @@ class FriendPageParser(object):
         # gen url of next page.
         next_page = self._gen_next_page(requested_url, html, decodes)
         # gen url of fans page if currently points to follows page.
-        if is_follow:
-            fans_page = self._gen_fans_page(requested_url, is_new_mode)
-        else:
+        current_uid, fans_page = self._gen_fans_page(
+            requested_url,
+            is_new_mode,
+        )
+        if not is_follow:
             fans_page = None
 
-        return new_uids, next_page, fans_page
+        return current_uid, new_uids, next_page, fans_page
