@@ -1,12 +1,12 @@
 /*
  * Cluster.h
  *
- *  Created on: 2014年7月31日
+ *  Created on: 2014骞�7鏈�31鏃�
  *      Author: hogachen
  */
 
-#ifndef CLUSTER_H_
-#define CLUSTER_H_
+#ifndef TOPIC_H_
+#define TOPIC_H_
 
 #include"TopicWord.h"
 #include<iostream>
@@ -20,7 +20,7 @@ public:
 	Topic(TopicWord firstWord){
 		m_stopic.push_back(firstWord);
 	}
-	vector<TopicWord> getsTopic(){
+	vector<TopicWord> GetsTopic(){
 		return this->m_stopic;
 	}
 	void addTopicWord(TopicWord t_word){
