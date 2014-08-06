@@ -8,6 +8,14 @@ class BFS(ConcurrentStrategy):
 
     def __init__(self):
         self.id_queue_mapping = {}
+        self.visited_url = set()
+
+    def _check_and_make_visited(self, url):
+        if url in self.visited_url:
+            return False
+        else:
+            self.visited_url.add(url)
+            return True
 
     def valid(self):
         flag = False
@@ -24,7 +32,10 @@ class BFS(ConcurrentStrategy):
             else:
                 queue = []
                 self.id_queue_mapping[element_id] = queue
-        queue.append(element)
+
+        # check visit.
+        if self._check_and_make_visited(element.url):
+            queue.append(element)
 
     def next_independent_elements(self, max):
         # select avaliable queue.
