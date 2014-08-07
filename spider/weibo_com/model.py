@@ -43,28 +43,53 @@ class DB:
             )
         engine = create_engine(dburl)
     except:
-        raise Exception("fail to connect to MySQL with URL: %s" %
-                        dburl)
+        raise Exception("fail to create engine for MySQL \
+                        with URL: {}".format(
+                        dburl))
     # create schemas
-    WeiboUser.metadata.create_all(engine)
+    try:
+        WeiboUser.metadata.create_all(engine)
+    except:
+        raise Exception("fail to create table schema in db")
 
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    session = None
+
+    @classmethod
+    def open(cls):
+        try:
+            Session = sessionmaker(bind=cls.engine)
+            cls.session = Session()
+        except:
+            raise Exception("fail to create db session \
+                            with engine {}".format(
+                            cls.engine))
+
+    @classmethod
+    def is_session_open(cls):
+        if cls.session is None:
+            return False
+        return True
 
     @staticmethod
     def tostr(arg):
         if arg is None:
             return None
         if not isinstance(arg, str):
-            return str(arg)
+            try:
+                return str(arg)
+            except:
+                raise Exception("'tostr()' fails: {}".format(arg))
         return arg
 
     @staticmethod
-    def tolong(arg):
+    def toint(arg):
         if arg is None:
             return None
-        if isinstance(arg, str):
-            return long(arg)
+        if not isinstance(arg, int):
+            try:
+                return int(arg)
+            except:
+                raise Exception("'toint()' fails: {}".format(arg))
         return arg
 
     @classmethod
@@ -74,9 +99,9 @@ class DB:
 
         uid = cls.tostr(uid)
         name = cls.tostr(name)
-        followees = cls.tolong(followees)
-        fans = cls.tolong(fans)
-        num_post = cls.tolong(num_post)
+        followees = cls.toint(followees)
+        fans = cls.toint(fans)
+        num_post = cls.toint(num_post)
         u = WeiboUser(uid=uid,
                       name=name,
                       followees=followees,
@@ -104,9 +129,9 @@ class DB:
     def update_user(cls, uid, name=None, followees=-1, fans=-1, num_post=-1):
         uid = cls.tostr(uid)
         name = cls.tostr(name)
-        followees = cls.tolong(followees)
-        fans = cls.tolong(fans)
-        num_post = cls.tolong(num_post)
+        followees = cls.toint(followees)
+        fans = cls.toint(fans)
+        num_post = cls.toint(num_post)
 
         u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
         u.name = u.name if name is None else name
@@ -125,3 +150,4 @@ class DB:
     @classmethod
     def close(cls):
         cls.session.close_all()
+        cls.session = None

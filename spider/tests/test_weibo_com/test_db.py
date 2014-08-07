@@ -10,6 +10,8 @@ class TestDB(unittest.TestCase):
         pass
 
     def test_db(self):
+        if not DB.is_session_open():
+            DB.open()
         DB.add_user(uid='110',
                     name='jan',
                     followees=10,

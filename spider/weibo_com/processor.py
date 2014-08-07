@@ -106,6 +106,8 @@ class FriendPageProcessor(UrlProcessor):
         #######################
         # Database Operations #
         #######################
+        if not DB.is_session_open():
+            DB.open()
         if not DB.is_user_exist(current_uid):
             DB.add_user(current_uid,
                         name=None,
