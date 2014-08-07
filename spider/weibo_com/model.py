@@ -82,14 +82,14 @@ class DB:
         return arg
 
     @staticmethod
-    def toint(arg):
+    def tolong(arg):
         if arg is None:
             return None
-        if not isinstance(arg, int):
+        if not isinstance(arg, long):
             try:
-                return int(arg)
+                return long(arg)
             except:
-                raise Exception("'toint()' fails: {}".format(arg))
+                raise Exception("'tolong()' fails: {}".format(arg))
         return arg
 
     @classmethod
@@ -99,9 +99,9 @@ class DB:
 
         uid = cls.tostr(uid)
         name = cls.tostr(name)
-        followees = cls.toint(followees)
-        fans = cls.toint(fans)
-        num_post = cls.toint(num_post)
+        followees = cls.tolong(followees)
+        fans = cls.tolong(fans)
+        num_post = cls.tolong(num_post)
         u = WeiboUser(uid=uid,
                       name=name,
                       followees=followees,
@@ -126,18 +126,24 @@ class DB:
         return u
 
     @classmethod
-    def update_user(cls, uid, name=None, followees=-1, fans=-1, num_post=-1):
+    def update_user(cls, uid,
+                    name=None, followees=None,
+                    fans=None, num_post=None):
         uid = cls.tostr(uid)
         name = cls.tostr(name)
-        followees = cls.toint(followees)
-        fans = cls.toint(fans)
-        num_post = cls.toint(num_post)
+        followees = cls.tolong(followees)
+        fans = cls.tolong(fans)
+        num_post = cls.tolong(num_post)
 
         u = cls.session.query(WeiboUser).filter_by(uid=uid).first()
-        u.name = u.name if name is None else name
-        u.followees = u.followees if followees == -1 else followees
-        u.fans = u.fans if fans == -1 else fans
-        u.num_post = u.num_post if num_post == -1 else num_post
+        if name is not None and name != u.name:
+            u.name = name
+        if followees is not None and followees != u.followees:
+            u.followees = followees
+        if fans is not None and fans != u.fans:
+            u.fans = fans
+        if num_post is not None and num_post != u.num_post:
+            u.num_post = num_post
         cls.session.commit()
 
     @classmethod

@@ -12,6 +12,8 @@ class TestDB(unittest.TestCase):
     def test_db(self):
         if not DB.is_session_open():
             DB.open()
+        DB.close()
+        DB.open()
 
         DB.add_user(uid='110',
                     name='jan',
@@ -36,6 +38,7 @@ class TestDB(unittest.TestCase):
         self.assertFalse(type(u.uid) is long)
         self.assertTrue(type(u.followees) is long)
 
+        DB.update_user('110')
         DB.update_user('110', followees=100)
         self.assertTrue(u.followees == 100)
         u = DB.get_user_by_uid('110')
