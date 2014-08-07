@@ -23,6 +23,10 @@ class Weibo{
 	double mark;
 	double comment;
 public:
+//	Weibo(vector<string>& weibo_content_words,string & mid){
+//		this->MID=mid;
+//		this->weibo_content_words=weibo_content_words;
+//	}
 	vector<string> * GetWords(){
 		return & weibo_content_words;
 	}
@@ -34,6 +38,9 @@ public:
 	}
 	double GetComment(){
 		return this->comment;
+	}
+	void SetWeiboContentWords(vector<string> &vec){
+		this->weibo_content_words=vec;
 	}
 };
 

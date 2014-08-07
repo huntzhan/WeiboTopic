@@ -11,13 +11,22 @@
 #include "process.h"
 #include <string>
 #include <list>
+#include <set>
 #include <iostream>
-namespace hoga{
+
 class DBdao{
-	void GetCurrentHourWeiboList(string time);
-	void GetKHourWeiboList(string from ,string to);
-	Weibo GetEveryWeiboFromDatabase(string weiboID); 			//这个函数是用来从数据库边读取前七个小时的微博，避免读取进去内存。
+	Process process;
+public:
+	std::set<std::string> stop_word_set;
+	std::list<string> weibo_id_list;
+	std::list<string> k_hours_weibo_id_list;
+	void GetCurrentHourWeiboList(std::string time);
+	void GetKHourWeiboList(std::string from ,int k);
+	void GetEveryWeiboFromDatabase(std::string weiboID,Weibo &oneweibo); //这个函数是用来从数据库边读取前七个小时的微博，避免读取进去内存。
+//	void StopWordInit(std::string filename);
+	void DBdaoInit();
+
 };
-}
+
 
 #endif /* DBDAO_H_ */
