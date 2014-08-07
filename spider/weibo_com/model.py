@@ -34,7 +34,7 @@ class DB:
     conf = Config.values
     engine = None
     try:
-        dburl = 'mysql://%s:%s@%s:%s/%s' % (
+        dburl = 'mysql://{}:{}@{}:{}/{}'.format(
             conf['db_username'],
             conf['db_password'],
             conf['db_ip'],
@@ -102,6 +102,9 @@ class DB:
 
     @classmethod
     def update_user(cls, uid, name=None, followees=-1, fans=-1, num_post=-1):
+        if cls.is_user_exist(uid):
+            return
+
         uid = cls.tostr(uid)
         name = cls.tostr(name)
         followees = cls.tolong(followees)

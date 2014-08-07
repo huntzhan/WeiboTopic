@@ -3,9 +3,13 @@ import ConfigParser
 
 section_db = 'DB'
 
+
 class Config:
     config = ConfigParser.ConfigParser()
-    config.read("weibo_com/config.ini")
+    try:
+        config.read("weibo_com/config.ini")
+    except:
+        raise Exception("fail to read config.ini")
 
     # read config options form 'DB' section
     sects = config.sections()
@@ -18,5 +22,7 @@ class Config:
         try:
             values[option] = config.get(section_db, option)
         except:
-            raise Exception("exception while reading config.ini on %s!" %
-                            option)
+            raise Exception("fail to read {0} in section {1} \
+                            in config.ini".format(
+                            option,
+                            section_db))
