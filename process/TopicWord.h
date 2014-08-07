@@ -21,8 +21,8 @@ public:
 		m_sword=word;
 		m_dFrequency=frequency;
 	}
-	string * GetTopicWord(){
-		return & m_sword;
+	string GetTopicWord (){
+		return m_sword;
 	}
 	double GetFrequency(){
 		return this->m_dFrequency;
