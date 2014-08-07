@@ -1,7 +1,6 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import collections
-from concurrent.futures import ThreadPoolExecutor
 
 
 class Element(object):
@@ -80,6 +79,10 @@ def simple_run_spider(strategy):
 
 
 def run_spider_asynchronously(strategy, max_worker=2, error_recovery=True):
+    # For some unknown reason, importing concurrent.futures on top-level
+    # module would cause './setup.py test' crash.
+    from concurrent.futures import ThreadPoolExecutor
+
     while strategy.valid():
         with ThreadPoolExecutor(max_worker) as executor:
             # retrive elements.
@@ -99,7 +102,7 @@ def run_spider_asynchronously(strategy, max_worker=2, error_recovery=True):
                 try:
                     result = future.result()
                 except Exception as e:
-                    print(e)
+                    print("ERROR in run_spider_asynchronously: ", e)
                     continue
 
                 if isinstance(result, collections.Iterable):

@@ -66,7 +66,7 @@ class TestFansPage(unittest.TestCase):
         result = self.processor._process_url(test_url).parser
         self.assertGreater(len(result[1]), 5)
 
-    def test_uids(self):
+    def test_current_uid(self):
         test_url = "http://weibo.com/3211200050/follow"
         result = self.processor._process_url(test_url).parser
         self.assertEqual((result[0]), '3211200050')
