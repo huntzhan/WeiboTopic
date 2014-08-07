@@ -10,7 +10,7 @@ from easy_spider import ElementProcessor
 from .utils import LoginHandler, PageLoader
 from .parser import FriendPageParser
 from .element import UrlElement
-from .model import DB
+from .model import WeiboUserHandler
 
 
 class UrlProcessor(ElementProcessor):
@@ -106,23 +106,27 @@ class FriendPageProcessor(UrlProcessor):
         #######################
         # Database Operations #
         #######################
-        if not DB.is_session_open():
-            DB.open()
-        if not DB.is_user_exist(current_uid):
-            DB.add_user(current_uid,
-                        name=None,
-                        followees=followees_size,
-                        fans=fans_size,
-                        num_post=messages_size)
+        handler = WeiboUserHandler()
+        handler.open()
+        if not handler.user_exist(uid=current_uid):
+            handler.add_user(
+                uid=current_uid,
+                followees=followees_size,
+                fans=fans_size,
+                posts=messages_size,
+            )
         else:
-            DB.update_user(current_uid,
-                           name=None,
-                           followees=followees_size,
-                           fans=fans_size,
-                           num_post=messages_size)
+            handler.update_user(
+                uid=current_uid,
+                followees=followees_size,
+                fans=fans_size,
+                posts=messages_size,
+            )
         for uid in uids:
-            if not DB.is_user_exist(uid):
-                DB.add_user(uid)
+            if not handler.user_exist(uid=uid):
+                handler.add_user(uid=uid)
+
+        handler.close()
 
         print("#begin#")
         print(current_uid)
