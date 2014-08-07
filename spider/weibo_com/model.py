@@ -28,34 +28,34 @@ class WeiboUser(Base):
 
 
 class DB:
-    # connect to db
-    # URL syntax: dialect+driver://username:password@host:port/database
-    # engine = create_engine('sqlite:///:memory:', echo=False)
-    conf = Config.values
     engine = None
-    try:
-        dburl = 'mysql://{}:{}@{}:{}/{}'.format(
-            conf['db_username'],
-            conf['db_password'],
-            conf['db_ip'],
-            conf['db_port'],
-            conf['db_name']
-            )
-        engine = create_engine(dburl)
-    except:
-        raise Exception("fail to create engine for MySQL \
-                        with URL: {}".format(
-                        dburl))
-    # create schemas
-    try:
-        WeiboUser.metadata.create_all(engine)
-    except:
-        raise Exception("fail to create table schema in db")
-
     session = None
 
     @classmethod
     def open(cls):
+        if cls.engine is None:
+            # URL syntax: dialect+driver://username:password@host:port/database
+            # engine = create_engine('sqlite:///:memory:', echo=False)
+            conf = Config.values
+            try:
+                dburl = 'mysql://{}:{}@{}:{}/{}'.format(
+                    conf['db_username'],
+                    conf['db_password'],
+                    conf['db_ip'],
+                    conf['db_port'],
+                    conf['db_name']
+                    )
+                cls.engine = create_engine(dburl)
+            except:
+                raise Exception("fail to create engine for MySQL \
+                                with URL: {}".format(
+                                dburl))
+            # create schemas
+            try:
+                WeiboUser.metadata.create_all(cls.engine)
+            except:
+                raise Exception("fail to create table schema in db")
+        # create session
         try:
             Session = sessionmaker(bind=cls.engine)
             cls.session = Session()
