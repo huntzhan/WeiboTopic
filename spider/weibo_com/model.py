@@ -102,9 +102,6 @@ class DB:
 
     @classmethod
     def update_user(cls, uid, name=None, followees=-1, fans=-1, num_post=-1):
-        if cls.is_user_exist(uid):
-            return
-
         uid = cls.tostr(uid)
         name = cls.tostr(name)
         followees = cls.tolong(followees)
