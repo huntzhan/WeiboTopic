@@ -31,6 +31,10 @@ class _SeleniumOperator(object):
         return vertify_ele
 
     @classmethod
+    def _find_top_level_element(cls, driver):
+        return driver.find_element_by_xpath("//html")
+
+    @classmethod
     def _fill_username_password_elements(cls, driver,
                                          user_ele, passwd_ele):
         # USERNAME and PASSWORD is defined as sub-class variables.
@@ -42,9 +46,12 @@ class _SeleniumOperator(object):
     @classmethod
     def _fill_vertify_element(cls, driver,
                               vertify_ele):
-        keys = raw_input("Enter vertification code> ")
-        vertify_ele.clear()
-        vertify_ele.send_keys(keys)
+        try:
+            vertify_ele.clear()
+            keys = raw_input("Enter vertification code> ")
+            vertify_ele.send_keys(keys)
+        except Exception as e:
+            print(e)
 
     @classmethod
     def _fill_username_and_password(cls, driver):
@@ -62,6 +69,11 @@ class _SeleniumOperator(object):
     def _submit(cls, driver):
         button = driver.find_element_by_xpath("//input[@type='submit']")
         button.click()
+
+    @classmethod
+    def _escape(cls, driver):
+        html = cls._find_top_level_element(driver)
+        html.send_keys(webdriver.common.keys.Keys.ESCAPE)
 
 
 class _Adaptor(object):
@@ -131,14 +143,14 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         return False
 
     @classmethod
-    def _get_login_driver(cls):
+    def _get_login_raw_cookies(cls):
         """
         @brief: Login base on GUI, with consideration of vetification.
         @return: A browser driver was successfully logined.
         """
 
         driver = webdriver.Firefox()
-        wait = WebDriverWait(driver, 1)
+        wait = WebDriverWait(driver, 10)
         driver.get(cls.LOGIN_URL)
         # try to login without vetification.
         cls._fill_username_and_password(driver)
@@ -155,9 +167,11 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
                 cls._fill_vertification(driver)
                 cls._submit(driver)
         # After login sina.com, we need to get login session from weibo.com.
-        driver.implicitly_wait(1)
         driver.get("http://weibo.com/")
-        return driver
+        # wait.until(expected_conditions.title_contains("我的首页"))
+        driver.close()
+
+        return driver.get_cookies()
 
     @classmethod
     def get_login_cookies_dict(cls):
@@ -166,11 +180,9 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
                  bytes instead of unicode.
         """
 
-        driver = cls._get_login_driver()
+        raw_cookies = cls._get_login_raw_cookies()
         # extract cookies and return.
-        cookies_dict = cls._trans_unicode_element_of_dict(
-            driver.get_cookies())
-        driver.close()
+        cookies_dict = cls._trans_unicode_element_of_dict(raw_cookies)
         return cookies_dict
 
     @classmethod
@@ -179,10 +191,8 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         @return: A CookieJar object.
         """
 
-        driver = cls._get_login_driver()
-        cookiejar = cls._trans_cookies_from_dict_to_cookiejar(
-            driver.get_cookies())
-        driver.close()
+        raw_cookies = cls._get_login_raw_cookies()
+        cookiejar = cls._trans_cookies_from_dict_to_cookiejar(raw_cookies)
         return cookiejar
 
 

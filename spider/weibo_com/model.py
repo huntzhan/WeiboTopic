@@ -1,4 +1,6 @@
+from __future__ import (unicode_literals, print_function, absolute_import)
 
+import thread
 import collections
 
 from sqlalchemy.orm import sessionmaker
@@ -84,6 +86,18 @@ def week_filter(*required_keys):
     return _decorator
 
 
+def lock_and_unlock():
+    lock = thread.allocate_lock()
+    def _decorator(func):
+        def _wrap(*args, **kwargs):
+            lock.acquire()
+            result = func(*args, **kwargs)
+            lock.release()
+            return result
+        return _wrap
+    return _decorator
+
+
 class DatabaseHandler:
 
     def open(self):
@@ -100,6 +114,7 @@ class WeiboUserHandler(DatabaseHandler):
 
     EMPTY = 'empty'
 
+    @lock_and_unlock()
     @strong_filter('uid', followees=0, fans=0, posts=0)
     def add_user(self, uid, **kwargs):
 
@@ -110,6 +125,7 @@ class WeiboUserHandler(DatabaseHandler):
         self.session.add(user)
         self.session.commit()
 
+    @lock_and_unlock()
     @week_filter('uid', 'followees', 'fans', 'posts')
     def update_user(self, uid, **kwargs):
         user = self.session.query(WeiboUser).filter_by(uid=uid).first()
@@ -130,6 +146,7 @@ class WeiboUserHandler(DatabaseHandler):
         user = self.session.query(WeiboUser).filter_by(uid=uid).first()
         return user
 
+    @lock_and_unlock()
     @strong_filter('uid')
     def delete_user(self, uid):
         user = self.session.query(WeiboUser).filter_by(uid=uid).first()
