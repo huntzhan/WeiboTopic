@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 from __future__ import (unicode_literals, print_function, absolute_import)
 
-import time
 import re
 import cookielib
 import urllib
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 from requests.cookies import create_cookie
 import mechanize
 
@@ -136,21 +138,24 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         """
 
         driver = webdriver.Firefox()
+        wait = WebDriverWait(driver, 1)
         driver.get(cls.LOGIN_URL)
         # try to login without vetification.
         cls._fill_username_and_password(driver)
         cls._submit(driver)
 
         while True:
-            # wait for page load.
-            time.sleep(0.3)
             try:
+                # wait for page load.
+                wait.until(expected_conditions.title_is("新浪通行证"))
+                break
+            except:
+                # still in login page.
                 cls._fill_username_and_password(driver)
                 cls._fill_vertification(driver)
                 cls._submit(driver)
-            except:
-                break
         # After login sina.com, we need to get login session from weibo.com.
+        driver.implicitly_wait(1)
         driver.get("http://weibo.com/")
         return driver
 
