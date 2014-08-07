@@ -20,7 +20,7 @@ class Config:
     options = config.options(section_db)
     for option in options:
         try:
-            values[option] = config.get(section_db, option)
+            values[option] = config.get(section_db, option).strip()
         except:
             raise Exception("fail to read {0} in section {1} \
                             in config.ini".format(

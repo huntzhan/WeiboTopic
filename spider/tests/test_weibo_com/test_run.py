@@ -13,7 +13,7 @@ class TestRun(unittest.TestCase):
     def setUpClass(cls):
         DB.open()
 
-    @unittest.skipIf(True, "It takes times.")
+    # @unittest.skipIf(True, "It takes times.")
     def test_run(self):
         run()
 

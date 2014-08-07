@@ -52,7 +52,7 @@ class DB:
                                 dburl))
             # create schemas
             try:
-                WeiboUser.metadata.create_all(cls.engine)
+                Base.metadata.create_all(cls.engine)
             except:
                 raise Exception("fail to create table schema in db")
         # create session
@@ -149,5 +149,7 @@ class DB:
 
     @classmethod
     def close(cls):
+        if cls.session is None:
+            return
         cls.session.close_all()
         cls.session = None
