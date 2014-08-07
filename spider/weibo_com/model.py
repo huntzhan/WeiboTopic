@@ -88,6 +88,7 @@ def week_filter(*required_keys):
 
 def lock_and_unlock():
     lock = thread.allocate_lock()
+
     def _decorator(func):
         def _wrap(*args, **kwargs):
             lock.acquire()
@@ -112,10 +113,10 @@ class DatabaseHandler:
 
 class WeiboUserHandler(DatabaseHandler):
 
-    EMPTY = 'empty'
+    EMPTY = -1
 
     @lock_and_unlock()
-    @strong_filter('uid', followees=0, fans=0, posts=0)
+    @strong_filter('uid', followees=EMPTY, fans=EMPTY, posts=EMPTY)
     def add_user(self, uid, **kwargs):
 
         if self.user_exist(uid=uid):
