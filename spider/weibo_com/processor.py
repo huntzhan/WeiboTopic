@@ -115,7 +115,7 @@ class FriendPageProcessor(UrlProcessor):
                 fans=fans_size,
                 posts=messages_size,
             )
-        else:
+        elif not handler.user_valid(uid=current_uid):
             handler.update_user(
                 uid=current_uid,
                 followees=followees_size,
