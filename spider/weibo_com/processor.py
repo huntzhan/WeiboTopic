@@ -35,6 +35,15 @@ class UrlProcessor(ElementProcessor):
     def _load_page(self, url):
         return self.page_loader.load_url(url)
 
+    def _load_page_with_retry(self, url):
+        response_url, response_content = self._load_page(url)
+        if self._check_login_url(response_url):
+            # refresh cookiesjar and page_loader.
+            self.prepare_cookie_and_loader()
+            # reload.
+            response_url, response_content = self._load_page(url)
+        return response_url, response_content
+
 
 class FriendPageProcessor(UrlProcessor):
 
@@ -73,12 +82,13 @@ class FriendPageProcessor(UrlProcessor):
         data_interface = namedtuple("_", ['parser', 'extractor'])
 
         # loading page.
-        response_url, response_content = self._load_page(url)
-        if self._check_login_url(response_url):
-            # refresh cookiesjar and page_loader.
-            self.prepare_cookie_and_loader()
-            # reload.
-            response_url, response_content = self._load_page(url)
+        # response_url, response_content = self._load_page(url)
+        # if self._check_login_url(response_url):
+        #     # refresh cookiesjar and page_loader.
+        #     self.prepare_cookie_and_loader()
+        #     # reload.
+        #     response_url, response_content = self._load_page(url)
+        response_url, response_content = self._load_page_with_retry(url)
 
         # extract information by parser.
         friend_page_parser = FriendPageParser()
@@ -154,9 +164,10 @@ class FriendPageProcessor(UrlProcessor):
         return elements
 
 
-class UserInfoPageProcessor(UrlProcessor):
-    pass
-
-
 class MessagePageProcessor(UrlProcessor):
-    pass
+
+    def _process_url(self, url):
+        pass
+
+    def process_element(self, element):
+        pass

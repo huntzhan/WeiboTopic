@@ -248,6 +248,7 @@ class MicroBlogParser(object):
             # Extract content here. #
             #########################
             # mblog.content = content_div.text
+            content = content_div.text
 
             is_forward = div.get('isforward') == '1'
             if is_forward:
@@ -256,14 +257,14 @@ class MicroBlogParser(object):
                 # Extract omid here. #
                 ######################
                 # mblog.omid = div['omid']
-                name_a = div.find('a', attrs={
-                    'class': 'WB_name',
-                    'node-type': 'feed_list_originNick'
-                })
-                text_a = div.find('div', attrs={
-                    'class': 'WB_text',
-                    'node-type': 'feed_list_reason'
-                })
+                # name_a = div.find('a', attrs={
+                #     'class': 'WB_name',
+                #     'node-type': 'feed_list_originNick'
+                # })
+                # text_a = div.find('div', attrs={
+                #     'class': 'WB_text',
+                #     'node-type': 'feed_list_reason'
+                # })
 
                 ######################
                 # What is this shit? #
@@ -273,12 +274,14 @@ class MicroBlogParser(object):
                 #         name_a.text,
                 #         text_a.text
                 #     )
+                pass
 
             ########################
             # Extract created time #
             ########################
             # mblog.created =
             # parse(div.select('a.S_link2.WB_time')[0]['title'])
+            created_time = parse(div.select('a.S_link2.WB_time')[0]['title'])
 
             # Interact with bundles.
             #
@@ -302,28 +305,33 @@ class MicroBlogParser(object):
             # Extract number of favorite on this micro blog #
             #################################################
             # mblog.n_likes = likes
+            number_of_favourite = likes
 
             ################################################
             # Extract number of forward on this micro blog #
             ################################################
-            # forwards = func_div.find(
-            #     'a', attrs={'action-type': action_type_re("forward")}).text
+            forwards = func_div.find(
+                'a', attrs={'action-type': action_type_re("forward")}).text
             # if '(' not in forwards:
             #     mblog.n_forwards = 0
             # else:
             #     mblog.n_forwards = int(
             #       forwards.strip().split('(', 1)[1].strip(')'))
+            number_of_forward = int(
+                forwards.strip().split('(', 1)[1].strip(')'))
 
             #################################################
             # Extract number of comments on this micro blog #
             #################################################
-            # comments = func_div.find('a',
-            #   attrs={'action-type': action_type_re('comment')}).text
+            comments = func_div.find(
+                'a', attrs={'action-type': action_type_re('comment')}).text
             # if '(' not in comments:
             #     mblog.n_comments = 0
             # else:
             #     mblog.n_comments = int(
             #       comments.strip().split('(', 1)[1].strip(')'))
+            number_of_comment = int(
+                comments.strip().split('(', 1)[1].strip(')'))
 
             ########################################
             # Don't needed geographic information. #
@@ -363,6 +371,10 @@ class MicroBlogParser(object):
 
             # mblog.save()
 
+            yield (mid, created_time,
+                   number_of_favourite, number_of_comment,
+                   number_of_forward)
+
         if 'pagebar' in params:
             params['max_id'] = max_id
         else:
@@ -386,4 +398,3 @@ class MicroBlogParser(object):
         # return next_urls, []
 
         # nothing should be returned.
-        return None

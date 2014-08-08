@@ -39,7 +39,7 @@ class TestUrlProcessor(unittest.TestCase):
             self.assertTrue(self.url_processor._check_login_url(url))
 
 
-class TestFansPage(unittest.TestCase):
+class TestFriendPage(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
