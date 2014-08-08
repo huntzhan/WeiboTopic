@@ -90,6 +90,8 @@ def run_spider_asynchronously(strategy, max_worker=2, error_recovery=True):
                         strategy.next_independent_elements(max_worker)]
             if len(elements) > max_worker:
                 raise Exception("Exceeded maximum worker.")
+            elif len(elements) == 0:
+                raise Exception("No element!")
 
             # submits.
             futures = []
@@ -99,6 +101,7 @@ def run_spider_asynchronously(strategy, max_worker=2, error_recovery=True):
                 futures.append(future)
             # get results.
             for future in futures:
+                print("Fetch result.")
                 try:
                     result = future.result()
                 except Exception as e:
