@@ -218,6 +218,10 @@ class MicroBlogParser(object):
         # generate one micro blog on each loop. #
         #########################################
         for div in divs:
+            # debug
+            from pprint import pprint
+            pprint(div)
+
             # extract mid here!
             mid = div['mid']
             if len(mid) == 0:
@@ -261,14 +265,14 @@ class MicroBlogParser(object):
                 # Extract omid here. #
                 ######################
                 # mblog.omid = div['omid']
-                # name_a = div.find('a', attrs={
-                #     'class': 'WB_name',
-                #     'node-type': 'feed_list_originNick'
-                # })
-                # text_a = div.find('div', attrs={
-                #     'class': 'WB_text',
-                #     'node-type': 'feed_list_reason'
-                # })
+                name_a = div.find('a', attrs={
+                    'class': 'WB_name',
+                    'node-type': 'feed_list_originNick'
+                })
+                text_a = div.find('div', attrs={
+                    'class': 'WB_text',
+                    'node-type': 'feed_list_reason'
+                })
 
                 ######################
                 # What is this shit? #
@@ -278,7 +282,11 @@ class MicroBlogParser(object):
                 #         name_a.text,
                 #         text_a.text
                 #     )
-                pass
+                if name_a is not None and text_a is not None:
+                    print("##################")
+                    print(name_a.text)
+                    print(text_a.text)
+                    print("##################")
 
             ########################
             # Extract created time #
@@ -375,6 +383,15 @@ class MicroBlogParser(object):
             #         query_str = urllib.urlencode(query)
             #         like_url = 'http://weibo.com/aj/like/big?%s' % query_str
             #         next_urls.append(like_url)
+
+            # get url of message that forward FROM current message.
+            # if True:
+            #     query = {'id': mid, '_t': 0, '__rnd': int(time.time()*1000)}
+            #     query_str = urllib.urlencode(query)
+            #     if number_of_forward > 0:
+            #         link = 'http://weibo.com/aj/mblog/info/big?{}'.format(
+            #             query_str)
+            #         print("LINK: ", link)
 
             # mblog.save()
 
