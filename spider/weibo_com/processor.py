@@ -8,7 +8,7 @@ from collections import namedtuple
 
 from easy_spider import ElementProcessor
 from .utils import LoginHandler, PageLoader
-from .parser import FriendPageParser
+from .parser import FriendPageParser, MicroBlogParser
 from .element import UrlElement
 from .model import WeiboUserHandler
 
@@ -81,13 +81,6 @@ class FriendPageProcessor(UrlProcessor):
         # handling return data encapsulation.
         data_interface = namedtuple("_", ['parser', 'extractor'])
 
-        # loading page.
-        # response_url, response_content = self._load_page(url)
-        # if self._check_login_url(response_url):
-        #     # refresh cookiesjar and page_loader.
-        #     self.prepare_cookie_and_loader()
-        #     # reload.
-        #     response_url, response_content = self._load_page(url)
         response_url, response_content = self._load_page_with_retry(url)
 
         # extract information by parser.
@@ -167,7 +160,11 @@ class FriendPageProcessor(UrlProcessor):
 class MessagePageProcessor(UrlProcessor):
 
     def _process_url(self, url):
-        pass
+        response_url, response_content = self._load_page_with_retry(url)
+        # create parser.
+        microblog_parser = MicroBlogParser()
+        microblog_parser.parse(response_url, response_content)
+        return None
 
     def process_element(self, element):
         pass

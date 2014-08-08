@@ -3,6 +3,9 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 import re
 import json
 import urllib
+import time
+
+from dateutil.parser import parse
 
 from .utils import beautiful_soup, urldecode
 
@@ -178,6 +181,7 @@ class MicroBlogParser(object):
         #
         # weibo_user = self.get_weibo_user()
         params = urldecode(requested_url)
+        uid = params['uid']
 
         params['_t'] = 0
         params['__rnd'] = str(int(time.time() * 1000))
@@ -330,8 +334,11 @@ class MicroBlogParser(object):
             # else:
             #     mblog.n_comments = int(
             #       comments.strip().split('(', 1)[1].strip(')'))
-            number_of_comment = int(
-                comments.strip().split('(', 1)[1].strip(')'))
+            if '(' not in comments:
+                number_of_comment = 0
+            else:
+                number_of_comment = int(
+                    comments.strip().split('(', 1)[1].strip(')'))
 
             ########################################
             # Don't needed geographic information. #
@@ -371,9 +378,18 @@ class MicroBlogParser(object):
 
             # mblog.save()
 
-            yield (mid, created_time,
-                   number_of_favourite, number_of_comment,
-                   number_of_forward)
+            ################
+            # yield result #
+            ################
+            # yield (mid, created_time,
+            #        number_of_favourite, number_of_comment,
+            #        number_of_forward)
+            print("#begin#")
+            print(content)
+            print(uid, mid, created_time,
+                  number_of_favourite, number_of_comment,
+                  number_of_forward)
+            print("#end#")
 
         if 'pagebar' in params:
             params['max_id'] = max_id
