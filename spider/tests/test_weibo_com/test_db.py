@@ -1,7 +1,8 @@
 
 import unittest
 
-from weibo_com.model import WeiboUserHandler
+from weibo_com.model import WeiboUser
+from weibo_com.persist import WeiboUserHandler
 
 
 class TestDB(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestDB(unittest.TestCase):
         u = self.handler.get_user_by_uid(uid='110')
         u1 = self.handler.get_user_by_uid(uid='110')
         u2 = self.handler.get_user_by_uid(uid='110')
-        self.assertTrue(u is u1 and u1 is u2)
+        self.assertFalse(u is u1 or u1 is u2)
 
         self.assertTrue(u.uid == '110')
         self.assertFalse(u.uid == 110)
@@ -43,13 +44,12 @@ class TestDB(unittest.TestCase):
 
         self.handler.update_user(uid='110')
         self.handler.update_user(uid='110', followees=100)
-        self.assertTrue(u.followees == 100)
-        u = self.handler.get_user_by_uid(uid='110')
-        self.assertTrue(u.followees == 100)
+        self.assertFalse(u.followees == 100)
+        u4 = self.handler.get_user_by_uid(uid='110')
+        self.assertTrue(u4.followees == 100)
 
         exist = self.handler.user_exist(uid='110')
         self.assertTrue(exist)
-
         self.handler.delete_user(uid='110')
         exist = self.handler.user_exist(uid='110')
         self.assertFalse(exist)
