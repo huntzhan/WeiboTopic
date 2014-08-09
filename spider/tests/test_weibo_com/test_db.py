@@ -59,15 +59,6 @@ class TestDB(unittest.TestCase):
         self.assertFalse(exist)
 
     def test_blog(self):
-        self.uhandler = WeiboUserHandler()
-
-        self.uhandler.add_user(
-            uid='110',
-            followees=10,
-            fans=8,
-            posts=1000,
-        )
-        # add duplicate user
         self.bhandler = MicroblogHandler()
 
         self.bhandler.add_blog(
@@ -79,8 +70,30 @@ class TestDB(unittest.TestCase):
             comments=1,
             forwards=1,
             forwarded_content=None)
+        self.assertFalse(self.bhandler.blog_exist('001'))
+
+        self.uhandler = WeiboUserHandler()
+        self.uhandler.add_user(
+            uid='110',
+            followees=10,
+            fans=8,
+            posts=1000,
+        )
+        self.bhandler.add_blog(
+            uid='110',
+            mid='001',
+            created_time=(str(datetime.today())),
+            content='content',
+            favorites=1,
+            comments=1,
+            forwards=1,
+            forwarded_content=None)
+        self.assertTrue(self.bhandler.blog_exist('001'))
 
         self.bhandler.delete_blog(mid='001')
         self.uhandler.delete_user(uid='110')
         self.assertFalse(self.bhandler.blog_exist('001'))
         self.assertFalse(self.uhandler.user_exist(uid='110'))
+
+if __name__ == '__main__':
+    unittest.main()

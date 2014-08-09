@@ -9,6 +9,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import ForeignKey
 
 from weibo_com.model import WeiboUser, Microblog
 
@@ -43,7 +44,7 @@ class _User2Blog(Base):
     __tablename__ = 'UserToBlog'
 
     mid = Column(String(255), primary_key=True)
-    uid = Column(String(255))
+    uid = Column(String(255), ForeignKey('WeiboUser.uid'))
 
     def __repr__(self):
         return "<User2Blog(mid='%s', uid='%s')>" % (
@@ -161,9 +162,8 @@ class DatabaseHandler:
         try:
             yield session
             session.commit()
-        except:
+        except :
             session.rollback()
-            raise
         finally:
             session.close()
 
@@ -257,21 +257,21 @@ class MicroblogHandler(DatabaseHandler):
             forwards,
             forwarded_content=None):
         with cls.modify_scope() as session:
-            try:
-                session.query(_Microblog).filter(_Microblog.mid == mid)\
-                    .one()
-            except NoResultFound:
-                b = _Microblog(
-                    mid=mid,
-                    created_time=created_time,
-                    content=content,
-                    favorites=favorites,
-                    comments=comments,
-                    forwards=forwards,
-                    forwarded_content=forwarded_content)
-                u2b = _User2Blog(mid=mid, uid=uid)
-                session.add(b)
-                session.add(u2b)
+            # try:
+            #     session.query(_Microblog).filter(_Microblog.mid == mid)\
+            #         .one()
+            # except NoResultFound:
+            b = _Microblog(
+                mid=mid,
+                created_time=created_time,
+                content=content,
+                favorites=favorites,
+                comments=comments,
+                forwards=forwards,
+                forwarded_content=forwarded_content)
+            u2b = _User2Blog(mid=mid, uid=uid)
+            session.add(b)
+            session.add(u2b)
 
     @classmethod
     def blog_exist(cls, mid):
