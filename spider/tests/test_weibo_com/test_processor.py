@@ -1,8 +1,10 @@
 
 import unittest
 import cookielib
+import time
 
-from weibo_com.processor import UrlProcessor, FriendPageProcessor
+from weibo_com.processor import (UrlProcessor, FriendPageProcessor,
+                                 MessagePageProcessor)
 
 
 SKIP_LOGIN_TEST = True
@@ -39,7 +41,7 @@ class TestUrlProcessor(unittest.TestCase):
             self.assertTrue(self.url_processor._check_login_url(url))
 
 
-class TestFansPage(unittest.TestCase):
+class TestFriendProcessor(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -76,3 +78,18 @@ class TestFansPage(unittest.TestCase):
         a, b, c = self.processor._process_url(test_url).extractor
         equal_flag = a == b and b == c
         self.assertFalse(equal_flag)
+
+
+class TestMessageProcessor(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.processor = MessagePageProcessor()
+        cls.processor.prepare_cookie_and_loader()
+
+    def test_microblog(self):
+        url_template = "http://weibo.com/aj/mblog/mbloglist?uid={0}&_k={1}"
+        uid = 3211200050
+        start = int(time.time() * (10**6))
+        test_url = url_template.format(uid, start)
+        self.processor._process_url(test_url)

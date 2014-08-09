@@ -8,7 +8,7 @@ from collections import namedtuple
 
 from easy_spider import ElementProcessor
 from .utils import LoginHandler, PageLoader
-from .parser import FriendPageParser
+from .parser import FriendPageParser, MicroBlogParser
 from .element import UrlElement
 from .model import WeiboUserHandler
 
@@ -34,6 +34,15 @@ class UrlProcessor(ElementProcessor):
 
     def _load_page(self, url):
         return self.page_loader.load_url(url)
+
+    def _load_page_with_retry(self, url):
+        response_url, response_content = self._load_page(url)
+        if self._check_login_url(response_url):
+            # refresh cookiesjar and page_loader.
+            self.prepare_cookie_and_loader()
+            # reload.
+            response_url, response_content = self._load_page(url)
+        return response_url, response_content
 
 
 class FriendPageProcessor(UrlProcessor):
@@ -72,13 +81,7 @@ class FriendPageProcessor(UrlProcessor):
         # handling return data encapsulation.
         data_interface = namedtuple("_", ['parser', 'extractor'])
 
-        # loading page.
-        response_url, response_content = self._load_page(url)
-        if self._check_login_url(response_url):
-            # refresh cookiesjar and page_loader.
-            self.prepare_cookie_and_loader()
-            # reload.
-            response_url, response_content = self._load_page(url)
+        response_url, response_content = self._load_page_with_retry(url)
 
         # extract information by parser.
         friend_page_parser = FriendPageParser()
@@ -115,7 +118,7 @@ class FriendPageProcessor(UrlProcessor):
                 fans=fans_size,
                 posts=messages_size,
             )
-        else:
+        elif not handler.user_valid(uid=current_uid):
             handler.update_user(
                 uid=current_uid,
                 followees=followees_size,
@@ -154,9 +157,14 @@ class FriendPageProcessor(UrlProcessor):
         return elements
 
 
-class UserInfoPageProcessor(UrlProcessor):
-    pass
-
-
 class MessagePageProcessor(UrlProcessor):
-    pass
+
+    def _process_url(self, url):
+        response_url, response_content = self._load_page_with_retry(url)
+        # create parser.
+        microblog_parser = MicroBlogParser()
+        microblog_parser.parse(response_url, response_content)
+        return None
+
+    def process_element(self, element):
+        pass

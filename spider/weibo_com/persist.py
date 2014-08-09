@@ -95,7 +95,11 @@ def lock_and_unlock():
     def _decorator(func):
         def _wrap(*args, **kwargs):
             lock.acquire()
-            result = func(*args, **kwargs)
+            result = None
+            try:
+                result = func(*args, **kwargs)
+            except Exception as e:
+                print("Error in lock decorator: ", e)
             lock.release()
             return result
         return _wrap
@@ -170,6 +174,17 @@ class WeiboUserHandler(DatabaseHandler):
             except NoResultFound:
                 return False
             return True
+
+    @classmethod
+    @strong_filter('uid')
+    def user_valid(cls, uid):
+        with cls.query_scope() as session:
+            user = session.query(_WeiboUser).filter_by(uid=uid).first()
+            if user.followees != cls.EMPTY\
+                    and user.fans != cls.EMPTY\
+                    and user.posts != cls.EMPTY:
+                return True
+            return False
 
     @classmethod
     @strong_filter('uid')
