@@ -20,8 +20,8 @@ def run():
     init_elements = [
         _init_element("http://weibo.com/3211200050/follow?relate=fans"),
         _init_element("http://weibo.com/1898353550/follow?relate=fans"),
-        # _init_element("http://weibo.com/1671222043/follow?relate=fans"),
-        # _init_element("http://weibo.com/1737823322/follow?relate=fans"),
+        _init_element("http://weibo.com/1671222043/follow?relate=fans"),
+        _init_element("http://weibo.com/1737823322/follow?relate=fans"),
     ]
 
     db = DatabaseHandler()
