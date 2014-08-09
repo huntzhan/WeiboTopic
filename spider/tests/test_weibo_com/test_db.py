@@ -1,20 +1,24 @@
 
 import unittest
+from datetime import datetime
 
-from weibo_com.model import WeiboUser
-from weibo_com.persist import WeiboUserHandler
+from weibo_com.model import WeiboUser, Microblog
+from weibo_com.persist import WeiboUserHandler,\
+    MicroblogHandler,\
+    DatabaseHandler
 
 
 class TestDB(unittest.TestCase):
 
     def setUp(self):
-        self.handler = WeiboUserHandler()
-        self.handler.open()
+        handler = DatabaseHandler()
+        handler.open()
 
     def tearDown(self):
-        self.handler.close()
+        pass
 
-    def test_everything(self):
+    def test_user(self):
+        self.handler = WeiboUserHandler()
 
         self.handler.add_user(
             uid='110',
@@ -53,3 +57,30 @@ class TestDB(unittest.TestCase):
         self.handler.delete_user(uid='110')
         exist = self.handler.user_exist(uid='110')
         self.assertFalse(exist)
+
+    def test_blog(self):
+        self.uhandler = WeiboUserHandler()
+
+        self.uhandler.add_user(
+            uid='110',
+            followees=10,
+            fans=8,
+            posts=1000,
+        )
+        # add duplicate user
+        self.bhandler = MicroblogHandler()
+
+        self.bhandler.add_blog(
+            uid='110',
+            mid='001',
+            created_time=(str(datetime.today())),
+            content='content',
+            favorites=1,
+            comments=1,
+            forwards=1,
+            forwarded_content=None)
+
+        self.bhandler.delete_blog(mid='001')
+        self.uhandler.delete_user(uid='110')
+        self.assertFalse(self.bhandler.blog_exist('001'))
+        self.assertFalse(self.uhandler.user_exist(uid='110'))

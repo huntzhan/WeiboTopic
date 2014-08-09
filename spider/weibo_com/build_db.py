@@ -1,6 +1,6 @@
 
 from sqlalchemy import create_engine
-from model import Base, DB_URL
+from weibo_com.persist import Base, DB_URL
 
 
 def create_tables():

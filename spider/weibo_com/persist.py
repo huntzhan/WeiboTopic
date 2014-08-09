@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm.exc import NoResultFound
 
-from weibo_com.model import WeiboUser
+from weibo_com.model import WeiboUser, Microblog
 
 
 DB_URL = 'mysql://{}:{}@{}:{}/{}'.format(
@@ -37,6 +37,42 @@ class _WeiboUser(Base):
                 fans='%s', num_post='%s')>" % (
             self.uid, self.name, self.followees,
             self.fans, self.num_post)
+
+
+class _User2Blog(Base):
+    __tablename__ = 'UserToBlog'
+
+    mid = Column(String(255), primary_key=True)
+    uid = Column(String(255))
+
+    def __repr__(self):
+        return "<User2Blog(mid='%s', uid='%s')>" % (
+            self.mid,
+            self.uid)
+
+
+class _Microblog(Base):
+    __tablename__ = 'Microblog'
+
+    mid = Column(String(255), primary_key=True)
+    created_time = Column(String(255))
+    content = Column(String(255))
+    favorites = Column(Integer)
+    comments = Column(Integer)
+    forwards = Column(Integer)
+    forwarded_content = Column(String(255))
+
+    def __repr__(self):
+        return "<Microblog(mid='%s', time='%s', content='%s', \
+                favorites='%s', comments='%s', forwards='%s', \
+                forwarded_content='%s')>" % (
+            self.mid,
+            self.created_time,
+            self.content,
+            self.favorites,
+            self.comments,
+            self.forwards,
+            self.forwarded_content)
 
 
 def strong_filter(*required_keys, **default_pairs):
@@ -141,6 +177,7 @@ class DatabaseHandler:
         finally:
             session.close()
 
+
 class WeiboUserHandler(DatabaseHandler):
 
     EMPTY = -1
@@ -204,3 +241,66 @@ class WeiboUserHandler(DatabaseHandler):
         with cls.modify_scope() as session:
             user = session.query(_WeiboUser).filter_by(uid=uid).first()
             session.delete(user)
+
+
+class MicroblogHandler(DatabaseHandler):
+
+    @classmethod
+    def add_blog(
+            cls,
+            uid,
+            mid,
+            created_time,
+            content,
+            favorites,
+            comments,
+            forwards,
+            forwarded_content=None):
+        with cls.modify_scope() as session:
+            try:
+                session.query(_Microblog).filter(_Microblog.mid == mid)\
+                    .one()
+            except NoResultFound:
+                b = _Microblog(
+                    mid=mid,
+                    created_time=created_time,
+                    content=content,
+                    favorites=favorites,
+                    comments=comments,
+                    forwards=forwards,
+                    forwarded_content=forwarded_content)
+                u2b = _User2Blog(mid=mid, uid=uid)
+                session.add(b)
+                session.add(u2b)
+
+    @classmethod
+    def blog_exist(cls, mid):
+        with cls.query_scope() as session:
+            try:
+                session.query(_Microblog).filter(_Microblog.mid == mid)\
+                    .one()
+            except NoResultFound:
+                return False
+            return True
+
+    @classmethod
+    def get_blog_by_mid(cls, mid):
+        with cls.query_scope() as session:
+            _b = session.query(_Microblog).filter_by(mid=mid).first()
+            b = Microblog(
+                _b.mid,
+                _b.created_time,
+                _b.content,
+                _b.favorites,
+                _b.comments,
+                _b.forwards,
+                _b.forwarded_content)
+            return b
+
+    @classmethod
+    def delete_blog(cls, mid):
+        with cls.modify_scope() as session:
+            b = session.query(_Microblog).filter_by(mid=mid).first()
+            u2b = session.query(_User2Blog).filter_by(mid=mid).first()
+            session.delete(b)
+            session.delete(u2b)
