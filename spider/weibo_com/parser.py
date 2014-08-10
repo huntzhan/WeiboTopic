@@ -164,24 +164,14 @@ class FriendPageParser(object):
 #############
 class MicroBlogParser(object):
 
-    def parse(self, requested_url, response_content):
-        """
-        @input: requested url, content page being loaded.
-        @output:
-        """
-        # if self.bundle.exists == False:
-        #     return [], []
-        # url = url or self.url
-        # params = urldecode(url)
-        # br = self.opener.browse_open(url)
-        # self.logger.debug('load %s finish' % url)
-        #
-        # if not self.check(url, br):
-        #     return [], []
-        #
-        # weibo_user = self.get_weibo_user()
+    MAX_PAGE = 10
+
+    def __init__(self, requested_url, response_content):
+        self.requested_url = requested_url
+        self.response_content = response_content
+
+    def _preprocess_url(self, requested_url):
         params = urldecode(requested_url)
-        uid = params['uid']
 
         params['_t'] = 0
         params['__rnd'] = str(int(time.time() * 1000))
@@ -202,6 +192,55 @@ class MicroBlogParser(object):
         params['page'] = page
         params['pre_page'] = pre_page
 
+        if page > self.MAX_PAGE:
+            continue_flag = False
+        else:
+            continue_flag = True
+        return params, continue_flag
+
+    def _get_url_of_next_page(self, requested_url, params):
+        url_of_next_page = '{}?{}'.format(
+            requested_url.split('?')[0],
+            urllib.urlencode(params),
+        )
+        return url_of_next_page
+
+    def _data_generator(self, params, response_content):
+        # if self.bundle.exists == False:
+        #     return [], []
+        # url = url or self.url
+        # params = urldecode(url)
+        # br = self.opener.browse_open(url)
+        # self.logger.debug('load %s finish' % url)
+        #
+        # if not self.check(url, br):
+        #     return [], []
+        #
+        # weibo_user = self.get_weibo_user()
+
+        # params = urldecode(requested_url)
+        # uid = params['uid']
+
+        # params['_t'] = 0
+        # params['__rnd'] = str(int(time.time() * 1000))
+        # page = int(params.get('page', 1))
+        # pre_page = int(params.get('pre_page', 0))
+        # count = 15
+        # if 'pagebar' not in params:
+        #     params['pagebar'] = '0'
+        #     pre_page += 1
+        # elif params['pagebar'] == '0':
+        #     params['pagebar'] = '1'
+        # elif params['pagebar'] == '1':
+        #     del params['pagebar']
+        #     pre_page = page
+        #     page += 1
+        #     count = 50
+        # params['count'] = count
+        # params['page'] = page
+        # params['pre_page'] = pre_page
+        uid = params['uid']
+
         # data = json.loads(br.response().read())['data']
         data = json.loads(response_content)['data']
         soup = beautiful_soup(data)
@@ -219,8 +258,8 @@ class MicroBlogParser(object):
         #########################################
         for div in divs:
             # debug
-            from pprint import pprint
-            pprint(div)
+            # from pprint import pprint
+            # pprint(div)
 
             # extract mid here!
             mid = div['mid']
@@ -258,6 +297,10 @@ class MicroBlogParser(object):
             # mblog.content = content_div.text
             content = content_div.text
 
+            ######################################################
+            # Extract content from which the message forwarding. #
+            ######################################################
+            forwarded_content = None
             is_forward = div.get('isforward') == '1'
             if is_forward:
 
@@ -282,18 +325,16 @@ class MicroBlogParser(object):
                 #         name_a.text,
                 #         text_a.text
                 #     )
-                if name_a is not None and text_a is not None:
-                    print("##################")
-                    print(name_a.text)
-                    print(text_a.text)
-                    print("##################")
+                if text_a:
+                    forwarded_content = text_a.text
 
             ########################
             # Extract created time #
             ########################
             # mblog.created =
             # parse(div.select('a.S_link2.WB_time')[0]['title'])
-            created_time = parse(div.select('a.S_link2.WB_time')[0]['title'])
+            created = parse(div.select('a.S_link2.WB_time')[0]['title'])
+            created_time = created.isoformat()
 
             # Interact with bundles.
             #
@@ -329,8 +370,11 @@ class MicroBlogParser(object):
             # else:
             #     mblog.n_forwards = int(
             #       forwards.strip().split('(', 1)[1].strip(')'))
-            number_of_forward = int(
-                forwards.strip().split('(', 1)[1].strip(')'))
+            if '(' not in forwards:
+                number_of_forward = 0
+            else:
+                number_of_forward = int(
+                    forwards.strip().split('(', 1)[1].strip(')'))
 
             #################################################
             # Extract number of comments on this micro blog #
@@ -398,15 +442,24 @@ class MicroBlogParser(object):
             ################
             # yield result #
             ################
-            # yield (mid, created_time,
-            #        number_of_favourite, number_of_comment,
-            #        number_of_forward)
-            print("#begin#")
-            print(content)
-            print(uid, mid, created_time,
-                  number_of_favourite, number_of_comment,
-                  number_of_forward)
-            print("#end#")
+            raw_message = (
+                uid, mid,
+                content, forwarded_content,
+                created_time,
+                number_of_favourite, number_of_comment,
+                number_of_forward,
+            )
+            encode_item = lambda x : x.encode('utf-8')\
+                if isinstance(x, unicode) else x
+            processed_message = list(map(encode_item, raw_message))
+            yield processed_message
+            # print("#begin#")
+            # print(content)
+            # print(forwarded_content)
+            # print(uid, mid, created_time,
+            #       number_of_favourite, number_of_comment,
+            #       number_of_forward)
+            # print("#end#")
 
         if 'pagebar' in params:
             params['max_id'] = max_id
@@ -430,4 +483,19 @@ class MicroBlogParser(object):
         #     url.split('?')[0], urllib.urlencode(params)))
         # return next_urls, []
 
-        # nothing should be returned.
+    def parse(self):
+        """
+        @input: requested url, content page being loaded.
+        @output:
+        """
+        params, continue_flag = self._preprocess_url(self.requested_url)
+        messages = []
+        for message in self._data_generator(params, self.response_content):
+            messages.append(message)
+
+        url_of_next_page = self._get_url_of_next_page(
+            self.requested_url,
+            params,
+        ) if continue_flag else None
+
+        return messages, url_of_next_page
