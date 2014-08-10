@@ -10,7 +10,7 @@ from easy_spider import ElementProcessor
 from .utils import LoginHandler, PageLoader
 from .parser import FriendPageParser, MicroBlogParser
 from .element import UrlElement
-from .model import WeiboUserHandler
+from .persist import WeiboUserHandler
 
 
 class UrlProcessor(ElementProcessor):
@@ -110,7 +110,6 @@ class FriendPageProcessor(UrlProcessor):
         # Database Operations #
         #######################
         handler = WeiboUserHandler()
-        handler.open()
         if not handler.user_exist(uid=current_uid):
             handler.add_user(
                 uid=current_uid,
@@ -128,8 +127,6 @@ class FriendPageProcessor(UrlProcessor):
         for uid in uids:
             if not handler.user_exist(uid=uid):
                 handler.add_user(uid=uid)
-
-        handler.close()
 
         print("#begin#")
         print(current_uid)
