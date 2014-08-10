@@ -1,5 +1,0 @@
-g++: VirtualProject1: No such file or directory
-VirtualProject1.cpp: In function 'int main()':
-VirtualProject1.cpp:17: error: no matching function for call to 'GetTopic::GetTopic(DBdao&)'
-GetTopic.h:64: note: candidates are: GetTopic::GetTopic(DBdao&, int, int)
-GetTopic.h:36: note:                 GetTopic::GetTopic(const GetTopic&)
