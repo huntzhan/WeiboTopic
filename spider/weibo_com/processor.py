@@ -44,7 +44,7 @@ class UrlProcessor(ElementProcessor):
 
 class FriendPageProcessor(UrlProcessor):
 
-    def _generate_url_of_fans_page(self, uid):
+    def generate_url_of_fans_page(self, uid):
         URL_TEMPLATE = 'http://weibo.com/{}/follow'
         return URL_TEMPLATE.format(uid)
 
@@ -137,17 +137,19 @@ class FriendPageProcessor(UrlProcessor):
         elements = []
         # create element for next_page.
         if next_page:
-            elements.append(UrlElement(next_page, self))
+            new_element = UrlElement(next_page, FriendPageProcessor())
+            elements.append(new_element)
         # create element for next_page.
         if fans_page:
-            elements.append(UrlElement(fans_page, self))
+            new_element = UrlElement(fans_page, FriendPageProcessor())
+            elements.append(new_element)
         # create new elements.
-        for uid in uids:
-            url_element = UrlElement(
-                self._generate_url_of_fans_page(uid),
-                self,
-            )
-            elements.append(url_element)
+        # for uid in uids:
+        #     url_element = UrlElement(
+        #         self._generate_url_of_fans_page(uid),
+        #         self,
+        #     )
+        #     elements.append(url_element)
         return elements
 
 
