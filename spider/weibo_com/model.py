@@ -25,9 +25,9 @@ class Microblog():
                  forwards,
                  forwarded_content=None):
         self.mid = mid
-        self.created_time = created_time,
-        self.content = content,
-        self.favorites = favorites,
-        self.comments = comments,
-        self.forwards = forwards,
+        self.created_time = created_time
+        self.content = content
+        self.favorites = favorites
+        self.comments = comments
+        self.forwards = forwards
         self.forwarded_content = forwarded_content

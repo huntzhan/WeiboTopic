@@ -59,8 +59,8 @@ class TestDB(unittest.TestCase):
         self.assertFalse(exist)
 
     def test_blog(self):
+        # add blog with no user inserted before
         self.bhandler = MicroblogHandler()
-
         self.bhandler.add_blog(
             uid='110',
             mid='001',
@@ -72,6 +72,7 @@ class TestDB(unittest.TestCase):
             forwarded_content=None)
         self.assertFalse(self.bhandler.blog_exist('001'))
 
+        # add blog with user inserted
         self.uhandler = WeiboUserHandler()
         self.uhandler.add_user(
             uid='110',
@@ -90,6 +91,12 @@ class TestDB(unittest.TestCase):
             forwarded_content=None)
         self.assertTrue(self.bhandler.blog_exist('001'))
 
+        # query blog
+        b = self.bhandler.get_blog_by_mid('001')
+        print 'b.content', b.content
+        self.assertTrue(b.content == 'content')
+
+        # delete all
         self.bhandler.delete_blog(mid='001')
         self.uhandler.delete_user(uid='110')
         self.assertFalse(self.bhandler.blog_exist('001'))

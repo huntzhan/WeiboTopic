@@ -43,7 +43,9 @@ class _WeiboUser(Base):
 class _User2Blog(Base):
     __tablename__ = 'UserToBlog'
 
-    mid = Column(String(255), primary_key=True)
+    mid = Column(String(255),
+                 ForeignKey('Microblog.mid'),
+                 primary_key=True)
     uid = Column(String(255), ForeignKey('WeiboUser.uid'))
 
     def __repr__(self):
@@ -162,7 +164,7 @@ class DatabaseHandler:
         try:
             yield session
             session.commit()
-        except :
+        except:
             session.rollback()
         finally:
             session.close()
@@ -269,8 +271,8 @@ class MicroblogHandler(DatabaseHandler):
                 comments=comments,
                 forwards=forwards,
                 forwarded_content=forwarded_content)
-            u2b = _User2Blog(mid=mid, uid=uid)
             session.add(b)
+            u2b = _User2Blog(mid=mid, uid=uid)
             session.add(u2b)
 
     @classmethod
@@ -300,7 +302,8 @@ class MicroblogHandler(DatabaseHandler):
     @classmethod
     def delete_blog(cls, mid):
         with cls.modify_scope() as session:
-            b = session.query(_Microblog).filter_by(mid=mid).first()
+            # delete entry of UserToBlog first
             u2b = session.query(_User2Blog).filter_by(mid=mid).first()
-            session.delete(b)
             session.delete(u2b)
+            b = session.query(_Microblog).filter_by(mid=mid).first()
+            session.delete(b)
