@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import (unicode_literals, print_function, absolute_import)
 
-import re
+import base64
+import binascii
 import cookielib
+import json
+import re
 import urllib
 
+import mechanize
+from requests.cookies import create_cookie
+import rsa
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from requests.cookies import create_cookie
-import mechanize
 
 
 class _SeleniumOperator(object):
@@ -36,12 +40,13 @@ class _SeleniumOperator(object):
 
     @classmethod
     def _fill_username_password_elements(cls, driver,
-                                         user_ele, passwd_ele):
+                                         user_ele, passwd_ele,
+                                         username, password):
         # USERNAME and PASSWORD is defined as sub-class variables.
         user_ele.clear()
-        user_ele.send_keys(cls.USERNAME)
+        user_ele.send_keys(username)
         passwd_ele.clear()
-        passwd_ele.send_keys(cls.PASSWORD)
+        passwd_ele.send_keys(password)
 
     @classmethod
     def _fill_vertify_element(cls, driver,
@@ -54,9 +59,13 @@ class _SeleniumOperator(object):
             print(e)
 
     @classmethod
-    def _fill_username_and_password(cls, driver):
+    def _fill_username_and_password(cls, driver,
+                                    username, password):
         user_ele, passwd_ele = cls._find_username_password_elements(driver)
-        cls._fill_username_password_elements(driver, user_ele, passwd_ele)
+        cls._fill_username_password_elements(
+            driver, user_ele, passwd_ele,
+            username, password,
+        )
         # remove stupid box.
         passwd_ele.click()
 
@@ -115,17 +124,13 @@ class _Adaptor(object):
         return target_cookie_jar
 
 
-class LoginHandler(_SeleniumOperator, _Adaptor):
+class GUIBasedLogin(_SeleniumOperator, _Adaptor):
 
     """
     @brief: Login to weibo.cn and return cookies.
     """
 
     LOGIN_URL = "http://login.sina.com.cn/signup/signin.php?entry=sso"
-    # Currently set username and password as class variable, should be changed
-    # when simulating multiple users.
-    USERNAME = "janfancoat2@163.com"
-    PASSWORD = "coat123456"
 
     @classmethod
     def check_login_url(cls, url):
@@ -143,7 +148,7 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         return False
 
     @classmethod
-    def _get_login_raw_cookies(cls):
+    def _get_login_raw_cookies(cls, username, password):
         """
         @brief: Login base on GUI, with consideration of vetification.
         @return: A browser driver was successfully logined.
@@ -153,7 +158,7 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         wait = WebDriverWait(driver, 10)
         driver.get(cls.LOGIN_URL)
         # try to login without vetification.
-        cls._fill_username_and_password(driver)
+        cls._fill_username_and_password(driver, username, password)
         cls._submit(driver)
 
         while True:
@@ -163,7 +168,7 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
                 break
             except:
                 # still in login page.
-                cls._fill_username_and_password(driver)
+                cls._fill_username_and_password(driver, username, password)
                 cls._fill_vertification(driver)
                 cls._submit(driver)
         # After login sina.com, we need to get login session from weibo.com.
@@ -174,24 +179,24 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
         return driver.get_cookies()
 
     @classmethod
-    def get_login_cookies_dict(cls):
+    def get_login_cookies_dict(cls, username, password):
         """
         @return: A dict contains key/value pairs of cookies, which contains
                  bytes instead of unicode.
         """
 
-        raw_cookies = cls._get_login_raw_cookies()
+        raw_cookies = cls._get_login_raw_cookies(username, password)
         # extract cookies and return.
         cookies_dict = cls._trans_unicode_element_of_dict(raw_cookies)
         return cookies_dict
 
     @classmethod
-    def get_login_cookies_jar(cls):
+    def get_login_cookies_jar(cls, username, password):
         """
         @return: A CookieJar object.
         """
 
-        raw_cookies = cls._get_login_raw_cookies()
+        raw_cookies = cls._get_login_raw_cookies(username, password)
         cookiejar = cls._trans_cookies_from_dict_to_cookiejar(raw_cookies)
         return cookiejar
 
@@ -256,6 +261,119 @@ class PageLoader(object):
         """
         br = self.browse_open(url)
         return br.geturl(), br.response().read()
+
+
+#############
+# from cola #
+#############
+class ColaLogin(object):
+
+    def __init__(self, username, passwd):
+        self.opener = PageLoader(cookielib.CookieJar())
+
+        self.username = username
+        self.passwd = passwd
+
+    def get_user(self, username):
+        username = urllib.quote(username)
+        return base64.encodestring(username)[:-1]
+
+    def get_passwd(self, passwd, pubkey, servertime, nonce):
+        key = rsa.PublicKey(int(pubkey, 16), int('10001', 16))
+        message = str(servertime) + b'\t' + str(nonce) + b'\n' + str(passwd)
+        passwd = rsa.encrypt(message, key)
+        return binascii.b2a_hex(passwd)
+
+    def prelogin(self):
+        username = self.get_user(self.username)
+        prelogin_url = (
+            'http://login.sina.com.cn/sso/prelogin.php?'
+            'entry=sso&callback=sinaSSOController.preloginCallBack&'
+            'su={}&rsakt=mod&client=ssologin.js(v1.4.5)'
+        ).format(username)
+        data = self.opener.open(prelogin_url)
+        regex = re.compile('\((.*)\)')
+        try:
+            json_data = regex.search(data).group(1)
+            data = json.loads(json_data)
+
+            return (
+                str(data['servertime']),
+                data['nonce'].encode("utf-8"),
+                data['pubkey'].encode("utf-8"),
+                data['rsakv'].encode("utf-8"),
+            )
+        except:
+            raise Exception("WeiboLoginFailure")
+
+    def login(self):
+        login_url = (
+            'http://login.sina.com.cn/sso/login.php?'
+            'client=ssologin.js(v1.4.5)'
+        )
+
+        try:
+            servertime, nonce, pubkey, rsakv = self.prelogin()
+            postdata = {
+                'entry': b'weibo',
+                'gateway': b'1',
+                'from': b'',
+                'savestate': b'7',
+                'userticket': b'1',
+                'ssosimplelogin': b'1',
+                'vsnf': b'1',
+                'vsnval': '',
+                'su': self.get_user(self.username),
+                'service': b'miniblog',
+                'servertime': servertime,
+                'nonce': nonce,
+                'pwencode': b'rsa2',
+                'sp': self.get_passwd(
+                    self.passwd,
+                    pubkey,
+                    servertime,
+                    nonce),
+                'encoding': b'UTF-8',
+                'prelt': b'115',
+                'rsakv': rsakv,
+                'url': (
+                    b'http://weibo.com/ajaxlogin.php?framelogin=1&amp;'
+                    b'callback=parent.sinaSSOController.feedBackUrlCallBack'
+                ),
+                'returntype': b'META'}
+            postdata = urllib.urlencode(postdata)
+            text = self.opener.open(login_url, postdata)
+
+            # Fix for new login changed since about 2014-3-28
+            ajax_url_regex = re.compile('location\.replace\(\'(.*)\'\)')
+            matches = ajax_url_regex.search(text)
+            if matches is not None:
+                ajax_url = matches.group(1)
+                text = self.opener.open(ajax_url)
+
+            regex = re.compile('\((.*)\)')
+            json_data = json.loads(regex.search(text).group(1))
+            result = json_data['result']
+            if result is False and 'reason' in json_data:
+                # return result, json_data['reason']
+                return None
+            return result
+        except:
+            return None
+
+
+class NonGUIBasedLogin(object):
+
+    @classmethod
+    def get_login_cookies_jar(cls, username, password):
+        """
+        @input: username and password should all be unicode.
+        """
+        username = username.encode("utf-8")
+        password = password.encode("utf-8")
+        cola_login_handler = ColaLogin(username, password)
+        cola_login_handler.login()
+        return cola_login_handler.opener.cj
 
 
 #############
