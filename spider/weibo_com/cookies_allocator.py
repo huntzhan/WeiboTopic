@@ -1,13 +1,14 @@
 
 from __future__ import (unicode_literals, print_function, absolute_import)
 
+from collections import defaultdict
 from .utils import NonGUIBasedLogin, GUIBasedLogin
 
 
 class CookiesAllocator(object):
     """
     @brief: 1. Maintains username/password pairs.
-            2. Maintains a list of avaliable cookies.
+            2. Maintains a list of available cookies.
             3. Provides a interface for processors to retrive cookies.
             4. Intergrates two different login strategies.
     """
@@ -19,9 +20,10 @@ class CookiesAllocator(object):
 
     USERNAME_PASSWORD_MAPPING = {
         "janfancoat2@163.com": "coat123456",
+        "tencent_vproject@163.com": "tencent",
     }
     # username -> [cookiejar...]
-    _username_cookies_mapping = {}
+    _username_cookies_mapping = defaultdict(list)
 
     @classmethod
     def _check_cookies_availability(cls):
@@ -58,13 +60,45 @@ class CookiesAllocator(object):
         return cookies_jar
 
     @classmethod
+    def _build_cookies_with_callback(cls, callback):
+        for username, password in cls.USERNAME_PASSWORD_MAPPING.items():
+            cookies_jars = cls._username_cookies_mapping[username]
+            diff = cls.COOKIES_PER_USER - len(cookies_jars)
+            for _ in range(diff):
+                cookies_jars.append(callback(username, password))
+
+    @classmethod
     def build_cookeis(cls):
         """
         @brief: Refresh cookies. Non-GUI based method would be applied first.
                 If cookies are still unavailable, then GUI based method would
                 be applied.
         """
-        pass
+
+        # Notices that _username_cookies_mapping might not be empty.
+        # use non-GUI based method first.
+        cls._build_cookies_with_callback(cls._non_gui_based_method)
+        # check availability of cookies.
+        if cls._check_cookies_availability():
+            # ok!
+            return
+        # seems not ok. use GUI based method.
+        cls._build_cookies_with_callback(cls._gui_based_method)
+
+    @classmethod
+    def check_login_url(cls, url):
+        """
+        @return: True if url points to login page.
+        """
+        LOGIN_URL_PATTERNS = [
+            "weibo.com/login",
+            "login.sina.com.cn",
+            "weibo.com/signup",
+        ]
+        for pattern in LOGIN_URL_PATTERNS:
+            if re.search(pattern, url):
+                return True
+        return False
 
     @classmethod
     def get_cookie_jar(cls, retry=False):

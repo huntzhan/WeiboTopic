@@ -133,21 +133,6 @@ class GUIBasedLogin(_SeleniumOperator, _Adaptor):
     LOGIN_URL = "http://login.sina.com.cn/signup/signin.php?entry=sso"
 
     @classmethod
-    def check_login_url(cls, url):
-        """
-        @return: True if url points to login page.
-        """
-        LOGIN_URL_PATTERNS = [
-            "weibo.com/login",
-            "login.sina.com.cn",
-            "weibo.com/signup",
-        ]
-        for pattern in LOGIN_URL_PATTERNS:
-            if re.search(pattern, url):
-                return True
-        return False
-
-    @classmethod
     def _get_login_raw_cookies(cls, username, password):
         """
         @brief: Login base on GUI, with consideration of vetification.
