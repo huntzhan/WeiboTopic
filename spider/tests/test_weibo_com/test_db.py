@@ -95,6 +95,8 @@ class TestDB(unittest.TestCase):
         b = self.bhandler.get_blog_by_mid('001')
         print 'b.content', b.content
         self.assertTrue(b.content == 'content')
+        self.assertTrue(b.forwarded_content is None)
+        self.assertTrue(isinstance(b.created_time, str))
 
         # delete all
         self.bhandler.delete_blog(mid='001')
