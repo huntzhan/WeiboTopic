@@ -7,7 +7,8 @@ import re
 from collections import namedtuple
 
 from easy_spider import ElementProcessor
-from .utils import LoginHandler, PageLoader
+from .utils import PageLoader
+from .cookies_allocator import CookiesAllocator
 from .parser import FriendPageParser, MicroBlogParser
 from .element import UrlElement
 from .persist import WeiboUserHandler
@@ -15,21 +16,14 @@ from .persist import WeiboUserHandler
 
 class UrlProcessor(ElementProcessor):
 
-    # A trick to avoid initialization of _cookies_after_login.
-    _cookies_dict = {}
-    _cookies_jar = {}
-
-    def _get_login_cookies_dict(self):
-        self._cookies_dict = LoginHandler.get_login_cookies_dict()
-
-    def _get_login_cookies_jar(self):
-        self._cookies_jar = LoginHandler.get_login_cookies_jar()
+    def __init__(self, *args, **kwargs):
+        self.prepare_cookie_and_loader()
 
     def _check_login_url(self, url):
-        return LoginHandler.check_login_url(url)
+        return CookiesAllocator.check_login_url(url)
 
     def prepare_cookie_and_loader(self):
-        self._get_login_cookies_jar()
+        self._cookies_jar = CookiesAllocator.get_cookies_jar()
         self.page_loader = PageLoader(self._cookies_jar)
 
     def _load_page(self, url):
@@ -37,7 +31,10 @@ class UrlProcessor(ElementProcessor):
 
     def _load_page_with_retry(self, url):
         response_url, response_content = self._load_page(url)
-        if self._check_login_url(response_url):
+
+        while self._check_login_url(response_url):
+            # throw this cookies away.
+            CookiesAllocator.set_cookies_jar_invalid(self._cookies_jar)
             # refresh cookiesjar and page_loader.
             self.prepare_cookie_and_loader()
             # reload.

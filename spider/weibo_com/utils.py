@@ -339,7 +339,7 @@ class ColaLogin(object):
             regex = re.compile('\((.*)\)')
             json_data = json.loads(regex.search(text).group(1))
             result = json_data['result']
-            if result is False and 'reason' in json_data:
+            if result is False:
                 # return result, json_data['reason']
                 return None
             return result
@@ -357,8 +357,10 @@ class NonGUIBasedLogin(object):
         username = username.encode("utf-8")
         password = password.encode("utf-8")
         cola_login_handler = ColaLogin(username, password)
-        cola_login_handler.login()
-        return cola_login_handler.opener.cj
+        if cola_login_handler.login():
+            return cola_login_handler.opener.cj
+        else:
+            return None
 
 
 #############
