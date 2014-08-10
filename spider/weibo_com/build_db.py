@@ -1,12 +1,22 @@
 
+from setuptools import Command
 from sqlalchemy import create_engine
 from weibo_com.persist import Base, DB_URL
 
 
-def create_tables():
-    engine = create_engine(DB_URL)
-    Base.metadata.create_all(engine)
+class BuildDBCommand(Command):
 
+    user_options = [('testcmd', None, 'test')]
 
-if __name__ == "__main__":
-    create_tables()
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def create_tables(self):
+        engine = create_engine(DB_URL)
+        Base.metadata.create_all(engine)
+
+    def run(self):
+        self.create_tables()
