@@ -87,9 +87,16 @@ class TestMessageProcessor(unittest.TestCase):
         cls.processor = MessagePageProcessor()
         cls.processor.prepare_cookie_and_loader()
 
+    @unittest.skipIf(SKIP_LOGIN_TEST, "It takes times.")
     def test_microblog(self):
         url_template = "http://weibo.com/aj/mblog/mbloglist?uid={0}&_k={1}"
         uid = 3211200050
         start = int(time.time() * (10**6))
         test_url = url_template.format(uid, start)
-        self.processor._process_url(test_url)
+
+        messages, url_of_next_page = self.processor._process_url(test_url)
+        np = url_of_next_page
+        while np:
+            for message in messages:
+                self.assertEqual(len(message), 8)
+            messages, np = self.processor._process_url(np)

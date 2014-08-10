@@ -124,8 +124,8 @@ class LoginHandler(_SeleniumOperator, _Adaptor):
     LOGIN_URL = "http://login.sina.com.cn/signup/signin.php?entry=sso"
     # Currently set username and password as class variable, should be changed
     # when simulating multiple users.
-    USERNAME = "13570322748"
-    PASSWORD = "huntzhan"
+    USERNAME = "janfancoat2@163.com"
+    PASSWORD = "coat123456"
 
     @classmethod
     def check_login_url(cls, url):

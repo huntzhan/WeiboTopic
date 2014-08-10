@@ -8,12 +8,10 @@ setup(
     version='0.1',
     author='',
     author_email='',
-
     url='',
     license='MIT',
     description='',
     # long_description=open('README.rst').read(),
-
     install_requires=[
         # 'Scrapy>=0.24.2',
         # dependencies of cola.
@@ -31,13 +29,15 @@ setup(
         'futures',
         'mysql-python',
     ],
-
     packages=['easy_spider', 'weibo_com'],
-    # entry_points={
-    #     'console_scripts': [
-    #         'somecmd = somepackage:main',
-    #     ],
-    # },
+    entry_points={
+        'console_scripts': [
+            'run_weibo_com = weibo_com.run:run',
+        ],
+        "distutils.commands": [
+            "build_db = weibo_com.build_db:BuildDBCommand",
+        ],
+    },
     test_suite='tests.load_tests',
     classifiers=[
         'Development Status :: 3 - Alpha',

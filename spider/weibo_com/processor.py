@@ -42,7 +42,7 @@ class UrlProcessor(ElementProcessor):
             self.prepare_cookie_and_loader()
             # reload.
             response_url, response_content = self._load_page(url)
-        return response_url, response_content
+        return response_content
 
 
 class FriendPageProcessor(UrlProcessor):
@@ -81,7 +81,7 @@ class FriendPageProcessor(UrlProcessor):
         # handling return data encapsulation.
         data_interface = namedtuple("_", ['parser', 'extractor'])
 
-        response_url, response_content = self._load_page_with_retry(url)
+        response_content = self._load_page_with_retry(url)
 
         # extract information by parser.
         friend_page_parser = FriendPageParser()
@@ -157,11 +157,11 @@ class FriendPageProcessor(UrlProcessor):
 class MessagePageProcessor(UrlProcessor):
 
     def _process_url(self, url):
-        response_url, response_content = self._load_page_with_retry(url)
+        response_content = self._load_page_with_retry(url)
         # create parser.
-        microblog_parser = MicroBlogParser()
-        microblog_parser.parse(response_url, response_content)
-        return None
+        microblog_parser = MicroBlogParser(url, response_content)
+        messages, url_of_next_page = microblog_parser.parse()
+        return messages, url_of_next_page
 
     def process_element(self, element):
         pass
