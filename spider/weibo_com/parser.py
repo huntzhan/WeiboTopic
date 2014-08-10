@@ -206,39 +206,7 @@ class MicroBlogParser(object):
         return url_of_next_page
 
     def _data_generator(self, params, response_content):
-        # if self.bundle.exists == False:
-        #     return [], []
-        # url = url or self.url
-        # params = urldecode(url)
-        # br = self.opener.browse_open(url)
-        # self.logger.debug('load %s finish' % url)
-        #
-        # if not self.check(url, br):
-        #     return [], []
-        #
-        # weibo_user = self.get_weibo_user()
 
-        # params = urldecode(requested_url)
-        # uid = params['uid']
-
-        # params['_t'] = 0
-        # params['__rnd'] = str(int(time.time() * 1000))
-        # page = int(params.get('page', 1))
-        # pre_page = int(params.get('pre_page', 0))
-        # count = 15
-        # if 'pagebar' not in params:
-        #     params['pagebar'] = '0'
-        #     pre_page += 1
-        # elif params['pagebar'] == '0':
-        #     params['pagebar'] = '1'
-        # elif params['pagebar'] == '1':
-        #     del params['pagebar']
-        #     pre_page = page
-        #     page += 1
-        #     count = 50
-        # params['count'] = count
-        # params['page'] = page
-        # params['pre_page'] = pre_page
         uid = params['uid']
 
         # data = json.loads(br.response().read())['data']
@@ -250,17 +218,10 @@ class MicroBlogParser(object):
         max_id = None
         next_urls = []
 
-        # add for extraction.
-        # newest_mids = []
-
         #########################################
         # generate one micro blog on each loop. #
         #########################################
         for div in divs:
-            # debug
-            # from pprint import pprint
-            # pprint(div)
-
             # extract mid here!
             mid = div['mid']
             if len(mid) == 0:
@@ -269,20 +230,6 @@ class MicroBlogParser(object):
 
             if 'end_id' not in params:
                 params['end_id'] = mid
-            # if mid in weibo_user.newest_mids:
-            #     finished = True
-            #     break
-            # if len(newest_mids) < 3:
-            #     newest_mids.append(mid)
-
-            ###################################################################
-            # Cola create micro blog instance here, by supplying mid and uid. #
-            ###################################################################
-            # try:
-            #     mblog = getattr(MicroBlog,
-            #                     'objects').get(Q(mid=mid)&Q(uid=self.uid))
-            # except DoesNotExist:
-            #     mblog = MicroBlog(mid=mid, uid=self.uid)
 
             content_div = div.find('div', attrs={
                 'class': 'WB_text',
@@ -307,7 +254,6 @@ class MicroBlogParser(object):
                 ######################
                 # Extract omid here. #
                 ######################
-                # mblog.omid = div['omid']
                 name_a = div.find('a', attrs={
                     'class': 'WB_name',
                     'node-type': 'feed_list_originNick'
@@ -317,34 +263,14 @@ class MicroBlogParser(object):
                     'node-type': 'feed_list_reason'
                 })
 
-                ######################
-                # What is this shit? #
-                ######################
-                # if name_a is not None and text_a is not None:
-                #     mblog.forward = '%s: %s' % (
-                #         name_a.text,
-                #         text_a.text
-                #     )
                 if text_a:
                     forwarded_content = text_a.text
 
             ########################
             # Extract created time #
             ########################
-            # mblog.created =
-            # parse(div.select('a.S_link2.WB_time')[0]['title'])
             created = parse(div.select('a.S_link2.WB_time')[0]['title'])
             created_time = created.isoformat()
-
-            # Interact with bundles.
-            #
-            # if self.bundle.last_update is None
-            #       or mblog.created > self.bundle.last_update:
-            #     self.bundle.last_update = mblog.created
-            # if weibo_user.last_update is not None and \
-            #     mblog.created <= weibo_user.last_update:
-            #     finished = True
-            #     break
 
             func_div = div.find_all('div', 'WB_func')[-1]
             action_type_re = lambda t: re.compile("^(feed_list|fl)_%s$" % t)
@@ -365,11 +291,7 @@ class MicroBlogParser(object):
             ################################################
             forwards = func_div.find(
                 'a', attrs={'action-type': action_type_re("forward")}).text
-            # if '(' not in forwards:
-            #     mblog.n_forwards = 0
-            # else:
-            #     mblog.n_forwards = int(
-            #       forwards.strip().split('(', 1)[1].strip(')'))
+
             if '(' not in forwards:
                 number_of_forward = 0
             else:
@@ -381,63 +303,12 @@ class MicroBlogParser(object):
             #################################################
             comments = func_div.find(
                 'a', attrs={'action-type': action_type_re('comment')}).text
-            # if '(' not in comments:
-            #     mblog.n_comments = 0
-            # else:
-            #     mblog.n_comments = int(
-            #       comments.strip().split('(', 1)[1].strip(')'))
+
             if '(' not in comments:
                 number_of_comment = 0
             else:
                 number_of_comment = int(
                     comments.strip().split('(', 1)[1].strip(')'))
-
-            ########################################
-            # Don't needed geographic information. #
-            ########################################
-            # fetch geo info
-            # map_info = div.find("div", attrs={'class': 'map_data'})
-            # if map_info is not None:
-            #     geo = Geo()
-            #     geo.location = map_info.text.split('-')[0].strip()
-            #     geo_info = urldecode(
-            #       "?"+map_info.find('a')['action-data'])['geo']
-            #     geo.longtitude, geo.latitude =\
-            #        tuple([float(itm) for itm in geo_info.split(',', 1)])
-            #     mblog.geo = geo
-
-            #####################################################
-            # We do not fetch forward and comments information. #
-            #####################################################
-            # fetch forwards and comments
-            # if fetch_forward or fetch_comment or fetch_like:
-            #     query = {'id': mid, '_t': 0, '__rnd': int(time.time()*1000)}
-            #     query_str = urllib.urlencode(query)
-            #     if fetch_forward and mblog.n_forwards > 0:
-            #         forward_url = \
-            #           'http://weibo.com/aj/mblog/info/big?%s' % query_str
-            #         next_urls.append(forward_url)
-            #     if fetch_comment and mblog.n_comments > 0:
-            #         comment_url =\
-            #           'http://weibo.com/aj/comment/big?%s' % query_str
-            #         next_urls.append(comment_url)
-            #     if fetch_like and mblog.n_likes > 0:
-            #         query = {'mid': mid, '_t': 0,
-            #                  '__rnd': int(time.time()*1000)}
-            #         query_str = urllib.urlencode(query)
-            #         like_url = 'http://weibo.com/aj/like/big?%s' % query_str
-            #         next_urls.append(like_url)
-
-            # get url of message that forward FROM current message.
-            # if True:
-            #     query = {'id': mid, '_t': 0, '__rnd': int(time.time()*1000)}
-            #     query_str = urllib.urlencode(query)
-            #     if number_of_forward > 0:
-            #         link = 'http://weibo.com/aj/mblog/info/big?{}'.format(
-            #             query_str)
-            #         print("LINK: ", link)
-
-            # mblog.save()
 
             ################
             # yield result #
@@ -449,39 +320,15 @@ class MicroBlogParser(object):
                 number_of_favourite, number_of_comment,
                 number_of_forward,
             )
-            encode_item = lambda x : x.encode('utf-8')\
+            encode_item = lambda x: x.encode('utf-8')\
                 if isinstance(x, unicode) else x
             processed_message = list(map(encode_item, raw_message))
             yield processed_message
-            # print("#begin#")
-            # print(content)
-            # print(forwarded_content)
-            # print(uid, mid, created_time,
-            #       number_of_favourite, number_of_comment,
-            #       number_of_forward)
-            # print("#end#")
 
         if 'pagebar' in params:
             params['max_id'] = max_id
         else:
             del params['max_id']
-        # self.logger.debug('parse %s finish' % url)
-
-        # if not has next page
-        # if len(divs) == 0 or finished:
-        #     weibo_user = self.get_weibo_user()
-        #     for mid in newest_mids:
-        #         if mid not in weibo_user.newest_mids:
-        #             weibo_user.newest_mids.append(mid)
-        #     while len(weibo_user.newest_mids) > 3:
-        #         weibo_user.newest_mids.pop()
-        #     weibo_user.last_update = self.bundle.last_update
-        #     weibo_user.save()
-        #     return [], []
-
-        # next_urls.append('%s?%s' % (
-        #     url.split('?')[0], urllib.urlencode(params)))
-        # return next_urls, []
 
     def parse(self):
         """
