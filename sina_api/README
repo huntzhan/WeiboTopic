@@ -1,0 +1,7 @@
+query = {
+    'client_id': '158481545',
+    'client_secret': '21b4516bd99098c37122ba3dc7ac0027',
+    'grant_type': 'authorization_code',
+    'code': 'c64b08b41382be0818393f56899eb6c7',
+    'redirect_uri': 'http://haoxun.org',
+}
