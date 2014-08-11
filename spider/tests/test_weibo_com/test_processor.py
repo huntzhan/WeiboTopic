@@ -43,10 +43,8 @@ class TestUrlProcessor(unittest.TestCase):
 
 class TestFriendProcessor(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.processor = FriendPageProcessor()
-        cls.processor.prepare_cookie_and_loader()
+    def setUp(self):
+        self.processor = FriendPageProcessor()
 
     def test_fans_page(self):
         test_url = "http://weibo.com/3211200050/follow?relate=fans"
@@ -82,10 +80,8 @@ class TestFriendProcessor(unittest.TestCase):
 
 class TestMessageProcessor(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.processor = MessagePageProcessor()
-        cls.processor.prepare_cookie_and_loader()
+    def setUp(self):
+        self.processor = MessagePageProcessor()
 
     @unittest.skipIf(SKIP_LOGIN_TEST, "It takes times.")
     def test_microblog(self):
