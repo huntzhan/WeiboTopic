@@ -32,7 +32,9 @@ class UrlProcessor(ElementProcessor):
     def _load_page_with_retry(self, url):
         response_url, response_content = self._load_page(url)
 
-        while self._check_login_url(response_url):
+        # while error url or invalid response_content.
+        while self._check_login_url(response_url)\
+                or not response_content:
             # throw this cookies away.
             CookiesAllocator.set_cookies_jar_invalid(self._cookies_jar)
             # refresh cookiesjar and page_loader.
