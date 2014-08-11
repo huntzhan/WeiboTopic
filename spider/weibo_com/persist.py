@@ -10,6 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import ForeignKey
+from sqlalchemy import func
 
 from weibo_com.model import WeiboUser, Microblog
 
@@ -243,6 +244,18 @@ class WeiboUserHandler(DatabaseHandler):
         with cls.modify_scope() as session:
             user = session.query(_WeiboUser).filter_by(uid=uid).first()
             session.delete(user)
+
+    @classmethod
+    def get_invalid_user(cls, num):
+        with cls.query_scope() as session:
+            count = session.query(func.count(_WeiboUser.uid)).\
+                filter(_WeiboUser.posts == -1).first()
+            if count < num:
+                num = count
+            uids = session.query(_WeiboUser.uid).\
+                filter(_WeiboUser.posts == -1).\
+                limit(num).all()
+            return num, [item[0] for item in uids]
 
 
 class MicroblogHandler(DatabaseHandler):
