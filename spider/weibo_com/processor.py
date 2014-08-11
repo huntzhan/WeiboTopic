@@ -39,6 +39,7 @@ class UrlProcessor(ElementProcessor):
             self.prepare_cookie_and_loader()
             # reload.
             response_url, response_content = self._load_page(url)
+        # print("DEBUG_URL:", response_url)
         return response_content
 
 
