@@ -46,7 +46,7 @@ class FriendPageProcessor(UrlProcessor):
 
     @classmethod
     def generate_url_of_fans_page(cls, uid):
-        URL_TEMPLATE = 'http://weibo.com/{}/follow'
+        URL_TEMPLATE = 'http://weibo.com/{}/follow?relate=fans'
         return URL_TEMPLATE.format(uid)
 
     def _extract_user_properties(self, response_content):

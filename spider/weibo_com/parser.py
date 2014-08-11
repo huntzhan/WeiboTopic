@@ -145,7 +145,7 @@ class FriendPageParser(object):
             html, decodes, is_follow, is_new_mode = variables
 
         if html is None:
-            print(requested_url)
+            print("HTML is None: ", requested_url)
 
         # extract uids in page.
         new_uids = self._extract_uids(html, decodes)
