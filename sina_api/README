@@ -1,3 +1,4 @@
+account: vproject_janfan1@163.com
 query = {
     'client_id': '158481545',
     'client_secret': '21b4516bd99098c37122ba3dc7ac0027',
@@ -5,3 +6,6 @@ query = {
     'code': 'c64b08b41382be0818393f56899eb6c7',
     'redirect_uri': 'http://haoxun.org',
 }
+
+1. get code: http://open.weibo.com/wiki/Oauth2/authorize
+2. get access_token: http://open.weibo.com/wiki/Oauth2/authorize
