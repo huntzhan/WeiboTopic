@@ -28,6 +28,7 @@ Base = declarative_base()
 
 class _WeiboUser(Base):
     __tablename__ = 'WeiboUser'
+    __table_args__ = {'mysql_engine': 'InnoDB'}
 
     uid = Column(String(255), primary_key=True)
     followees = Column(Integer)
@@ -43,6 +44,7 @@ class _WeiboUser(Base):
 
 class _User2Blog(Base):
     __tablename__ = 'UserToBlog'
+    __table_args__ = {'mysql_engine': 'InnoDB'}
 
     mid = Column(String(255),
                  ForeignKey('Microblog.mid'),
@@ -57,6 +59,7 @@ class _User2Blog(Base):
 
 class _Microblog(Base):
     __tablename__ = 'Microblog'
+    __table_args__ = {'mysql_engine': 'InnoDB'}
 
     mid = Column(String(255), primary_key=True)
     created_time = Column(String(255))
