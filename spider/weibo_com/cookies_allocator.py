@@ -99,6 +99,7 @@ class CookiesAllocator(object):
         """
 
         LOGIN_URL_PATTERNS = [
+            "sass.weibo.com/accessdeny",
             "weibo.com/sorry",
             "passport.weibo.com",
             "weibo.com/login",
