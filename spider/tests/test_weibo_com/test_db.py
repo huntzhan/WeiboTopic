@@ -1,6 +1,7 @@
 
 import unittest
 from datetime import datetime
+import pdb
 
 from weibo_com.model import WeiboUser, Microblog
 from weibo_com.persist import WeiboUserHandler,\
@@ -51,6 +52,16 @@ class TestDB(unittest.TestCase):
         self.assertFalse(u.followees == 100)
         u4 = self.handler.get_user_by_uid(uid='110')
         self.assertTrue(u4.followees == 100)
+
+        self.handler.add_user(uid='111')
+        self.handler.add_user(uid='112')
+        self.handler.add_user(uid='113')
+        num, uids = self.handler.get_invalid_user(2)
+        self.assertTrue(num == 2)
+        self.assertTrue(isinstance(uids[0], str))
+        self.handler.delete_user(uid='111')
+        self.handler.delete_user(uid='112')
+        self.handler.delete_user(uid='113')
 
         exist = self.handler.user_exist(uid='110')
         self.assertTrue(exist)
