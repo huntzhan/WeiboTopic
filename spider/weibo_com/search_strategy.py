@@ -4,7 +4,7 @@ import random
 
 from easy_spider import ConcurrentStrategy
 from .persist import WeiboUserHandler
-from .processor import FriendPageProcessor
+from .processor import FriendPageProcessor, MessagePageProcessor
 from .element import UrlElement
 
 
@@ -20,7 +20,7 @@ class RandomInvalidUserAccessor(ConcurrentStrategy):
 
     def valid(self):
         actual_size, uids = WeiboUserHandler.get_invalid_user(10)
-        return actual_size > 0
+        return actual_size > 0 or len(self.queue) > 0
 
     def receive_element(self, element):
         self.queue.append(element)
@@ -39,9 +39,6 @@ class RandomInvalidUserAccessor(ConcurrentStrategy):
             self.queue = []
             # query for invalid uid to db.
             actual_size, uids = WeiboUserHandler.get_invalid_user(diff)
-            print("##################shit##############")
-            print(uids)
-            print("##################shit##############")
             uids = uids[:diff]
 
             for uid in uids:
@@ -49,3 +46,18 @@ class RandomInvalidUserAccessor(ConcurrentStrategy):
                 element = UrlElement(url, FriendPageProcessor())
                 elements.append(element)
             return elements
+
+
+class RandomMicroBlogAccessor(ConcurrentStrategy):
+
+    def __init__(self):
+        self.queue = []
+
+    def valid(self):
+        pass
+
+    def receive_element(self, element):
+        self.queue.append(element)
+
+    def next_independent_elements(self, max):
+        pass

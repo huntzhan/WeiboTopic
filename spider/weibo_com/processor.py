@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import (unicode_literals, print_function, absolute_import)
 
-import logging
+import time
 import requests
 import re
 from collections import namedtuple
@@ -11,7 +11,7 @@ from .utils import PageLoader
 from .cookies_allocator import CookiesAllocator
 from .parser import FriendPageParser, MicroBlogParser
 from .element import UrlElement
-from .persist import WeiboUserHandler
+from .persist import WeiboUserHandler, MicroblogHandler
 
 
 class UrlProcessor(ElementProcessor):
@@ -149,6 +149,12 @@ class FriendPageProcessor(UrlProcessor):
 
 class MessagePageProcessor(UrlProcessor):
 
+    @classmethod
+    def generate_message_page_url(cls, uid):
+        URL_TEMPLATE = 'http://weibo.com/aj/mblog/mbloglist?uid={0}&_k={1}'
+        start = int(time.time() * (10**6))
+        return URL_TEMPLATE.format(uid, start)
+
     def _process_url(self, url):
         response_content = self._load_page_with_retry(url)
         # create parser.
@@ -156,5 +162,40 @@ class MessagePageProcessor(UrlProcessor):
         messages, url_of_next_page = microblog_parser.parse()
         return messages, url_of_next_page
 
+    def _package_message(self, message):
+        """
+        @input: an 8-tuple contains values of messages.
+        @output: a dict with corresponding keys added.
+        """
+
+        KEYS = [
+            'uid', 'mid',
+            'content', 'forwarded_content',
+            'created_time',
+            'favourites', 'comments',
+            'forwards',
+        ]
+
+        packaged_message = {}
+        for key, value in zip(KEYS, message):
+            packaged_message[key] = value
+        return packaged_message
+
     def process_element(self, element):
-        pass
+        messages, url_of_next_page = self._process_url(element.url)
+        has_new_messages = False
+        #######################
+        # Database Operations #
+        #######################
+        for packaged_message in map(self._package_message, messages):
+            if not MicroblogHandler.blog_exist(packaged_message['mid']):
+                MicroblogHandler.add_blog(**packaged_message)
+                has_new_messages = True
+
+        ########################
+        # Processor Operations #
+        ########################
+        if url_of_next_page and has_new_messages:
+            return UrlElement(url_of_next_page, MessagePageProcessor())
+        else:
+            return None
