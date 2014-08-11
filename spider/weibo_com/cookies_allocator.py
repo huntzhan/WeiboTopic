@@ -23,6 +23,8 @@ class CookiesAllocator(object):
     USERNAME_PASSWORD_MAPPING = {
         "janfancoat2@163.com": "coat123456",
         "tencent_vproject1@163.com": "tencent",
+        "vproject_tencent11@163.com": "tencent",
+        "tencent_vproject12@163.com": "tencent",
     }
     # username -> [cookiejar...]
     _username_cookies_mapping = defaultdict(list)
