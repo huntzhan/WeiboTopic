@@ -32,7 +32,7 @@ setup(
     packages=['easy_spider', 'weibo_com'],
     entry_points={
         'console_scripts': [
-            'run_weibo_com = weibo_com.run:run',
+            'crawl_user = weibo_com.run:crawl_user_info',
         ],
         "distutils.commands": [
             "build_db = weibo_com.build_db:BuildDBCommand",

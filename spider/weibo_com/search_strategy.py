@@ -1,7 +1,11 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import random
+
 from easy_spider import ConcurrentStrategy
+from .persist import WeiboUserHandler
+from .processor import FriendPageProcessor
+from .element import UrlElement
 
 
 class RandomInvalidUserAccessor(ConcurrentStrategy):
@@ -15,10 +19,11 @@ class RandomInvalidUserAccessor(ConcurrentStrategy):
         self.queue = []
 
     def valid(self):
-        return len(self.queue) > 0
+        actual_size, uids = WeiboUserHandler.get_invalid_user(10)
+        return actual_size > 0
 
     def receive_element(self, element):
-        self.append(element)
+        self.queue.append(element)
 
     def next_independent_elements(self, max):
         # select avaliable queue.
@@ -28,5 +33,19 @@ class RandomInvalidUserAccessor(ConcurrentStrategy):
             return result
         else:
             diff = max - len(self.queue)
+            # generate elements.
+            elements = []
+            elements.extend(self.queue)
+            self.queue = []
             # query for invalid uid to db.
-            pass
+            actual_size, uids = WeiboUserHandler.get_invalid_user(diff)
+            print("##################shit##############")
+            print(uids)
+            print("##################shit##############")
+            uids = uids[:diff]
+
+            for uid in uids:
+                url = FriendPageProcessor.generate_url_of_fans_page(uid)
+                element = UrlElement(url, FriendPageProcessor())
+                elements.append(element)
+            return elements
