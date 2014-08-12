@@ -6,7 +6,7 @@ from .persist import DatabaseHandler
 
 
 QUERY_PER_HOUT = 145
-DURATION = 1800.0 / QUERY_PER_HOUT
+DURATION = 3600.0 / QUERY_PER_HOUT
 
 
 ordered_keys_for_init = [
