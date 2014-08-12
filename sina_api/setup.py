@@ -22,12 +22,12 @@ setup(
     ],
     packages=[],
     entry_points={
+        "distutils.commands": [
+            "build_db = weibo_crawl.build_db:BuildDBCommand",
+        ],
         'console_scripts': [
             'run_api = weibo_crawl.run:run',
         ],
-        # "distutils.commands": [
-        #     "build_db = weibo_com.build_db:BuildDBCommand",
-        # ],
     },
     test_suite='tests.load_tests',
     classifiers=[
