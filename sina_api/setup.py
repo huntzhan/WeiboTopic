@@ -20,14 +20,14 @@ setup(
         'selenium',
     ],
     packages=[],
-    # entry_points={
+    entry_points={
     #     'console_scripts': [
     #         'crawl_user = weibo_com.run:crawl_user_info',
     #     ],
-    #     "distutils.commands": [
-    #         "build_db = weibo_com.build_db:BuildDBCommand",
-    #     ],
-    # },
+        "distutils.commands": [
+            "build_db = weibo_crawl.build_db:BuildDBCommand",
+        ],
+    },
     test_suite='tests.load_tests',
     classifiers=[
         'Development Status :: 3 - Alpha',
