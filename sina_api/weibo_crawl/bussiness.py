@@ -166,7 +166,7 @@ class CodeApplier(object):
 
 class WeiboAPIHandler(object):
 
-    ACCESS_URL= "https://api.weibo.com/oauth2/access_token"
+    ACCESS_URL = "https://api.weibo.com/oauth2/access_token"
 
     def __init__(self,
                  username, password,
@@ -277,9 +277,20 @@ class PublicTimelineQuery(object):
         self.api_handler = api_handler
 
     def _build_data_interface(self, item, names_mapping, interface_cls):
+        # regular expression for filter out 4-byte char.
+        try:
+            highpoints = re.compile('[\U00010000-\U0010ffff]')
+        except re.error:
+            # UCS-2 build
+            highpoints = re.compile('[\uD800-\uDBFF][\uDC00-\uDFFF]')
+
         kwargs = {}
         for custom_key, api_key in names_mapping.items():
-            kwargs[custom_key] = item.get(api_key, None)
+            value = item.get(api_key, None)
+            # filter out 4-byte char.
+            if isinstance(value, unicode):
+                value = highpoints.sub('', value)
+            kwargs[custom_key] = value
         return interface_cls(**kwargs)
 
     def _extract_message(self, item):
