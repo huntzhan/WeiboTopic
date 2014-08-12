@@ -231,11 +231,13 @@ class WeiboAPIHandler(object):
 class PublicTimelineQuery(object):
 
     URL = "https://api.weibo.com/2/statuses/public_timeline.json"
+
     Message = namedtuple(
         'Message',
         ['mid', 'content', 'forwarded_content', 'created_time',
          'favourites', 'comments', 'forwards'],
     )
+
     User = namedtuple(
         'User',
         ['uid', 'fans', 'followees', 'posts'],
@@ -294,5 +296,3 @@ class PublicTimelineQuery(object):
         for item in items:
             message = self._extract_message(item)
             user = self._extract_user(item)
-            print(message)
-            print(user)

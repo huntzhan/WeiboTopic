@@ -76,7 +76,7 @@ class TestWeiboAPIHandler(unittest.TestCase):
             num = data.get('total_number', None)
             self.assertEqual(num, 200)
 
-    # def test_retewwt(self):
-    #     h1 = self.handler
-    #     query = PublicTimelineQuery(h1)
-    #     query.query()
+    def test_retewwt(self):
+        h1 = self.handler
+        query = PublicTimelineQuery(h1)
+        query.query()
