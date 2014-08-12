@@ -1,9 +1,10 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
+from collections import namedtuple
 from threading import Timer
 import time
-import urllib
 import re
+import urllib
 import urlparse
 
 import requests
@@ -167,8 +168,8 @@ class WeiboAPIHandler(object):
     def __init__(self,
                  username, password,
                  client_id, client_secret,
-                 code, redirect_uri):
-        # for access_token.
+                 code, access_token,
+                 redirect_uri):
         self.oauth_arguments = {
             'client_id': client_id,
             'client_secret': client_secret,
@@ -176,11 +177,9 @@ class WeiboAPIHandler(object):
             'code': code,
             'redirect_uri': redirect_uri,
         }
-        # for code.
         self.username = username
         self.password = password
-        # refresh access token.
-        self._apply_for_access_token()
+        self.access_token = access_token
 
     def _check_error(self, json):
         if "error_code" in json:
@@ -231,10 +230,57 @@ class WeiboAPIHandler(object):
 
 class PublicTimelineQuery(object):
 
-    URL = "https://api.weibo.com/2/statuses/public_timeline.json",
+    URL = "https://api.weibo.com/2/statuses/public_timeline.json"
+    Message = namedtuple(
+        'Message',
+        ['mid', 'content', 'forwarded_content', 'created_time',
+         'favourites', 'comments', 'forwards'],
+    )
+    User = namedtuple(
+        'User',
+        ['uid', 'fans', 'followees', 'posts'],
+    )
 
     def __init__(self, api_handler):
         self.api_handler = api_handler
+
+    def _build_data_interface(self, item, names_mapping, interface_cls):
+        kwargs = {}
+        for custom_key, api_key in names_mapping.items():
+            kwargs[custom_key] = item.get(api_key, None)
+        return interface_cls(**kwargs)
+
+    def _extract_message(self, item):
+        names_mapping = {
+            'mid': 'mid',
+            'content': 'text',
+            'forwarded_content': None,
+            'created_time': 'created_at',
+            'favourites': 'attitudes_count',
+            'comments': 'comments_count',
+            'forwards': 'reposts_count',
+        }
+        message = self._build_data_interface(
+            item,
+            names_mapping,
+            self.Message,
+        )
+        return message
+
+    def _extract_user(self, item):
+        user_object = item['user']
+        names_mapping = {
+            'uid': 'id',
+            'fans': 'followers_count',
+            'followees': 'friends_count',
+            'posts': 'statuses_count',
+        }
+        user = self._build_data_interface(
+            user_object,
+            names_mapping,
+            self.User,
+        )
+        return user
 
     def query(self):
         response_json = self.api_handler.apply(
@@ -244,3 +290,9 @@ class PublicTimelineQuery(object):
         ################
         # process json #
         ################
+        items = response_json['statuses']
+        for item in items:
+            message = self._extract_message(item)
+            user = self._extract_user(item)
+            print(message)
+            print(user)
