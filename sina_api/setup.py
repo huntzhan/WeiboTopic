@@ -17,6 +17,7 @@ setup(
         'sqlalchemy',
         'futures',
         'mysql-python',
+        'selenium',
     ],
     packages=[],
     # entry_points={
