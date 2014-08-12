@@ -18,14 +18,15 @@ setup(
         'futures',
         'mysql-python',
         'selenium',
+        'configparser',
     ],
     packages=[],
     entry_points={
-    #     'console_scripts': [
-    #         'crawl_user = weibo_com.run:crawl_user_info',
-    #     ],
         "distutils.commands": [
             "build_db = weibo_crawl.build_db:BuildDBCommand",
+        ],
+        'console_scripts': [
+            'run_api = weibo_crawl.run:run',
         ],
     },
     test_suite='tests.load_tests',
