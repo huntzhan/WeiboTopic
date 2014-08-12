@@ -261,6 +261,7 @@ class PublicTimelineQuery(object):
             'favourites': 'attitudes_count',
             'comments': 'comments_count',
             'forwards': 'reposts_count',
+            '': 'source',
         }
         message = self._build_data_interface(
             item,
@@ -276,6 +277,11 @@ class PublicTimelineQuery(object):
             'fans': 'followers_count',
             'followees': 'friends_count',
             'posts': 'statuses_count',
+            '': 'gender',
+            '': 'favourites_count',
+            '': 'created_at',
+            '': 'verified',
+            '': 'bi_followers_count',
         }
         user = self._build_data_interface(
             user_object,
@@ -289,10 +295,8 @@ class PublicTimelineQuery(object):
             self.URL,
             count=200,
         )
-        ################
-        # process json #
-        ################
         items = response_json['statuses']
+
         for item in items:
             message = self._extract_message(item)
             user = self._extract_user(item)
