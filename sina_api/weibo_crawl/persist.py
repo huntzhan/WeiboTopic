@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 
 
-DB_URL = 'mysql://{}:{}@{}:{}/{}'.format(
+DB_URL = 'mysql://{}:{}@{}:{}/{}??charset=utf8&use_unicode=0'.format(
     'root',
     '123456',
     'localhost',
