@@ -18,6 +18,7 @@ setup(
         'futures',
         'mysql-python',
         'selenium',
+        'configparser',
     ],
     packages=[],
     entry_points={
