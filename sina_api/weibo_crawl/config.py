@@ -3,6 +3,18 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 import configparser
 
 
+def week_filter(*required_keys):
+    def _decorator(func):
+        def _wrap(self, **kwargs):
+            processed_kwargs = {}
+            for key, value in kwargs.items():
+                if key in required_keys:
+                    processed_kwargs[key] = value
+            return func(self, **processed_kwargs)
+        return _wrap
+    return _decorator
+
+
 class ConfigurationCenter(object):
 
     FILE_REL_PATH = "weibo_crawl/config.ini"
@@ -35,6 +47,8 @@ class ConfigurationCenter(object):
             yield dict(sec_obj.items())
 
     @classmethod
+    @week_filter('app_id', 'app_secret', 'redirect_uri',
+                 'code', 'access_token', 'username', 'password')
     def update_by_appid(cls, app_id, **kwargs):
         sec_obj = cls._index[app_id]
         sec_obj.update(kwargs)
