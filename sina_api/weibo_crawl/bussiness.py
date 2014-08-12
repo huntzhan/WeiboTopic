@@ -227,3 +227,20 @@ class WeiboAPIHandler(object):
             self._apply_for_access_token()
             response_json = _internal_apply()
         return response_json
+
+
+class PublicTimelineQuery(object):
+
+    URL = "https://api.weibo.com/2/statuses/public_timeline.json",
+
+    def __init__(self, api_handler):
+        self.api_handler = api_handler
+
+    def query(self):
+        response_json = self.api_handler.apply(
+            self.URL,
+            count=200,
+        )
+        ################
+        # process json #
+        ################

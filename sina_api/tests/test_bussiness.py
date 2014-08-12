@@ -62,3 +62,29 @@ class TestWeiboAPIHandler(unittest.TestCase):
             count=200,
         )
         self.assertEqual(data['total_number'], 200)
+
+    def test_multiple_apply(self):
+        def gen_handler(username, password):
+            return WeiboAPIHandler(
+                username, password,
+                '158481545',
+                '21b4516bd99098c37122ba3dc7ac0027',
+                '3043df03489bc77c706c2c2bbad71e52',
+                'http://haoxun.org',
+            )
+
+        handlers = [
+            gen_handler('vproject_janfan1@163.com', 'tencent'),
+            # gen_handler('vproject_janfan2@163.com', 'tencent'),
+            # gen_handler('vproject_janfan3@163.com', 'tencent'),
+        ]
+
+        for handler in handlers:
+            data = handler.apply(
+                "https://api.weibo.com/2/statuses/public_timeline.json",
+                count=200,
+            )
+            num = data.get('total_number', None)
+            if num is None:
+                print(data)
+            self.assertEqual(num, 200)
