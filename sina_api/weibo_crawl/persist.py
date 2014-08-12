@@ -34,7 +34,7 @@ class _WeiboUser(Base):
     fans = Column(Integer)
     bi_followers_count = Column(Integer)
     posts = Column(Integer)
-    sex = Column(Integer)
+    sex = Column(String(1))
     favourites_count = Column(Integer)
     created_at = Column(String(50))
     verified = Column(Integer)

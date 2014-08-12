@@ -2,6 +2,7 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 
 from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
+from .persist import DatabaseHandler
 
 
 QUERY_PER_HOUT = 145
@@ -18,6 +19,7 @@ ordered_keys_for_init = [
 
 def run():
     ConfigurationCenter.load_configuration()
+    DatabaseHandler.open()
     while True:
         # for each keys, init handler and query.
         queries = []

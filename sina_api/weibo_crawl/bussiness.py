@@ -243,9 +243,9 @@ class PublicTimelineQuery(object):
     messages_names_mapping = {
         'mid': 'mid',
         'content': 'text',
-        'forwarded_content': None,
+        # 'forwarded_content': None,
         'created_time': 'created_at',
-        'favourites': 'attitudes_count',
+        'favorites': 'attitudes_count',
         'comments': 'comments_count',
         'forwards': 'reposts_count',
         'source': 'source',
@@ -288,6 +288,13 @@ class PublicTimelineQuery(object):
             self.messages_names_mapping,
             self.Message,
         )
+        # post process.
+        extracted_source = re.search(r"<.+?>(.*?)<.+?>", message.source)
+        # generate new message.
+        data = dict(message._asdict())
+        data['source'] = extracted_source.group(1)\
+            if extracted_source else None
+        message = self.Message(**data)
         return message
 
     def _extract_user(self, item):
@@ -317,5 +324,4 @@ class PublicTimelineQuery(object):
                 uid=user.uid,
                 **dict(message._asdict())
             )
-
-        print("Run!")
+        print("Get in ", time.ctime())
