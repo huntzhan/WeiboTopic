@@ -41,39 +41,40 @@ void GetTopic::AddKeyToMap(map<string,TopicWord>&filterMap,string key,std::strin
  */
 void GetTopic::GetEveryWordInCurrentHour(){
 //	this->GetCurrentHourWeiboList("time");//获取当前时间段微博ID列表
-	std::set<std::string> stop_word_set;
-	MakeStopSet(stop_word_set);
 
 
 	int count=0;
-	list<string>::iterator m_c_iter;
-	for(m_c_iter=this->m_current_messageList.begin();
-			m_c_iter!=this->m_current_messageList.end();++m_c_iter){
-#ifdef DEBUG1
-		count++;
-		std::cout<<count<<std::endl;
-#endif
-		Weibo oneweibo;
-		string oneweiboId=*m_c_iter;
+		list<string>::iterator m_c_iter;
+		for(m_c_iter=this->m_current_messageList.begin();
+				m_c_iter!=this->m_current_messageList.end();++m_c_iter){
+	#ifdef DEBUG1
+			count++;
+			std::cout<<count<<std::endl;
+	#endif
+			Weibo oneweibo;
+			string oneweiboId=*m_c_iter;
 
 
 
-		this->dbdao->GetEveryWeiboFromDatabase(oneweiboId,oneweibo);
+			this->dbdao->GetEveryWeiboFromDatabase(oneweiboId,oneweibo);
 
 
 
-		vector<string> * oneWeiboContent=oneweibo.GetWords();//这里是创建了新对象呢还是直接指针
-		vector<string>::iterator it;
-		for(it=oneWeiboContent->begin();it!=oneWeiboContent->end();++it){
-			string key=*it;
-			AddKeyToMap(this->m_topic_word,key,oneweiboId);
+			vector<string> * oneWeiboContent=oneweibo.GetWords();//这里是创建了新对象呢还是直接指针
+			vector<string>::iterator it;
+			for(it=oneWeiboContent->begin();it!=oneWeiboContent->end();++it){
+				string key=*it;
+				AddKeyToMap(this->m_topic_word,key,oneweiboId);
+			}
 		}
-	}
-#ifdef DEBUG2
-printMaps(this->m_topic_word);
-#endif
+	#ifdef DEBUG2
+	printMaps(this->m_topic_word);
+	#endif
 }
-
+void  GetTopic::GenTopicWordByFrequency(){
+	this->GetEveryWordInCurrentHour();
+	this->TopicWordSort();
+}
 void GetTopic::GenTopicWord(){
 
 	this->GetEveryWordInCurrentHour();//获取当前一小时内不重复的词
@@ -92,6 +93,7 @@ void GetTopic::GenTopicWord(){
 			t_it->second.SetFrequency(tempvalue);
 		}
 	}
+	this->m_k_messageList.clear();//释放内存，因为前几个小时的基本用不上了
 #ifdef DEBUG3
 printMaps(this->m_topic_word);
 #endif
@@ -143,8 +145,6 @@ printMaps(this->m_topic_word);
  */
 void GetTopic::CalTopicWordInKhours(){
 
-	std::set<std::string> stop_word_set;
-	 MakeStopSet(stop_word_set);
 //	this->dbdao.GetKHourWeiboList("from" ,6,this->m_k_messageList);
 	map<string,TopicWord >::iterator  t_w_it=this->m_topic_word.begin();
 	for(;t_w_it!=this->m_topic_word.end();++t_w_it){
@@ -185,3 +185,4 @@ int count=0;
 //	this->k_hour_topic_word=temp_map;
 
 }
+

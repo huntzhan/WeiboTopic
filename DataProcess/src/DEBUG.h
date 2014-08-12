@@ -17,6 +17,7 @@
 
 void printVectors(std::list<std::string>&list);
 void printMaps(std::map<std::string,TopicWord> &map);
-void printTopic(std::vector<Topic>&clusterlist,DBdao* dbdao);
+void printTopic(std::vector<Topic>*clusterlist,DBdao* dbdao);
 void printMatrix(std::map<std::string,CooccurrenceWord> &co_ccur_matrix);
+void printTopicView(Topic &onetopic);
 #endif /* DEBUG_H_ */

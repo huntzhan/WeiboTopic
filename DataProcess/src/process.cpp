@@ -43,20 +43,18 @@ int main()
 
 	std::set<std::string> stopwords;
 	std::vector<std::string> vec;
-	std::vector<std::vector<std::string> > vecs;
+
 	std::vector<std::string> IDs;
 	MakeStopSet(stopwords);
 	std::string ID="2013-04-12 08:38:16";
-
+	char sql[60];
+	double total;
+	time_t startT,endT;
 	init_ICTCAL();
 
 
-	double total;
 
-
-	time_t startT,endT;
-
-	Get_MIDs("2013-04-12 08:38:16",27400,IDs);
+	Get_MIDs("2013-04-12 08:38:16",7400,IDs);
 		startT=time(NULL);
 		for(std::vector<std::string>::iterator it_ids=IDs.begin();it_ids!=IDs.end();it_ids++){
 			ID=*it_ids;
@@ -65,8 +63,12 @@ int main()
 					std::cout<<*it<<"|";
 				}
 			std::cout<<std::endl;
+
+			std::vector<std::vector<std::string> > vecs;
+			sprintf(sql,"select text from weibo where mid=%s ",ID.c_str());
+			vecs=mysql_query(sql);
+			std::cout<<vecs[0][0]<<std::endl;
 			vec.clear();
-			vec.resize(1);
 		}
 	endT=time(NULL);
 	total=difftime(endT,startT);
@@ -82,13 +84,17 @@ int main()
  * 		分词函数
  */
  static std::string ICTspilt(const char * sinput){
-	 std::string result;
+	  std::string result;
 	  int nRstLen=0;
-	  unsigned int nPaLen=strlen(sinput); // 需要分词的长度
+	  unsigned int nPaLen;
+	  nPaLen=strlen(sinput); // 需要分词的长度
+	  if(nPaLen<2){
+	 	result="";
+	 	return result;
+	   }
 	  char* sRst=(char *)malloc(1024); //建议长度为字符串长度的倍。
-	 if(sRst==NULL)
-	  return NULL;
-	 //分词结果的长度
+	  if(sRst==NULL)
+	    return NULL;
       nRstLen = ICTCLAS_ParagraphProcess(sinput,nPaLen,sRst,CODE_TYPE_UTF8,0);  //字符串处理
       result=sRst;
       free(sRst);
@@ -116,30 +122,29 @@ void init_ICTCAL(void){
 		  std::cout<<"add "<<nItems<<" user word"<<std::endl;
 		  ICTCLAS_SaveTheUsrDic();//保存用户词典
 		  mysql_init(&my_connection);
-
-			 if (mysql_real_connect(&my_connection, "localhost", "", "", "test", 0, NULL, 0)){
-						if ( mysql_set_character_set( & my_connection, "utf8") ) {
-							fprintf(stderr,"������ַ� %s \n",mysql_error(&my_connection));
-						}
-
+		if (mysql_real_connect(&my_connection, "localhost", "", "", "test", 0, NULL, 0)){
+				if ( mysql_set_character_set( & my_connection, "utf8") ) {
+				fprintf(stderr,"������ַ� %s \n",mysql_error(&my_connection));
 				}
-			 else {
-					fprintf(stderr, "Connection failed\n");
-			    	if (mysql_errno(&my_connection))
-						{
-							fprintf(stderr, "Connection error %d: %s\n", mysql_errno(&my_connection), mysql_error(&my_connection));
-						}
-				  }
+			}
+		 else {
+				fprintf(stderr, "Connection failed\n");
+			    if (mysql_errno(&my_connection))
+					{
+						fprintf(stderr, "Connection error %d: %s\n", mysql_errno(&my_connection), mysql_error(&my_connection));
+					}
+			}
 }
 
 
 
 /*****************************************************************************************
- * 		去噪分割函数
+ * 		去噪分割函数   //如果为空  就是空字符""
  */
 static void goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword){
 
   std::vector<std::wstring> goodWordstemp;
+  bool flag_empty=true;
   if(stopwords.empty())
   {
 	  std::cout<<"input goodWordsinPieceArticle error"<<std::endl;
@@ -147,12 +152,16 @@ static void goodWordsinPieceArticle(const std::string &rawtext,std::set<std::str
   }
   const std::string temp=RegexReplace(rawtext);  //先正则表达式
   std::string  result=ICTspilt(temp.c_str());
-  if(result.empty())
+  if(result=="")
+  {
+	  goodword.push_back(result);
 	  return ;
+  }
   boost::wregex reg(L"\\d+", boost::regex::perl);  //去掉空格
   std::wstring wtemp=StringToWide(result);
   std::wstring wrtesult=boost::regex_replace(wtemp,reg,std::wstring(L""));
   boost::split(goodWordstemp,wrtesult ,boost::is_any_of("|"));//分割
+
 
 
   for(std::vector<std::wstring>::iterator it=goodWordstemp.begin();it!=goodWordstemp.end();it++){
@@ -164,6 +173,11 @@ static void goodWordsinPieceArticle(const std::string &rawtext,std::set<std::str
 	    	goodword.push_back(temp);
 	    }
 	}
+  if(goodword.size()<1)
+  {
+	  goodword.push_back("");
+  }
+
 }
 
 /***************************************************************************************************

@@ -16,7 +16,12 @@
 #include<string>
 
 class Cluster{
+
 public:
+	int BELONG_TOPIC_THROD;
+	int randsize;
+	int RAND_SIZE;
+	double CLSTER_THROD;
 	std::vector<Topic> clusterList;//最终生成的话题列表
 	std::map<std::string,CooccurrenceWord> co_ccur_matrix;
 	DBdao *dbdao;
@@ -24,10 +29,17 @@ public:
 	std::map<std::string,CooccurrenceWord> * GetCooccurrence(){
 		return & co_ccur_matrix;
 	}
+	void SetClusterThrod(double throd){
+		this->CLSTER_THROD=throd;
+	}
 	Cluster(DBdao  *dbdao,std::map<std::string,TopicWord> *topicword){
 
 		this->dbdao=dbdao;
 		this->topicword=topicword;
+	}
+	void InitConfigure(int randsize,int BELONG_TOPIC_THROD){
+		this->RAND_SIZE=randsize;
+		this->BELONG_TOPIC_THROD=BELONG_TOPIC_THROD;
 	}
 	std::vector<Topic> * GetClusterList(){
 		return & clusterList;
@@ -38,5 +50,9 @@ public:
 	void InsertTopicToDatabase(Topic &one_topic);
 	void ListEveryTopicWeiboId(Topic &one_topic);
 	void ListAllTopicWeiboId();
+	void SortTopic();
+
+	double GenClusterThrod();
+	std::vector<int> GenRandomValue();
 };
 #endif /* CLUSTER_H_ */

@@ -31,15 +31,17 @@ void printMaps(std::map<std::string,TopicWord> &mymap){
 //		}
 	}
 }
-void printTopic(std::vector<Topic>&clusterlist,DBdao *dbdao){
-	std::vector<Topic>::iterator clit=clusterlist.begin();
+void printTopic(std::vector<Topic>*clusterlist,DBdao *dbdao){
+	std::vector<Topic>::iterator clit=clusterlist->begin();
 	int ti=0;
-	for(;clit!=clusterlist.end();++clit){
+	for(;clit!=clusterlist->end();++clit){
 		++ti;
 //		Topic topic = *clit;
 		std::vector<TopicWord>*topic_vec=clit->GetsTopic();
 		std::vector<TopicWord>::iterator it=topic_vec->begin();
 		std::cout<<std::endl<<std::endl;
+		printTopicView(*clit);
+		std::cout<<"topic_message_num: "<<clit->topic_message_num<<endl;
 		std::cout<<"话题 "<<ti<<"如下： "<<std::endl;
 		for(;it!=topic_vec->end();++it){
 			std::cout<<it->GetTopicWord()<<"	";//<<it->GetFrequency()<<"	";
@@ -53,16 +55,13 @@ void printTopic(std::vector<Topic>&clusterlist,DBdao *dbdao){
 				weiboid=topic_weibo_id_map_it->first;
 				weiboid_num=topic_weibo_id_map_it->second;
 				std::cout<<"话题词在本微博出现次数："<<weiboid_num<<std::endl;
+				std::string oneweibo;
 				if(weiboid_num>=BELONT_TOPIC_THROD){
 					//这里应该插入数据库
 					//InsertOneTopicToDatabase(one_topic);
-					Weibo oneweibo;
-					dbdao->GetEveryWeiboFromDatabase(weiboid,oneweibo);
-					vector<string>::iterator w_c_it= oneweibo.GetWords()->begin();
+					oneweibo=dbdao->GetOriginalWeibo(weiboid);
 					std::cout<<"topic weibo ：";
-					for(;w_c_it!=oneweibo.GetWords()->end();++w_c_it)
-						std::cout<<*w_c_it<<" ";
-					std::cout<<std::endl;
+					std::cout<<oneweibo<<std::endl;
 				}
 			}
 	}
@@ -77,5 +76,16 @@ void printMatrix(std::map<std::string,CooccurrenceWord> &co_ccur_matrix){
 			std::cout<<it2->first<<"		"<<it2->second;
 		}
 		std::cout<<std::endl;
+	}
+}
+void printTopicView(Topic &onetopic){
+
+	std::list<subword>*subwordlist= onetopic.GetSubWordList();
+	std::list<subword>::iterator it= subwordlist->begin();
+	int count=0;
+	std::cout<<"***************"<<std::endl;
+	for(;it!=subwordlist->end();++it){
+		if(count++>3)break;
+		std::cout<<it->word<<"		"<<it->fre<<std::endl;
 	}
 }

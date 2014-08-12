@@ -12,14 +12,41 @@
 #include<iostream>
 #include<vector>
 #include<string>
+#include<list>
+#include<map>
 using namespace std;
+class subword{
+public:
+	std::string word;
+	double fre;
+
+	subword(std::string word,double fre){
+		this->word=word;
+		this->fre=fre;
+	}
+};
 class Topic{
+
 	vector<TopicWord> m_stopic;
 	std::map<std::string ,double> topic_weibo_id;
+	std::vector<std::string> weibo_id_list;
+	std::map<std::string,double > main_idea;
+	std::list<subword> sub_word_list;
 public:
+	int topic_message_num;
+	std::list<subword>* GetSubWordList(){
+		return & this->sub_word_list;
+	}
+	std::map<std::string,double>* GetMainIdea(){
+		return &this->main_idea;
+	}
 	std::map<std::string ,double>* GetTopicWeiboId(){
 		return &this->topic_weibo_id;
 	}
+	std::vector<std::string> * GetWeiboIdList(){
+		return &this->weibo_id_list;
+	}
+
 	Topic(TopicWord &firstWord){//这里可以这样吗？
 		m_stopic.push_back(firstWord);
 	}

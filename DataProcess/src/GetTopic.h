@@ -55,6 +55,7 @@ public:
 
 
     void GenTopicWord();
+    void GenTopicWordByFrequency();
     GetTopic(DBdao *dbdao,int TOPIC_WORD_NUM,int K_WINDOW){
     	this->TOPIC_WORD_NUM=TOPIC_WORD_NUM;
     	this->K_WINDOW=K_WINDOW;

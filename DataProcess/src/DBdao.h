@@ -16,14 +16,18 @@
 
 class DBdao{
 public:
+	std::string current_time;//格式："2013-04-12 12:00:00"
+	std::string K_hours_time;
+	int    hours;
 	std::set<std::string> stop_word_set;
 	std::list<string> weibo_id_list;
 	std::list<string> k_hours_weibo_id_list;
-	void GetCurrentHourWeiboList(std::string time);
-	void GetKHourWeiboList(std::string from ,int k);
+	void GetCurrentHourWeiboList(std::string time,int timeslip);
+	void DBdaoInit(std::string current_time,int timeslip,std::string K_hour_time,int ktimeslip,int hours);
 	void GetEveryWeiboFromDatabase(std::string weiboID,Weibo &oneweibo); //这个函数是用来从数据库边读取前七个小时的微博，避免读取进去内存。
+	std::string GetOriginalWeibo(std::string weiboId);
 //	void StopWordInit(std::string filename);
-	void DBdaoInit();
+	void DBdaoInit(std::string current_time,int timeslip,std::string K_hour_time,int ktimeslip,int hours);
 
 };
 

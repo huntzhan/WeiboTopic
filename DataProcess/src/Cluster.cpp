@@ -12,17 +12,23 @@
 #include"Topic.h"
 #include"DBdao.h"
 #include<iostream>
+#include<time.h>
 #include<string>
 using namespace std;
-#define THROD 3.0
+//#define THROD 3.0
 #define MINVALUE -1
-#define BELONT_TOPIC_THROD 2.0
+//#define BELONT_TOPIC_THROD 2.0
 //#define DEBUG_CLUSTER1
 //#define CALDIS
-#define PRINTTOPIC2
-typedef map<string,TopicWord> MAP;
+//#define PRINTTOPIC2
 
+typedef map<string,TopicWord> MAP;
+bool TopicCmp(const Topic &topic1,const Topic &topic2){
+	if(topic1.topic_message_num>topic2.topic_message_num)return true;
+	return false;
+}
 void Cluster::CalWordsCooccurrence(){
+
 
 	list<string>::iterator weiboit= this->dbdao->weibo_id_list.begin();
 	for(;weiboit!= this->dbdao->weibo_id_list.end();++weiboit){
@@ -92,7 +98,8 @@ void Cluster::CalWordsCooccurrence(){
 
 void Cluster::Singlepass(){
 	this->CalWordsCooccurrence();
-
+	this->SetClusterThrod(this->GenClusterThrod());
+	std::cout<<"CLUSTER_THROD: "<<this->CLSTER_THROD<<std::endl;
 #ifdef DEBUG_CLUSTER1
 	printMatrix(this->co_ccur_matrix);
 #endif
@@ -126,7 +133,7 @@ void Cluster::Singlepass(){
 #ifdef CALDIS
 	std::cout<<"CALDIS finish one!"<<std::endl;
 #endif
-		if(maxDistance < THROD){
+		if(maxDistance < this->CLSTER_THROD){
 			Topic newTopic(topic_w_it->second);
 			this->clusterList.push_back(newTopic);//这里虽然newTopic是局部变量，但是由于会复制一个新的，有类的时候会动态调用拷贝构造函数
 		}else{
@@ -134,6 +141,7 @@ void Cluster::Singlepass(){
 		}
 	}
 	this->ListAllTopicWeiboId();
+	this->SortTopic();
 #ifdef PRINTTOPIC2
 	printTopic(this->clusterList,this->dbdao);
 #endif
@@ -166,7 +174,7 @@ double Cluster::Cal_Words_Topic_Distance(Topic &topic,TopicWord &topic_word){
 		}
 	}
 //	std::cout<<topic_word_dis<<std::endl;
-	return topic_word_dis;
+	return topic_word_dis/topic.GetsTopic()->size();
 }
 void Cluster::ListAllTopicWeiboId(){
 	int mycount=0;
@@ -181,7 +189,7 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic){
 	vector<TopicWord>::iterator topic_it= one_topic.GetsTopic()->begin();
 	std::map<std::string,double>*topic_weibo_id_map=one_topic.GetTopicWeiboId();
 	std::map<std::string,double>::iterator topic_weibo_id_map_it;
-
+	one_topic.topic_message_num=0;
 	for(;topic_it!= one_topic.GetsTopic()->end();++topic_it){
 		std::set<std::string>::iterator topicword_weibolist_it = topic_it->GetWordToWeiboidList()->begin();
 		for(;topicword_weibolist_it!=topic_it->GetWordToWeiboidList()->end();++topicword_weibolist_it){
@@ -189,8 +197,16 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic){
 			topic_weibo_id_map_it=topic_weibo_id_map->find(weiboid);
 			if(topic_weibo_id_map_it!=topic_weibo_id_map->end()){
 				topic_weibo_id_map_it->second=topic_weibo_id_map_it->second+1;
+				if(this->BELONG_TOPIC_THROD>=2){
+					one_topic.topic_message_num+=1;//按消息量进行排序     //这是是聚类好的话题簇中，至少有两个词同时出现在这条微博，才将该微博加入该话题
+					one_topic.GetWeiboIdList()->push_back(weiboid);
+				}
 			}else{
 				topic_weibo_id_map->insert(make_pair(weiboid,1.0));
+				if(this->BELONG_TOPIC_THROD<2){
+					one_topic.topic_message_num+=1;//按消息量进行排序在这里是出现一次就算      //这是是聚类好的话题簇中，只要一个词出现在这条微博，才将该微博加入该话题
+					one_topic.GetWeiboIdList()->push_back(weiboid);
+				}
 			}
 		}
 	}
@@ -204,7 +220,7 @@ void Cluster::InsertTopicToDatabase(Topic &one_topic){
 	for(;topic_weibo_id_map_it!=topic_weibo_id_map->end();++topic_weibo_id_map_it){
 		weiboid=topic_weibo_id_map_it->first;
 		weiboid_num=topic_weibo_id_map_it->second;
-		if(weiboid_num>BELONT_TOPIC_THROD){
+		if(weiboid_num>this->BELONG_TOPIC_THROD){
 			//这里应该插入数据库
 			//InsertOneTopicToDatabase(one_topic);
 			Weibo oneweibo;
@@ -216,3 +232,34 @@ void Cluster::InsertTopicToDatabase(Topic &one_topic){
 //void Cluster::InsertOneTopicToDatabase(Topic &one_topic){
 //
 //}
+void Cluster::SortTopic(){
+	std::sort(this->clusterList.begin(),this->clusterList.end(),TopicCmp);
+}
+std::vector<int> Cluster::GenRandomValue(){
+	int MAX=this->GetCooccurrence()->size()-1;
+	if(MAX>RAND_SIZE)randsize=RAND_SIZE;
+	else randsize=MAX;
+	srand((unsigned) time(NULL));
+	std::vector<int> v_i;
+	for(int i=0;i<randsize;i++){
+//		std::cout<<rand()%MAX<<std::endl;
+		v_i.push_back(rand()%MAX);
+	}
+	return v_i;
+}
+double Cluster:: GenClusterThrod(){
+	double tempthrod=0.0;
+	std::vector<std::string> tempvec;
+	std::map<std::string,CooccurrenceWord>::iterator it = this->GetCooccurrence()->begin();
+	for(;it!=this->GetCooccurrence()->end();++it){
+		tempvec.push_back(it->first);
+	}
+
+	std::vector<int > tempintvec=this->GenRandomValue();
+	for(int i=0;i<tempintvec.size();++i){
+		int index = tempintvec[i];
+		it=this->GetCooccurrence()->find(tempvec[index]);
+		tempthrod +=it->second.GetWordCooccurrence()->begin()->second;
+	}
+	return tempthrod/randsize;
+}
