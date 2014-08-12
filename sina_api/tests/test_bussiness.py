@@ -46,3 +46,19 @@ class TestWeiboAPIHandler(unittest.TestCase):
         )
         code = handler._get_code()
         self.assertEqual(len(code), 32)
+
+    @unittest.skipIf(SKIP_LONG_TEST, "It takes times.")
+    def test_apply(self):
+        handler = WeiboAPIHandler(
+            'vproject_janfan1@163.com',
+            'tencent',
+            '158481545',
+            '21b4516bd99098c37122ba3dc7ac0027',
+            '3043df03489bc77c706c2c2bbad71e52',
+            'http://haoxun.org',
+        )
+        data = handler.apply(
+            "https://api.weibo.com/2/statuses/public_timeline.json",
+            count=200,
+        )
+        self.assertEqual(data['total_number'], 200)

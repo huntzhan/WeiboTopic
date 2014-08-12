@@ -179,6 +179,8 @@ class WeiboAPIHandler(object):
         # for code.
         self.username = username
         self.password = password
+        # refresh access token.
+        self._apply_for_access_token()
 
     def _check_error(self, json):
         if "error_code" in json:
@@ -211,5 +213,17 @@ class WeiboAPIHandler(object):
                 params=self.oauth_arguments,
             )
             response_json = response.json()
-
         self.access_token = response_json['access_token']
+
+    def apply(self, url, **kwargs):
+
+        def _internal_apply():
+            kwargs['access_token'] = self.access_token
+            response = requests.get(url, params=kwargs)
+            return response.json()
+
+        response_json = _internal_apply()
+        if self._check_error(response_json):
+            self._apply_for_access_token()
+            response_json = _internal_apply()
+        return response_json
