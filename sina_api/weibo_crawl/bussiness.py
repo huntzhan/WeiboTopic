@@ -239,15 +239,37 @@ class PublicTimelineQuery(object):
 
     URL = "https://api.weibo.com/2/statuses/public_timeline.json"
 
+    messages_names_mapping = {
+        'mid': 'mid',
+        'content': 'text',
+        'forwarded_content': None,
+        'created_time': 'created_at',
+        'favourites': 'attitudes_count',
+        'comments': 'comments_count',
+        'forwards': 'reposts_count',
+        'source': 'source',
+    }
+
+    user_names_mapping = {
+        'uid': 'id',
+        'fans': 'followers_count',
+        'followees': 'friends_count',
+        'posts': 'statuses_count',
+        'sex': 'gender',
+        'favourites_count': 'favourites_count',
+        'created_at': 'created_at',
+        'verified': 'verified',
+        'bi_followers_count': 'bi_followers_count',
+    }
+
     Message = namedtuple(
         'Message',
-        ['mid', 'content', 'forwarded_content', 'created_time',
-         'favourites', 'comments', 'forwards'],
+        messages_names_mapping.keys(),
     )
 
     User = namedtuple(
         'User',
-        ['uid', 'fans', 'followees', 'posts'],
+        user_names_mapping.keys(),
     )
 
     def __init__(self, api_handler):
@@ -260,39 +282,18 @@ class PublicTimelineQuery(object):
         return interface_cls(**kwargs)
 
     def _extract_message(self, item):
-        names_mapping = {
-            'mid': 'mid',
-            'content': 'text',
-            'forwarded_content': None,
-            'created_time': 'created_at',
-            'favourites': 'attitudes_count',
-            'comments': 'comments_count',
-            'forwards': 'reposts_count',
-            # '': 'source',
-        }
         message = self._build_data_interface(
             item,
-            names_mapping,
+            self.messages_names_mapping,
             self.Message,
         )
         return message
 
     def _extract_user(self, item):
         user_object = item['user']
-        names_mapping = {
-            'uid': 'id',
-            'fans': 'followers_count',
-            'followees': 'friends_count',
-            'posts': 'statuses_count',
-            # '': 'gender',
-            # '': 'favourites_count',
-            # '': 'created_at',
-            # '': 'verified',
-            # '': 'bi_followers_count',
-        }
         user = self._build_data_interface(
             user_object,
-            names_mapping,
+            self.user_names_mapping,
             self.User,
         )
         return user
