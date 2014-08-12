@@ -10,6 +10,8 @@ import urlparse
 import requests
 from selenium import webdriver
 
+from .config import ConfigurationCenter
+
 
 class Schedule(object):
 
@@ -204,15 +206,20 @@ class WeiboAPIHandler(object):
         if self._check_error(response_json):
             # update code.
             self.oauth_arguments['code'] = self._get_code()
-            # inform the configuration handler to update de configuration.
-            pass
             # retry again.
             response = requests.post(
                 self.ACCESS_URL,
                 params=self.oauth_arguments,
             )
             response_json = response.json()
+
         self.access_token = response_json['access_token']
+        # inform the configuration handler to update de configuration.
+        ConfigurationCenter.update_by_appid(
+            app_id=self.oauth_arguments['client_id'],
+            code=self.oauth_arguments['code'],
+            access_token=self.access_token,
+        )
 
     def apply(self, url, **kwargs):
 
@@ -261,7 +268,7 @@ class PublicTimelineQuery(object):
             'favourites': 'attitudes_count',
             'comments': 'comments_count',
             'forwards': 'reposts_count',
-            '': 'source',
+            # '': 'source',
         }
         message = self._build_data_interface(
             item,
@@ -277,11 +284,11 @@ class PublicTimelineQuery(object):
             'fans': 'followers_count',
             'followees': 'friends_count',
             'posts': 'statuses_count',
-            '': 'gender',
-            '': 'favourites_count',
-            '': 'created_at',
-            '': 'verified',
-            '': 'bi_followers_count',
+            # '': 'gender',
+            # '': 'favourites_count',
+            # '': 'created_at',
+            # '': 'verified',
+            # '': 'bi_followers_count',
         }
         user = self._build_data_interface(
             user_object,

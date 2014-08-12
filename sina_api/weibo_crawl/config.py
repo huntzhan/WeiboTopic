@@ -47,8 +47,10 @@ class ConfigurationCenter(object):
             yield dict(sec_obj.items())
 
     @classmethod
-    @week_filter('app_id', 'app_secret', 'redirect_uri',
-                 'code', 'access_token', 'username', 'password')
+    @week_filter(
+        'app_id', 'app_secret', 'redirect_uri',
+        'code', 'access_token', 'username', 'password',
+    )
     def update_by_appid(cls, app_id, **kwargs):
         sec_obj = cls._index[app_id]
         sec_obj.update(kwargs)

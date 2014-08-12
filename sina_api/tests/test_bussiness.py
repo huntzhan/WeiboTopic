@@ -6,7 +6,10 @@ from weibo_crawl.bussiness import (Schedule, WeiboAPIHandler,
 from pprint import pprint
 import unittest
 
+from weibo_crawl.config import ConfigurationCenter
 
+
+ConfigurationCenter.load_configuration()
 SKIP_LONG_TEST = True
 
 
@@ -58,10 +61,10 @@ class TestWeiboAPIHandler(unittest.TestCase):
     def test_multiple_apply(self):
         h1 = self.handler
         h2 = WeiboAPIHandler(
-            'vproject_janfan2@163.com',
+            'vproject_janfan1@163.com',
             'tencent',
-            '18331851',
-            'db5b280e0620978bbd278c0bc630945d',
+            '158481545',
+            '21b4516bd99098c37122ba3dc7ac0027',
             '',
             '',
             'http://haoxun.org',
