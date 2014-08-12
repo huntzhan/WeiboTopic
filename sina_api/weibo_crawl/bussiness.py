@@ -307,3 +307,4 @@ class PublicTimelineQuery(object):
         for item in items:
             message = self._extract_message(item)
             user = self._extract_user(item)
+        print("Run!")
