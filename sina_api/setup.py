@@ -13,29 +13,20 @@ setup(
     description='',
     # long_description=open('README.rst').read(),
     install_requires=[
-        # 'Scrapy>=0.24.2',
-        # dependencies of cola.
-        'mechanize',
-        'python-dateutil',
-        'BeautifulSoup4',
-        # 'mongoengine',
-        'rsa',
-        # dependencies of weibo_cn.
-        'selenium',
         'requests>=2.3.0',
-        'lxml',
-        # dependencies of weibo_com.
         'sqlalchemy',
         'futures',
         'mysql-python',
+        'selenium',
+        'configparser',
     ],
-    packages=['easy_spider', 'weibo_com'],
+    packages=[],
     entry_points={
-        'console_scripts': [
-            'crawl_user = weibo_com.run:crawl_user_info',
-        ],
         "distutils.commands": [
-            "build_db = weibo_com.build_db:BuildDBCommand",
+            "build_db = weibo_crawl.build_db:BuildDBCommand",
+        ],
+        'console_scripts': [
+            'run_api = weibo_crawl.run:run',
         ],
     },
     test_suite='tests.load_tests',

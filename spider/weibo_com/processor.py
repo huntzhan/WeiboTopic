@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import (unicode_literals, print_function, absolute_import)
 
-import logging
+import time
 import requests
 import re
 from collections import namedtuple
@@ -11,7 +11,7 @@ from .utils import PageLoader
 from .cookies_allocator import CookiesAllocator
 from .parser import FriendPageParser, MicroBlogParser
 from .element import UrlElement
-from .persist import WeiboUserHandler
+from .persist import WeiboUserHandler, MicroblogHandler
 
 
 class UrlProcessor(ElementProcessor):
@@ -32,20 +32,24 @@ class UrlProcessor(ElementProcessor):
     def _load_page_with_retry(self, url):
         response_url, response_content = self._load_page(url)
 
-        while self._check_login_url(response_url):
+        # while error url or invalid response_content.
+        while self._check_login_url(response_url)\
+                or not response_content:
             # throw this cookies away.
             CookiesAllocator.set_cookies_jar_invalid(self._cookies_jar)
             # refresh cookiesjar and page_loader.
             self.prepare_cookie_and_loader()
             # reload.
             response_url, response_content = self._load_page(url)
+        # print("DEBUG_URL:", response_url)
         return response_content
 
 
 class FriendPageProcessor(UrlProcessor):
 
-    def _generate_url_of_fans_page(self, uid):
-        URL_TEMPLATE = 'http://weibo.com/{}/follow'
+    @classmethod
+    def generate_url_of_fans_page(cls, uid):
+        URL_TEMPLATE = 'http://weibo.com/{}/follow?relate=fans'
         return URL_TEMPLATE.format(uid)
 
     def _extract_user_properties(self, response_content):
@@ -137,21 +141,22 @@ class FriendPageProcessor(UrlProcessor):
         elements = []
         # create element for next_page.
         if next_page:
-            elements.append(UrlElement(next_page, self))
+            new_element = UrlElement(next_page, FriendPageProcessor())
+            elements.append(new_element)
         # create element for next_page.
         if fans_page:
-            elements.append(UrlElement(fans_page, self))
-        # create new elements.
-        for uid in uids:
-            url_element = UrlElement(
-                self._generate_url_of_fans_page(uid),
-                self,
-            )
-            elements.append(url_element)
+            new_element = UrlElement(fans_page, FriendPageProcessor())
+            elements.append(new_element)
         return elements
 
 
 class MessagePageProcessor(UrlProcessor):
+
+    @classmethod
+    def generate_message_page_url(cls, uid):
+        URL_TEMPLATE = 'http://weibo.com/aj/mblog/mbloglist?uid={0}&_k={1}'
+        start = int(time.time() * (10**6))
+        return URL_TEMPLATE.format(uid, start)
 
     def _process_url(self, url):
         response_content = self._load_page_with_retry(url)
@@ -160,5 +165,40 @@ class MessagePageProcessor(UrlProcessor):
         messages, url_of_next_page = microblog_parser.parse()
         return messages, url_of_next_page
 
+    def _package_message(self, message):
+        """
+        @input: an 8-tuple contains values of messages.
+        @output: a dict with corresponding keys added.
+        """
+
+        KEYS = [
+            'uid', 'mid',
+            'content', 'forwarded_content',
+            'created_time',
+            'favourites', 'comments',
+            'forwards',
+        ]
+
+        packaged_message = {}
+        for key, value in zip(KEYS, message):
+            packaged_message[key] = value
+        return packaged_message
+
     def process_element(self, element):
-        pass
+        messages, url_of_next_page = self._process_url(element.url)
+        has_new_messages = False
+        #######################
+        # Database Operations #
+        #######################
+        for packaged_message in map(self._package_message, messages):
+            if not MicroblogHandler.blog_exist(packaged_message['mid']):
+                MicroblogHandler.add_blog(**packaged_message)
+                has_new_messages = True
+
+        ########################
+        # Processor Operations #
+        ########################
+        if url_of_next_page and has_new_messages:
+            return UrlElement(url_of_next_page, MessagePageProcessor())
+        else:
+            return None

@@ -1,21 +1,20 @@
+
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import thread
-import collections
 from contextlib import contextmanager
+import pdb
 
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import ForeignKey
-from sqlalchemy import func
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.declarative import declarative_base
 
-from weibo_com.model import WeiboUser, Microblog
 
-
-DB_URL = 'mysql://{}:{}@{}:{}/{}'.format(
+DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
     'root',
     '123456',
     'localhost',
@@ -30,26 +29,28 @@ class _WeiboUser(Base):
     __tablename__ = 'WeiboUser'
     __table_args__ = {'mysql_engine': 'InnoDB'}
 
-    uid = Column(String(255), primary_key=True)
+    uid = Column(String(50), primary_key=True)
     followees = Column(Integer)
     fans = Column(Integer)
+    bi_followers_count = Column(Integer)
     posts = Column(Integer)
+    sex = Column(String(1))
+    favourites_count = Column(Integer)
+    created_at = Column(String(50))
+    verified = Column(Integer)
 
     def __repr__(self):
-        return "<User(uid='%s', name='%s', followees='%s', \
-                fans='%s', num_post='%s')>" % (
-            self.uid, self.name, self.followees,
-            self.fans, self.num_post)
+        return "<User(uid='%s')" % self.uid
 
 
 class _User2Blog(Base):
     __tablename__ = 'UserToBlog'
     __table_args__ = {'mysql_engine': 'InnoDB'}
 
-    mid = Column(String(255),
+    mid = Column(String(50),
                  ForeignKey('Microblog.mid'),
                  primary_key=True)
-    uid = Column(String(255), ForeignKey('WeiboUser.uid'))
+    uid = Column(String(50), ForeignKey('WeiboUser.uid'))
 
     def __repr__(self):
         return "<User2Blog(mid='%s', uid='%s')>" % (
@@ -61,25 +62,16 @@ class _Microblog(Base):
     __tablename__ = 'Microblog'
     __table_args__ = {'mysql_engine': 'InnoDB'}
 
-    mid = Column(String(255), primary_key=True)
-    created_time = Column(String(255))
+    mid = Column(String(50), primary_key=True)
+    created_time = Column(String(50))
     content = Column(String(255))
     favorites = Column(Integer)
     comments = Column(Integer)
     forwards = Column(Integer)
-    forwarded_content = Column(String(255))
+    source = Column(String(50))
 
     def __repr__(self):
-        return "<Microblog(mid='%s', time='%s', content='%s', \
-                favorites='%s', comments='%s', forwards='%s', \
-                forwarded_content='%s')>" % (
-            self.mid,
-            self.created_time,
-            self.content,
-            self.favorites,
-            self.comments,
-            self.forwards,
-            self.forwarded_content)
+        return "<Microblog(mid='%s')" % self.mid
 
 
 def strong_filter(*required_keys, **default_pairs):
@@ -168,7 +160,7 @@ class DatabaseHandler:
         try:
             yield session
             session.commit()
-        except:
+        except IntegrityError:
             session.rollback()
         finally:
             session.close()
@@ -190,7 +182,7 @@ class WeiboUserHandler(DatabaseHandler):
 
     # @lock_and_unlock()
     @classmethod
-    @strong_filter('uid', followees=EMPTY, fans=EMPTY, posts=EMPTY)
+    # @strong_filter('uid', followees=EMPTY, fans=EMPTY, posts=EMPTY)
     def add_user(cls, uid, **kwargs):
         with cls.modify_scope() as session:
             try:
@@ -201,7 +193,7 @@ class WeiboUserHandler(DatabaseHandler):
 
     # @lock_and_unlock()
     @classmethod
-    @week_filter('uid', 'followees', 'fans', 'posts')
+    # @week_filter('uid', 'followees', 'fans', 'posts')
     def update_user(cls, uid, **kwargs):
         with cls.modify_scope() as session:
             user = session.query(_WeiboUser).filter_by(uid=uid).first()
@@ -209,7 +201,7 @@ class WeiboUserHandler(DatabaseHandler):
                 setattr(user, key, value)
 
     @classmethod
-    @strong_filter('uid')
+    # @strong_filter('uid')
     def user_exist(cls, uid):
         with cls.query_scope() as session:
             try:
@@ -217,28 +209,6 @@ class WeiboUserHandler(DatabaseHandler):
             except NoResultFound:
                 return False
             return True
-
-    @classmethod
-    @strong_filter('uid')
-    def user_valid(cls, uid):
-        with cls.query_scope() as session:
-            user = session.query(_WeiboUser).filter_by(uid=uid).first()
-            if user.followees != cls.EMPTY\
-                    and user.fans != cls.EMPTY\
-                    and user.posts != cls.EMPTY:
-                return True
-            return False
-
-    @classmethod
-    @strong_filter('uid')
-    def get_user_by_uid(cls, uid):
-        with cls.query_scope() as session:
-            _u = session.query(_WeiboUser).filter_by(uid=uid).first()
-            user = WeiboUser(_u.uid,
-                             followees=_u.followees,
-                             fans=_u.fans,
-                             posts=_u.posts)
-            return user
 
     # @lock_and_unlock()
     @classmethod
@@ -248,48 +218,20 @@ class WeiboUserHandler(DatabaseHandler):
             user = session.query(_WeiboUser).filter_by(uid=uid).first()
             session.delete(user)
 
-    @classmethod
-    def get_invalid_user(cls, num):
-        with cls.query_scope() as session:
-            count = session.query(func.count(_WeiboUser.uid)).\
-                filter(_WeiboUser.posts == -1).first()
-            if count < num:
-                num = count
-            uids = session.query(_WeiboUser.uid).\
-                filter(_WeiboUser.posts == -1).\
-                limit(num).all()
-            return num, [item[0] for item in uids]
-
 
 class MicroblogHandler(DatabaseHandler):
 
     @classmethod
-    def add_blog(
-            cls,
-            uid,
-            mid,
-            created_time,
-            content,
-            favorites,
-            comments,
-            forwards,
-            forwarded_content=None):
+    def add_blog(cls, uid, mid, **kwargs):
         with cls.modify_scope() as session:
-            # try:
-            #     session.query(_Microblog).filter(_Microblog.mid == mid)\
-            #         .one()
-            # except NoResultFound:
-            b = _Microblog(
-                mid=mid,
-                created_time=created_time,
-                content=content,
-                favorites=favorites,
-                comments=comments,
-                forwards=forwards,
-                forwarded_content=forwarded_content)
-            session.add(b)
-            u2b = _User2Blog(mid=mid, uid=uid)
-            session.add(u2b)
+            try:
+                session.query(_Microblog).filter(_Microblog.mid == mid)\
+                    .one()
+            except NoResultFound:
+                b = _Microblog(mid=mid, **kwargs)
+                session.add(b)
+                u2b = _User2Blog(mid=mid, uid=uid)
+                session.add(u2b)
 
     @classmethod
     def blog_exist(cls, mid):
@@ -300,20 +242,6 @@ class MicroblogHandler(DatabaseHandler):
             except NoResultFound:
                 return False
             return True
-
-    @classmethod
-    def get_blog_by_mid(cls, mid):
-        with cls.query_scope() as session:
-            _b = session.query(_Microblog).filter_by(mid=mid).first()
-            b = Microblog(
-                _b.mid,
-                _b.created_time,
-                _b.content,
-                _b.favorites,
-                _b.comments,
-                _b.forwards,
-                _b.forwarded_content)
-            return b
 
     @classmethod
     def delete_blog(cls, mid):

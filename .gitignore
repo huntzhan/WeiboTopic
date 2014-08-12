@@ -11,3 +11,5 @@ parts
 .DS_Store
 Makefile~
 *.cpp~
+.repoproject
+sina_api/.ropeproject
