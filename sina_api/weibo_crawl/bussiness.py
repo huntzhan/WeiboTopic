@@ -11,6 +11,7 @@ import requests
 from selenium import webdriver
 
 from .config import ConfigurationCenter
+from .persist import WeiboUserHandler, MicroblogHandler
 
 
 class Schedule(object):
@@ -306,6 +307,15 @@ class PublicTimelineQuery(object):
         items = response_json['statuses']
 
         for item in items:
-            message = self._extract_message(item)
             user = self._extract_user(item)
+            message = self._extract_message(item)
+            # add to db.
+            WeiboUserHandler.add_user(
+                **dict(user._asdict())
+            )
+            MicroblogHandler.add_blog(
+                uid=user.uid,
+                **dict(message._asdict())
+            )
+
         print("Run!")
