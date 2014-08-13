@@ -147,16 +147,17 @@ class CodeApplier(object):
             pattern = '^{}'.format(redirect_uri)
             if re.search(pattern, driver.current_url):
                 break
-            try:
-                # still in login page.
-                sop.fill_username_and_password(
-                    driver,
-                    username, password,
-                )
-                sop.fill_vertification(driver)
-                sop.submit(driver)
-            except:
-                pass
+            # remove it since its uncontrollable.
+            # try:
+            #     # still in login page.
+            #     sop.fill_username_and_password(
+            #         driver,
+            #         username, password,
+            #     )
+            #     sop.fill_vertification(driver)
+            #     sop.submit(driver)
+            # except:
+            #     pass
         driver.close()
         return driver.current_url
 
