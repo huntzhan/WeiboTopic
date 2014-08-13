@@ -185,11 +185,13 @@ class WeiboUserHandler(DatabaseHandler):
     # @strong_filter('uid', followees=EMPTY, fans=EMPTY, posts=EMPTY)
     def add_user(cls, uid, **kwargs):
         with cls.modify_scope() as session:
-            try:
-                session.query(_WeiboUser).filter(_WeiboUser.uid == uid).one()
-            except NoResultFound:
-                user = _WeiboUser(uid=uid, **kwargs)
-                session.add(user)
+            # try:
+            #     session.query(_WeiboUser).filter(_WeiboUser.uid == uid).one()
+            # except NoResultFound:
+            #     user = _WeiboUser(uid=uid, **kwargs)
+            #     session.add(user)
+            user = _WeiboUser(uid=uid, **kwargs)
+            session.add(user)
 
     # @lock_and_unlock()
     @classmethod
@@ -224,14 +226,18 @@ class MicroblogHandler(DatabaseHandler):
     @classmethod
     def add_blog(cls, uid, mid, **kwargs):
         with cls.modify_scope() as session:
-            try:
-                session.query(_Microblog).filter(_Microblog.mid == mid)\
-                    .one()
-            except NoResultFound:
-                b = _Microblog(mid=mid, **kwargs)
-                session.add(b)
-                u2b = _User2Blog(mid=mid, uid=uid)
-                session.add(u2b)
+            # try:
+            #     session.query(_Microblog).filter(_Microblog.mid == mid)\
+            #         .one()
+            # except NoResultFound:
+            #     b = _Microblog(mid=mid, **kwargs)
+            #     session.add(b)
+            #     u2b = _User2Blog(mid=mid, uid=uid)
+            #     session.add(u2b)
+            b = _Microblog(mid=mid, **kwargs)
+            session.add(b)
+            u2b = _User2Blog(mid=mid, uid=uid)
+            session.add(u2b)
 
     @classmethod
     def blog_exist(cls, mid):
