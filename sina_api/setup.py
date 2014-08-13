@@ -27,6 +27,7 @@ setup(
         ],
         'console_scripts': [
             'run_api = weibo_crawl.run:run',
+            'run_report = weibo_crawl.run:report',
         ],
     },
     test_suite='tests.load_tests',
