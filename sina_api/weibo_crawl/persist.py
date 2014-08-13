@@ -236,6 +236,9 @@ class MicroblogHandler(DatabaseHandler):
             #     session.add(u2b)
             b = _Microblog(mid=mid, **kwargs)
             session.add(b)
+
+        # make sure that foreign key exist.
+        with cls.modify_scope() as session:
             u2b = _User2Blog(mid=mid, uid=uid)
             session.add(u2b)
 
