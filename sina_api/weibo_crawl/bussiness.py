@@ -18,6 +18,9 @@ from .persist import WeiboUserHandler, MicroblogHandler
 logger = logging.getLogger(__name__)
 
 
+STOP = []
+
+
 class Schedule(object):
 
     def __init__(self, duration):
@@ -53,6 +56,9 @@ class Schedule(object):
         # just wait.
         logger.info("Sleep")
         time.sleep(self.duration)
+        # wait for authorization.
+        while STOP:
+            pass
 
 
 class SeleniumOperator(object):
@@ -163,10 +169,13 @@ class CodeApplier(object):
     @classmethod
     def get_code(cls, client_id, redirect_uri,
                  username, password):
+        # simple mutex with GIL.
+        STOP.append(True)
         target_url = cls._gui_operation(
             client_id, redirect_uri,
             username, password,
         )
+        STOP.pop(0)
         return cls._extract_code(target_url)
 
 
