@@ -1,6 +1,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 from collections import namedtuple
+import logging
 from threading import Timer
 import time
 import re
@@ -12,6 +13,9 @@ from selenium import webdriver
 
 from .config import ConfigurationCenter
 from .persist import WeiboUserHandler, MicroblogHandler
+
+
+logger = logging.getLogger(__name__)
 
 
 class Schedule(object):
@@ -41,11 +45,13 @@ class Schedule(object):
             tasks.append(timer)
             # update current_wait_time.
             current_wait_time += wait_time_per_callback
+        logger.info("Setup tasks.")
 
         # start timer.
         for timer in tasks:
             timer.start()
         # just wait.
+        logger.info("Sleep")
         time.sleep(self.duration)
 
 
@@ -318,21 +324,29 @@ class PublicTimelineQuery(object):
         return user
 
     def query(self):
+        logger.info("Getting messages.")
         response_json = self.api_handler.apply(
             self.URL,
             count=200,
         )
-        items = response_json['statuses']
+        logger.info("Got messages.")
 
+        items = response_json['statuses']
         for item in items:
             user = self._extract_user(item)
             message = self._extract_message(item)
+
             # add to db.
+            logger.info("Adding user to db.")
             WeiboUserHandler.add_user(
                 **dict(user._asdict())
             )
+            logger.info("Finished adding user to db.")
+
+            logger.info("Adding message to db.")
             MicroblogHandler.add_blog(
                 uid=user.uid,
                 **dict(message._asdict())
             )
-        print("Get in ", time.ctime())
+            logger.info("Finished Adding message to db.")
+        logger.info("Finished query.")
