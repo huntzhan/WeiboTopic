@@ -7,7 +7,7 @@ import logging
 
 def setup_logging():
     format_template = (
-        '%(asctime)s - %(name)s - %(thread)s- %(levelname)s\n'
+        '%(asctime)s, %(name)s, %(thread)s, %(levelname)s\n'
         '%(message)s\n'
         '\n'
     )
