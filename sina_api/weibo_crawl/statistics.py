@@ -6,7 +6,7 @@ import logging
 from logging.handlers import SMTPHandler
 import re
 
-from sqlalchemy import create_engine, MetaData, func
+from sqlalchemy import create_engine, MetaData, func, select
 
 from .persist import DB_URL
 

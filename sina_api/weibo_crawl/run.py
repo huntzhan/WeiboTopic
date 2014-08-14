@@ -4,7 +4,7 @@ import logging
 
 from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
-from .persist import DatabaseHandler
+from .db_handler import DatabaseHandler
 from .logger import setup_logging
 from .statistics import Statistics
 
