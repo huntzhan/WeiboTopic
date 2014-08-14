@@ -12,8 +12,7 @@ import requests
 from selenium import webdriver
 
 from .config import ConfigurationCenter
-# from .persist import WeiboUserHandler, MicroblogHandler
-from .db_handler import UserHandler, MessageHandler, User2MessageHandler
+from .persist import WeiboUserHandler, MicroblogHandler
 
 
 logger = logging.getLogger(__name__)
@@ -343,53 +342,21 @@ class PublicTimelineQuery(object):
         logger.info("Got messages.")
 
         items = response_json['statuses']
-        uid_mid_pairs = []
-        # prepare handlers.
-        user_handler = UserHandler()
-        message_handler = MessageHandler()
-        user_handler.open()
-        message_handler.open()
-
         for item in items:
             user = self._extract_user(item)
             message = self._extract_message(item)
 
-            # add to db.
-            # logger.debug("Adding user to db.")
-            # WeiboUserHandler.add_user(
-            #     **dict(user._asdict())
-            # )
-            # logger.debug("Finished adding user to db.")
-
-            # logger.debug("Adding message to db.")
-            # MicroblogHandler.add_blog(
-            #     uid=user.uid,
-            #     **dict(message._asdict())
-            # )
-            # logger.debug("Finished Adding message to db.")
-
-            uid_mid_pairs.append(
-                (user.uid, message.mid),
-            )
-            user_handler.add_user(
+            logger.debug("Adding user to db.")
+            WeiboUserHandler.add_user(
                 **dict(user._asdict())
             )
-            message_handler.add_blog(
+            logger.debug("Finished adding user to db.")
+
+            logger.debug("Adding message to db.")
+            MicroblogHandler.add_blog(
+                uid=user.uid,
                 **dict(message._asdict())
             )
-        # just commit.
-        user_handler.commit()
-        message_handler.commit()
-
-        # deal with relation.
-        relation_handler = User2MessageHandler()
-        relation_handler.open()
-        for uid, mid in uid_mid_pairs:
-            relation_handler.add_relation(uid, mid)
-        relation_handler.commit()
-
-        relation_handler.close()
-        user_handler.close()
-        message_handler.close()
+            logger.debug("Finished Adding message to db.")
 
         logger.info("Finished query.")
