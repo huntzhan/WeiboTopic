@@ -145,7 +145,6 @@ class WeiboUserHandler(DatabaseHandler):
             return True
 
     @classmethod
-    @strong_filter('uid')
     def delete_user(cls, uid):
         with cls.modify_scope() as session:
             user = session.query(_WeiboUser).filter_by(uid=uid).first()
