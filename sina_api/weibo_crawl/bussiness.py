@@ -345,21 +345,9 @@ class PublicTimelineQuery(object):
         for item in items:
             user = self._extract_user(item)
             message = self._extract_message(item)
+
             logger.debug("Adding entry to db.")
             DatabaseHandler.add_entry(user, message)
             logger.debug("Finished adding entry to db.")
-
-            # logger.debug("Adding user to db.")
-            # WeiboUserHandler.add_user(
-            #     **dict(user._asdict())
-            # )
-            # logger.debug("Finished adding user to db.")
-
-            # logger.debug("Adding message to db.")
-            # MicroblogHandler.add_blog(
-            #     uid=user.uid,
-            #     **dict(message._asdict())
-            # )
-            # logger.debug("Finished Adding message to db.")
 
         logger.info("Finished query.")

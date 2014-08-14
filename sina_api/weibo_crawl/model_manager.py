@@ -22,7 +22,7 @@ class ModelManager(object):
         """
 
         time_format = '%Y %m %d %H'
-        rounded_time_string = timestamp.strftime(time_format)
+        rounded_time_string = time.strftime(time_format, timestamp)
         return time.strptime(rounded_time_string, time_format)
 
     @classmethod
@@ -31,15 +31,10 @@ class ModelManager(object):
         @brief: convert time.struct_time to epoch, create models, keep mapping,
                 then return newly created models.
         """
+
         suffix = str(
             int(time.mktime(rounded_timestamp)))
         models = create_model_class(suffix)
-        for m in models:
-            t = m.__table__
-            # test table existence
-            if not t.exists(bind=engine):
-                # create tables here.
-                t.create(engine, checkfirst=True)
         cls.time_models_mapping[rounded_timestamp] = models
         return models
 

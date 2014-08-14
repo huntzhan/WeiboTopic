@@ -81,7 +81,12 @@ def create_model_class(time_in_hour):
                 self.uid)
 
     # create tables here.
-    # Base.metadata.create_all(cls.engine)
+    for model in [_WeiboUser, _Microblog, _User2Blog]:
+        table = model.__table__
+        # test table existence
+        if not table.exists(bind=engine):
+            # create tables here.
+            table.create(engine, checkfirst=True)
     return _WeiboUser, _Microblog, _User2Blog
 
 
