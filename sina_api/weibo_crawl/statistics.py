@@ -10,25 +10,6 @@ from sqlalchemy import func
 from .persist import _WeiboUser, _User2Blog, _Microblog, DatabaseHandler
 
 
-def _get_size(pri_key):
-    session = DatabaseHandler.Session()
-    size = session.query(func.count(pri_key)).one()[0]
-    session.close()
-    return size
-
-
-def get_WeiboUser():
-    return _get_size(_WeiboUser.uid)
-
-
-def get_User2Blog():
-    return _get_size(_User2Blog.uid)
-
-
-def get_Microblog():
-    return _get_size(_Microblog.mid)
-
-
 class ProjectSMTPHandler(SMTPHandler):
 
     email = b'huntzhan@tencent.com'

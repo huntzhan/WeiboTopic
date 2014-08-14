@@ -6,7 +6,7 @@ from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
 from .persist import DatabaseHandler
 from .logger import setup_logging
-from .statistics import Statistics
+# from .statistics import Statistics
 
 
 QUERY_PER_HOUT = 145
@@ -47,14 +47,14 @@ def run():
         logger.info("Finished loop.")
 
 
-def report():
-    DatabaseHandler.open()
-    Statistics.loadup()
-
-    HOURS = 24
-    ONE_DAY = 3600.0 * HOURS
-    while True:
-        schedule = Schedule(ONE_DAY)
-        for _ in range(HOURS):
-            schedule.add_callback(Statistics.report)
-        schedule.run()
+# def report():
+#     DatabaseHandler.open()
+#     Statistics.loadup()
+#
+#     HOURS = 24
+#     ONE_DAY = 3600.0 * HOURS
+#     while True:
+#         schedule = Schedule(ONE_DAY)
+#         for _ in range(HOURS):
+#             schedule.add_callback(Statistics.report)
+#         schedule.run()

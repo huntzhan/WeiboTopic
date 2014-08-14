@@ -3,8 +3,6 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 
 import time
 
-from .persist import create_model_class, engine
-
 
 class ModelManager(object):
     """

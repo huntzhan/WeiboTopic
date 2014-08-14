@@ -4,14 +4,14 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 from contextlib import contextmanager
 import time
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import create_engine
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import ForeignKey
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 
-from .model_manager import get_models
+from .model_manager import ModelManager
 
 
 DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
@@ -23,6 +23,14 @@ DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
 )
 
 engine = None
+
+def open_engine():
+    global engine
+    engine = create_engine(
+        DB_URL,
+        pool_size=0,
+        pool_timeout=60,
+    )
 
 Base = declarative_base()
 
@@ -94,13 +102,8 @@ class DatabaseHandler:
 
     @classmethod
     def open(cls):
-        global engine
-        global DB_URL
-        engine = create_engine(
-            DB_URL,
-            pool_size=0,
-            pool_timeout=60,
-        )
+        if not engine:
+            open_engine()
         cls.Session = sessionmaker(bind=engine)
 
     @classmethod
@@ -137,7 +140,7 @@ class DatabaseHandler:
         # examine timestamp of msg
         t_str = b_dict['created_time']
         t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
-        models = get_models(t_struct)
+        models = ModelManager.get_models(t_struct)
         # add user
         with cls.modify_scope() as session:
             # try:
