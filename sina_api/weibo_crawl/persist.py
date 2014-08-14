@@ -4,12 +4,26 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 from contextlib import contextmanager
 import time
 
+from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 
-from .db_handler import engine
+
+DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
+    'root',
+    '123456',
+    'localhost',
+    '3306',
+    'sina',
+)
+
+engine = create_engine(
+    DB_URL,
+    pool_size=0,
+    pool_timeout=60,
+)
 
 Base = declarative_base()
 

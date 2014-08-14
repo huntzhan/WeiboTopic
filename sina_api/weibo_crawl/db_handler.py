@@ -6,30 +6,13 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 import logging
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import exists
 
 from .model_manager import ModelManager
+from .persist import engine
+
 
 logger = logging.getLogger(__name__)
-
-DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
-    'root',
-    '123456',
-    'localhost',
-    '3306',
-    'sina',
-)
-
-engine = create_engine(
-    DB_URL,
-    pool_size=0,
-    pool_timeout=60,
-)
-
-session_factory = sessionmaker(bind=engine)
-Session = scoped_session(session_factory)
 
 
 def strong_filter(*required_keys, **default_pairs):
@@ -82,42 +65,38 @@ def week_filter(*required_keys):
     return _decorator
 
 
-class ThreadSafeHandler(object):
-
-    @classmethod
-    def open(self):
-        Session()
-
-    @classmethod
-    def close(self):
-        Session.remove()
-
-    @classmethod
-    def commit(self):
-        Session.commit()
-
-    @classmethod
-    def _exist(self, condition):
-        result = Session.query(exists().where(condition)).scalar()
-        logger.info(result)
-        return result
-
-
-# def open_engine():
-#     global engine
-#     engine = create_engine(
-#         DB_URL,
-#         pool_size=0,
-#         pool_timeout=60,
-#     )
+# from sqlalchemy.orm import scoped_session
+#
+#
+# session_factory = sessionmaker(bind=engine)
+# Session = scoped_session(session_factory)
+#
+#
+# class ThreadSafeHandler(object):
+#
+#     @classmethod
+#     def open(self):
+#         Session()
+#
+#     @classmethod
+#     def close(self):
+#         Session.remove()
+#
+#     @classmethod
+#     def commit(self):
+#         Session.commit()
+#
+#     @classmethod
+#     def _exist(self, condition):
+#         result = Session.query(exists().where(condition)).scalar()
+#         logger.info(result)
+#         return result
 
 
 class DatabaseHandler:
 
     @classmethod
     def open(cls):
-        # if not engine:
-        #     open_engine()
         cls.Session = sessionmaker(bind=engine)
 
     @classmethod
