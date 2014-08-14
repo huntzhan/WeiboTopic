@@ -352,7 +352,6 @@ class PublicTimelineQuery(object):
             if t_sec-DatabaseHandler.NOW_IN_HOUR > 3600:
                 DatabaseHandler.switch_tables()
 
-            # add to db.
             logger.debug("Adding user to db.")
             WeiboUserHandler.add_user(
                 **dict(user._asdict())
@@ -365,4 +364,5 @@ class PublicTimelineQuery(object):
                 **dict(message._asdict())
             )
             logger.debug("Finished Adding message to db.")
+
         logger.info("Finished query.")
