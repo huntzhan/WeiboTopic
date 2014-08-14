@@ -3,11 +3,16 @@
 """
 from __future__ import (unicode_literals, print_function, absolute_import)
 
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.sql import exists
 
 from .persist import (_WeiboUser, _User2Blog, _Microblog,
                       DB_URL)
+
+logger = logging.getLogger(__name__)
 
 
 engine = create_engine(
@@ -81,23 +86,31 @@ class ThreadSafeHandler(object):
     def commit(self):
         Session.commit()
 
+    def _exist(self, condition):
+        result = session.query(exists().where(condition)).scalar()
+        logger.info(result)
+        return result
+
 
 class UserHandler(ThreadSafeHandler):
 
     def add_user(self, uid, **kwargs):
-        user = _WeiboUser(uid=uid, **kwargs)
-        Session.merge(user, load=False)
+        if not self._exist(_WeiboUser.uid == uid):
+            user = _WeiboUser(uid=uid, **kwargs)
+            Session.add(user)
 
 
 class MessageHandler(ThreadSafeHandler):
 
     def add_blog(cls, mid, **kwargs):
-        message = _Microblog(mid=mid, **kwargs)
-        Session.merge(message, load=False)
+        if not self._exist(_Microblog.mid == mid):
+            message = _Microblog(mid=mid, **kwargs)
+            Session.add(message)
 
 
 class User2MessageHandler(ThreadSafeHandler):
 
     def add_relation(cls, uid, mid):
-        u2m = _User2Blog(mid=mid, uid=uid)
-        Session.merge(u2m, load=False)
+        if not self._exist(_User2Blog.mid == mid):
+            u2m = _User2Blog(mid=mid, uid=uid)
+            Session.add(u2m)
