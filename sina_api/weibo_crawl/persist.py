@@ -1,9 +1,8 @@
 
 from __future__ import (unicode_literals, print_function, absolute_import)
 
-import thread
 from contextlib import contextmanager
-import pdb
+import time
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
@@ -25,56 +24,77 @@ DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
 Base = declarative_base()
 
 
-class _WeiboUser(Base):
-    __tablename__ = 'WeiboUser'
-    __table_args__ = {'mysql_engine': 'InnoDB'}
+def create_model_class(time_in_hour):
+    class _WeiboUser(Base):
+        __tablename__ = 'WeiboUser{}'.format(time_in_hour)
+        __table_args__ = {'mysql_engine': 'InnoDB'}
 
-    uid = Column(String(50), primary_key=True)
-    followees = Column(Integer)
-    fans = Column(Integer)
-    bi_followers_count = Column(Integer)
-    posts = Column(Integer)
-    sex = Column(String(1))
-    favourites_count = Column(Integer)
-    created_at = Column(String(50))
-    verified = Column(Integer)
+        uid = Column(String(50), primary_key=True)
+        followees = Column(Integer)
+        fans = Column(Integer)
+        bi_followers_count = Column(Integer)
+        posts = Column(Integer)
+        sex = Column(String(1))
+        favourites_count = Column(Integer)
+        created_at = Column(String(50))
+        verified = Column(Integer)
 
-    def __repr__(self):
-        return "<User(uid='%s')" % self.uid
+        def __repr__(self):
+            return "<User%s(uid='%s')" % (time_in_hour, self.uid)
+
+    class _User2Blog(Base):
+        __tablename__ = 'UserToBlog{}'.format(time_in_hour)
+        __table_args__ = {'mysql_engine': 'InnoDB'}
+
+        mid = Column(String(50),
+                     ForeignKey('Microblog.mid'),
+                     primary_key=True)
+        uid = Column(String(50), ForeignKey('WeiboUser.uid'))
+
+        def __repr__(self):
+            return "<User2Blog%s(mid='%s', uid='%s')>" % (
+                time_in_hour,
+                self.mid,
+                self.uid)
+
+    class _Microblog(Base):
+        __tablename__ = 'Microblog{}'.format(time_in_hour)
+        __table_args__ = {'mysql_engine': 'InnoDB'}
+
+        mid = Column(String(50), primary_key=True)
+        created_time = Column(String(50))
+        content = Column(String(255))
+        favorites = Column(Integer)
+        comments = Column(Integer)
+        forwards = Column(Integer)
+        source = Column(String(50))
+
+        def __repr__(self):
+            return "<Microblog%s(mid='%s')" % (time_in_hour, self.mid)
+
+    return _WeiboUser, _Microblog, _User2Blog
 
 
-class _User2Blog(Base):
-    __tablename__ = 'UserToBlog'
-    __table_args__ = {'mysql_engine': 'InnoDB'}
+def round_hour(time_in_sec):
+    """
+    cut the arg into last o'clock
+    @return o'clock time in sec
+    """
+    pass
 
-    mid = Column(String(50),
-                 ForeignKey('Microblog.mid'),
-                 primary_key=True)
-    uid = Column(String(50), ForeignKey('WeiboUser.uid'))
-
-    def __repr__(self):
-        return "<User2Blog(mid='%s', uid='%s')>" % (
-            self.mid,
-            self.uid)
-
-
-class _Microblog(Base):
-    __tablename__ = 'Microblog'
-    __table_args__ = {'mysql_engine': 'InnoDB'}
-
-    mid = Column(String(50), primary_key=True)
-    created_time = Column(String(50))
-    content = Column(String(255))
-    favorites = Column(Integer)
-    comments = Column(Integer)
-    forwards = Column(Integer)
-    source = Column(String(50))
-
-    def __repr__(self):
-        return "<Microblog(mid='%s')" % self.mid
+NOW_IN_HOUR = round_hour(time.mktime(time.gmtime()))
 
 
 class DatabaseHandler:
+
+    @classmethod
+    def switch_tables(cls):
+        cls.NOW_IN_HOUR = round_hour(time.mktime(time.gmtime()))
+        cls.User, cls.Blog, cls.UserToBlob = create_model_class(NOW_IN_HOUR)
+
+    @classmethod
+    def table_exist():
+        pass
 
     @classmethod
     def open(cls):
@@ -84,6 +104,8 @@ class DatabaseHandler:
             pool_timeout=60,
         )
         cls.Session = sessionmaker(bind=cls.engine)
+        if cls.table_exist(NOW_IN_HOUR):
+            cls.switch_tables()
 
     @classmethod
     def close(cls):
@@ -125,13 +147,13 @@ class WeiboUserHandler(DatabaseHandler):
             # except NoResultFound:
             #     user = _WeiboUser(uid=uid, **kwargs)
             #     session.add(user)
-            user = _WeiboUser(uid=uid, **kwargs)
+            user = cls.User(uid=uid, **kwargs)
             session.add(user)
 
     @classmethod
     def update_user(cls, uid, **kwargs):
         with cls.modify_scope() as session:
-            user = session.query(_WeiboUser).filter_by(uid=uid).first()
+            user = session.query(cls.User).filter_by(uid=uid).first()
             for key, value in kwargs.items():
                 setattr(user, key, value)
 
@@ -139,7 +161,7 @@ class WeiboUserHandler(DatabaseHandler):
     def user_exist(cls, uid):
         with cls.query_scope() as session:
             try:
-                session.query(_WeiboUser).filter(_WeiboUser.uid == uid).one()
+                session.query(cls.User).filter(cls.User.uid == uid).one()
             except NoResultFound:
                 return False
             return True
@@ -147,7 +169,7 @@ class WeiboUserHandler(DatabaseHandler):
     @classmethod
     def delete_user(cls, uid):
         with cls.modify_scope() as session:
-            user = session.query(_WeiboUser).filter_by(uid=uid).first()
+            user = session.query(cls.User).filter_by(uid=uid).first()
             session.delete(user)
 
 
@@ -164,19 +186,19 @@ class MicroblogHandler(DatabaseHandler):
             #     session.add(b)
             #     u2b = _User2Blog(mid=mid, uid=uid)
             #     session.add(u2b)
-            b = _Microblog(mid=mid, **kwargs)
+            b = cls.Blog(mid=mid, **kwargs)
             session.add(b)
 
         # make sure that foreign key exist.
         with cls.modify_scope() as session:
-            u2b = _User2Blog(mid=mid, uid=uid)
+            u2b = cls.User2Blog(mid=mid, uid=uid)
             session.add(u2b)
 
     @classmethod
     def blog_exist(cls, mid):
         with cls.query_scope() as session:
             try:
-                session.query(_Microblog).filter(_Microblog.mid == mid)\
+                session.query(cls.Blog).filter(cls.Blog.mid == mid)\
                     .one()
             except NoResultFound:
                 return False
@@ -186,7 +208,7 @@ class MicroblogHandler(DatabaseHandler):
     def delete_blog(cls, mid):
         with cls.modify_scope() as session:
             # delete entry of UserToBlog first
-            u2b = session.query(_User2Blog).filter_by(mid=mid).first()
+            u2b = session.query(cls.User2Blog).filter_by(mid=mid).first()
             session.delete(u2b)
-            b = session.query(_Microblog).filter_by(mid=mid).first()
+            b = session.query(cls.Blog).filter_by(mid=mid).first()
             session.delete(b)

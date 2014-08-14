@@ -12,7 +12,7 @@ import requests
 from selenium import webdriver
 
 from .config import ConfigurationCenter
-from .persist import WeiboUserHandler, MicroblogHandler
+from .persist import WeiboUserHandler, MicroblogHandler, DatabaseHandler
 
 
 logger = logging.getLogger(__name__)
@@ -345,6 +345,12 @@ class PublicTimelineQuery(object):
         for item in items:
             user = self._extract_user(item)
             message = self._extract_message(item)
+            # examine timestamp of msg
+            t_str = message['created_time']
+            t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
+            t_sec = time.mktime(t_struct)
+            if t_sec-DatabaseHandler.NOW_IN_HOUR > 3600:
+                DatabaseHandler.switch_tables()
 
             # add to db.
             logger.debug("Adding user to db.")
