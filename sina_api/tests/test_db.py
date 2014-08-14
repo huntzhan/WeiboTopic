@@ -16,14 +16,17 @@ from weibo_crawl.persist import WeiboUserHandler,\
 
 class TestTableExist(unittest.TestCase):
     def test_table(self):
-        u, b, u2b = create_model_class((long)(time.time()))
-        # self.assertFalse(u.__table__.exists())
         engine = create_engine(
             DB_URL,
             pool_size=0,
             pool_timeout=60,
         )
-        Base.metadata.create_all(engine)
+        u, b, u2b = create_model_class((long)(time.time()))
+        t = u.__table__
+        t.create(engine, checkfirst=True)
+        self.assertTrue(t.exists(bind=engine))
+        # uncomment following line to create all the tables
+        # Base.metadata.create_all(engine)
 
 
 class TestDB(unittest.TestCase):
