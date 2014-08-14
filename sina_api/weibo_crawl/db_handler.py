@@ -87,30 +87,6 @@ class ThreadSafeHandler(object):
         Session.commit()
 
     def _exist(self, condition):
-        result = session.query(exists().where(condition)).scalar()
+        result = Session.query(exists().where(condition)).scalar()
         logger.info(result)
         return result
-
-
-class UserHandler(ThreadSafeHandler):
-
-    def add_user(self, uid, **kwargs):
-        if not self._exist(_WeiboUser.uid == uid):
-            user = _WeiboUser(uid=uid, **kwargs)
-            Session.add(user)
-
-
-class MessageHandler(ThreadSafeHandler):
-
-    def add_blog(cls, mid, **kwargs):
-        if not self._exist(_Microblog.mid == mid):
-            message = _Microblog(mid=mid, **kwargs)
-            Session.add(message)
-
-
-class User2MessageHandler(ThreadSafeHandler):
-
-    def add_relation(cls, uid, mid):
-        if not self._exist(_User2Blog.mid == mid):
-            u2m = _User2Blog(mid=mid, uid=uid)
-            Session.add(u2m)
