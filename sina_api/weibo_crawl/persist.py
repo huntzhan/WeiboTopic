@@ -2,7 +2,6 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 from contextlib import contextmanager
-import time
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
@@ -11,6 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
+
+from .timestamp import NOW_IN_HOUR, anew_timestamp
 
 
 DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
@@ -75,26 +76,21 @@ def create_model_class(time_in_hour):
     return _WeiboUser, _Microblog, _User2Blog
 
 
-def round_hour(time_in_sec):
-    """
-    cut the arg into last o'clock
-    @return o'clock time in sec
-    """
-    pass
-
-NOW_IN_HOUR = round_hour(time.mktime(time.gmtime()))
-
-
 class DatabaseHandler:
 
     @classmethod
     def switch_tables(cls):
-        cls.NOW_IN_HOUR = round_hour(time.mktime(time.gmtime()))
+        anew_timestamp()
         cls.User, cls.Blog, cls.UserToBlob = create_model_class(NOW_IN_HOUR)
+        global Base
+        Base.metadata.create_all(cls.engine)
 
     @classmethod
-    def table_exist():
-        pass
+    def _table_exist(cls):
+        cls.User, cls.Blog, cls.UserToBlob = create_model_class(NOW_IN_HOUR)
+        if cls.User.__table__.exists():
+            return True
+        return False
 
     @classmethod
     def open(cls):
@@ -105,7 +101,8 @@ class DatabaseHandler:
         )
         cls.Session = sessionmaker(bind=cls.engine)
         if cls.table_exist(NOW_IN_HOUR):
-            cls.switch_tables()
+            global Base
+            Base.metadata.create_all(cls.engine)
 
     @classmethod
     def close(cls):
