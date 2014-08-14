@@ -2,16 +2,16 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 from contextlib import contextmanager
+import time
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 
-from .timestamp import NOW_IN_HOUR, anew_timestamp
+from .model_manager import get_models
 
 
 DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
@@ -21,6 +21,8 @@ DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
     '3306',
     'sina',
 )
+
+engine = None
 
 Base = declarative_base()
 
@@ -86,28 +88,15 @@ def create_model_class(time_in_hour):
 class DatabaseHandler:
 
     @classmethod
-    def switch_tables(cls):
-        anew_timestamp()
-        cls.User, cls.Blog, cls.UserToBlob = create_model_class(NOW_IN_HOUR)
-
-    @classmethod
-    def _table_exist(cls):
-        cls.User, cls.Blog, cls.UserToBlob = create_model_class(NOW_IN_HOUR)
-        if cls.User.__table__.exists():
-            return True
-        return False
-
-    @classmethod
     def open(cls):
-        cls.engine = create_engine(
+        global engine
+        global DB_URL
+        engine = create_engine(
             DB_URL,
             pool_size=0,
             pool_timeout=60,
         )
-        cls.Session = sessionmaker(bind=cls.engine)
-        if cls.table_exist(NOW_IN_HOUR):
-            global Base
-            Base.metadata.create_all(cls.engine)
+        cls.Session = sessionmaker(bind=engine)
 
     @classmethod
     def close(cls):
@@ -136,49 +125,24 @@ class DatabaseHandler:
         finally:
             session.close()
 
-
-class WeiboUserHandler(DatabaseHandler):
-
-    EMPTY = -1
-
     @classmethod
-    def add_user(cls, uid, **kwargs):
+    def add_entry(cls, user, msg):
+        u_dict = dict(user._asdict())
+        b_dict = dict(msg._asdict())
+        # examine timestamp of msg
+        t_str = b_dict['created_time']
+        t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
+        models = get_models(t_struct)
+        # add user
         with cls.modify_scope() as session:
             # try:
             #     session.query(_WeiboUser).filter(_WeiboUser.uid == uid).one()
             # except NoResultFound:
             #     user = _WeiboUser(uid=uid, **kwargs)
             #     session.add(user)
-            user = cls.User(uid=uid, **kwargs)
-            session.add(user)
-
-    @classmethod
-    def update_user(cls, uid, **kwargs):
-        with cls.modify_scope() as session:
-            user = session.query(cls.User).filter_by(uid=uid).first()
-            for key, value in kwargs.items():
-                setattr(user, key, value)
-
-    @classmethod
-    def user_exist(cls, uid):
-        with cls.query_scope() as session:
-            try:
-                session.query(cls.User).filter(cls.User.uid == uid).one()
-            except NoResultFound:
-                return False
-            return True
-
-    @classmethod
-    def delete_user(cls, uid):
-        with cls.modify_scope() as session:
-            user = session.query(cls.User).filter_by(uid=uid).first()
-            session.delete(user)
-
-
-class MicroblogHandler(DatabaseHandler):
-
-    @classmethod
-    def add_blog(cls, uid, mid, **kwargs):
+            u = models[0](**u_dict)
+            session.add(u)
+        # add blog
         with cls.modify_scope() as session:
             # try:
             #     session.query(_Microblog).filter(_Microblog.mid == mid)\
@@ -188,29 +152,100 @@ class MicroblogHandler(DatabaseHandler):
             #     session.add(b)
             #     u2b = _User2Blog(mid=mid, uid=uid)
             #     session.add(u2b)
-            b = cls.Blog(mid=mid, **kwargs)
-            session.add(b)
 
+            b = models[1](**b_dict)
+            session.add(b)
+        # add User2Blog
         # make sure that foreign key exist.
+        uid = u_dict['uid']
+        mid = b_dict['mid']
         with cls.modify_scope() as session:
-            u2b = cls.User2Blog(mid=mid, uid=uid)
+            u2b = models[2](mid=mid, uid=uid)
             session.add(u2b)
 
-    @classmethod
-    def blog_exist(cls, mid):
-        with cls.query_scope() as session:
-            try:
-                session.query(cls.Blog).filter(cls.Blog.mid == mid)\
-                    .one()
-            except NoResultFound:
-                return False
-            return True
 
-    @classmethod
-    def delete_blog(cls, mid):
-        with cls.modify_scope() as session:
-            # delete entry of UserToBlog first
-            u2b = session.query(cls.User2Blog).filter_by(mid=mid).first()
-            session.delete(u2b)
-            b = session.query(cls.Blog).filter_by(mid=mid).first()
-            session.delete(b)
+class WeiboUserHandler(DatabaseHandler):
+    pass
+    # EMPTY = -1
+
+    # @classmethod
+    # def add_user(cls, uid, **kwargs):
+    #     t_str = kwargs['created_time']
+    #     t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
+    #     models = get_models(t_struct)
+    #     with cls.modify_scope() as session:
+    #         # try:
+    #         #     session.query(_WeiboUser).filter(_WeiboUser.uid == uid).one()
+    #         # except NoResultFound:
+    #         #     user = _WeiboUser(uid=uid, **kwargs)
+    #         #     session.add(user)
+    #         user = cls.User(uid=uid, **kwargs)
+    #         session.add(user)
+
+    # @classmethod
+    # def update_user(cls, uid, **kwargs):
+    #     with cls.modify_scope() as session:
+    #         user = session.query(cls.User).filter_by(uid=uid).first()
+    #         for key, value in kwargs.items():
+    #             setattr(user, key, value)
+
+    # @classmethod
+    # def user_exist(cls, uid):
+    #     with cls.query_scope() as session:
+    #         try:
+    #             session.query(cls.User).filter(cls.User.uid == uid).one()
+    #         except NoResultFound:
+    #             return False
+    #         return True
+
+    # @classmethod
+    # def delete_user(cls, uid):
+    #     with cls.modify_scope() as session:
+    #         user = session.query(cls.User).filter_by(uid=uid).first()
+    #         session.delete(user)
+
+
+class MicroblogHandler(DatabaseHandler):
+    pass
+
+    # @classmethod
+    # def add_blog(cls, uid, mid, **kwargs):
+    #     # examine timestamp of msg
+    #     t_str = kwargs['created_time']
+    #     t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
+    #     models = get_models(t_struct)
+    #     with cls.modify_scope() as session:
+    #         # try:
+    #         #     session.query(_Microblog).filter(_Microblog.mid == mid)\
+    #         #         .one()
+    #         # except NoResultFound:
+    #         #     b = _Microblog(mid=mid, **kwargs)
+    #         #     session.add(b)
+    #         #     u2b = _User2Blog(mid=mid, uid=uid)
+    #         #     session.add(u2b)
+
+    #         b = models[1](mid=mid, **kwargs)
+    #         session.add(b)
+    #     # make sure that foreign key exist.
+    #     with cls.modify_scope() as session:
+    #         u2b = models[2](mid=mid, uid=uid)
+    #         session.add(u2b)
+
+    # @classmethod
+    # def blog_exist(cls, mid):
+    #     with cls.query_scope() as session:
+    #         try:
+    #             session.query(cls.Blog).filter(cls.Blog.mid == mid)\
+    #                 .one()
+    #         except NoResultFound:
+    #             return False
+    #         return True
+
+    # @classmethod
+    # def delete_blog(cls, mid):
+    #     with cls.modify_scope() as session:
+    #         # delete entry of UserToBlog first
+    #         u2b = session.query(cls.User2Blog).filter_by(mid=mid).first()
+    #         session.delete(u2b)
+    #         b = session.query(cls.Blog).filter_by(mid=mid).first()
+    #         session.delete(b)

@@ -3,7 +3,7 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 
 import time
 
-from .persist import create_model_class
+from .persist import create_model_class, engine
 
 
 class ModelManager(object):
@@ -34,9 +34,13 @@ class ModelManager(object):
         suffix = str(
             int(time.mktime(rounded_timestamp)))
         models = create_model_class(suffix)
+        for m in models:
+            t = m.__table__
+            # test table existence
+            if not t.exists(bind=engine):
+                # create tables here.
+                t.create(engine, checkfirst=True)
         cls.time_models_mapping[rounded_timestamp] = models
-        # create tables here.
-        #
         return models
 
     @classmethod
