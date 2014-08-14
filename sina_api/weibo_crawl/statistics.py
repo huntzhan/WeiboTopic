@@ -2,6 +2,7 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import time
+import logging
 from logging.handlers import SMTPHandler
 
 from .persist import _WeiboUser, _User2Blog, _Microblog, DatabaseHandler
