@@ -348,7 +348,7 @@ class PublicTimelineQuery(object):
         user_handler = UserHandler()
         message_handler = MessageHandler()
         user_handler.open()
-        message.open()
+        message_handler.open()
 
         for item in items:
             user = self._extract_user(item)
