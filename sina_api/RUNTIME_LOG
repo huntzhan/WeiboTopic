@@ -1,0 +1,48 @@
+2014-08-14 21:31:37,226, root, 140735099642640, INFO
+Finished prepareing.
+
+2014-08-14 21:31:37,227, root, 140735099642640, INFO
+Init 6 queries
+
+2014-08-14 21:31:37,227, weibo_crawl.bussiness, 140735099642640, INFO
+Setup tasks.
+
+2014-08-14 21:31:37,228, weibo_crawl.bussiness, 140735099642640, INFO
+Sleep
+
+2014-08-14 21:31:41,365, weibo_crawl.bussiness, 4427804672, INFO
+Getting messages.
+
+2014-08-14 21:31:41,839, requests.packages.urllib3.connectionpool, 4427804672, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:42,806, requests.packages.urllib3.connectionpool, 4427804672, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:45,503, weibo_crawl.bussiness, 4432011264, INFO
+Getting messages.
+
+2014-08-14 21:31:45,507, requests.packages.urllib3.connectionpool, 4432011264, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:45,747, requests.packages.urllib3.connectionpool, 4432011264, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:49,641, weibo_crawl.bussiness, 4436217856, INFO
+Getting messages.
+
+2014-08-14 21:31:49,644, requests.packages.urllib3.connectionpool, 4436217856, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:49,900, requests.packages.urllib3.connectionpool, 4436217856, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:53,779, weibo_crawl.bussiness, 4440424448, INFO
+Getting messages.
+
+2014-08-14 21:31:53,783, requests.packages.urllib3.connectionpool, 4440424448, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
+2014-08-14 21:31:54,011, requests.packages.urllib3.connectionpool, 4440424448, INFO
+Starting new HTTPS connection (1): api.weibo.com
+
