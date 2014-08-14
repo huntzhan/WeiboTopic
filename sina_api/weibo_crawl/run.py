@@ -9,10 +9,6 @@ from .logger import setup_logging
 from .statistics import Statistics
 
 
-setup_logging()
-logger = logging.getLogger()
-
-
 QUERY_PER_HOUT = 145
 DURATION = 3600.0 / QUERY_PER_HOUT
 
@@ -26,6 +22,9 @@ ordered_keys_for_init = [
 
 
 def run():
+    setup_logging()
+    logger = logging.getLogger()
+
     ConfigurationCenter.load_configuration()
     DatabaseHandler.open()
     logger.info("Finished prepareing.")

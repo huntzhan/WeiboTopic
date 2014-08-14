@@ -145,7 +145,11 @@ class DatabaseHandler:
 
     @classmethod
     def open(cls):
-        cls.engine = create_engine(DB_URL)
+        cls.engine = create_engine(
+            DB_URL,
+            pool_size=0,
+            pool_timeout=60,
+        )
         cls.Session = sessionmaker(bind=cls.engine)
 
     @classmethod
