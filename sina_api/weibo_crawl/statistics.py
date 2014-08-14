@@ -5,46 +5,48 @@ import time
 import logging
 from logging.handlers import SMTPHandler
 
+from sqlalchemy import func
+
 from .persist import _WeiboUser, _User2Blog, _Microblog, DatabaseHandler
 
 
-def _get_size(model):
+def _get_size(pri_key):
     session = DatabaseHandler.Session()
-    size = session.query(model).count()
+    size = session.query(func.count(pri_key)).one()[0]
     session.close()
     return size
 
 
 def get_WeiboUser():
-    return _get_size(_WeiboUser)
+    return _get_size(_WeiboUser.uid)
 
 
 def get_User2Blog():
-    return _get_size(_User2Blog)
+    return _get_size(_User2Blog.uid)
 
 
 def get_Microblog():
-    return _get_size(_Microblog)
+    return _get_size(_Microblog.mid)
 
 
 class ProjectSMTPHandler(SMTPHandler):
 
-    email = 'huntzhan@tencent.com'
+    email = b'huntzhan@tencent.com'
 
     def getSubject(self, recort):
-        return '[虚拟项目] 数据监控 ' + time.ctime()
+        return b'[虚拟项目] 数据监控 ' + time.ctime()
 
 
-formatter = logging.Formatter('%(message)s\n')
+formatter = logging.Formatter(b'%(message)s\n')
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 
 email_handler = ProjectSMTPHandler(
-    'smtp.163.com',
-    'vproject_logging@163.com',
+    b'smtp.163.com',
+    b'vproject_logging@163.com',
     ProjectSMTPHandler.email,
-    '',
-    ('vproject_logging@163.com', 'tencent'),
+    b'',
+    (b'vproject_logging@163.com', b'tencent'),
 )
 email_handler.setFormatter(formatter)
 
@@ -87,8 +89,8 @@ class Statistics(object):
         one_hour_ago = time.localtime(time.time() - 3600)
 
         text = MESSAGE_TEMPLATE.format(
-            one_hour_ago.asctime(),
-            current_time.asctime(),
+            time.asctime(one_hour_ago),
+            time.asctime(current_time),
             diffs[0],
             diffs[1],
             diffs[2],
@@ -96,4 +98,4 @@ class Statistics(object):
             cls.size_of_microblog,
             cls.size_of_user2blog,
         )
-        logger.info(text)
+        logger.info(text.encode('utf-8'))
