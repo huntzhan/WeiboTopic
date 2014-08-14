@@ -43,21 +43,6 @@ def create_model_class(time_in_hour):
         def __repr__(self):
             return "<User%s(uid='%s')" % (time_in_hour, self.uid)
 
-    class _User2Blog(Base):
-        __tablename__ = 'UserToBlog{}'.format(time_in_hour)
-        __table_args__ = {'mysql_engine': 'InnoDB'}
-
-        mid = Column(String(50),
-                     ForeignKey('Microblog.mid'),
-                     primary_key=True)
-        uid = Column(String(50), ForeignKey('WeiboUser.uid'))
-
-        def __repr__(self):
-            return "<User2Blog%s(mid='%s', uid='%s')>" % (
-                time_in_hour,
-                self.mid,
-                self.uid)
-
     class _Microblog(Base):
         __tablename__ = 'Microblog{}'.format(time_in_hour)
         __table_args__ = {'mysql_engine': 'InnoDB'}
@@ -72,6 +57,23 @@ def create_model_class(time_in_hour):
 
         def __repr__(self):
             return "<Microblog%s(mid='%s')" % (time_in_hour, self.mid)
+
+    class _User2Blog(Base):
+        __tablename__ = 'UserToBlog{}'.format(time_in_hour)
+        __table_args__ = {'mysql_engine': 'InnoDB'}
+
+        mid = Column(String(50),
+                     ForeignKey('Microblog{}.mid'.format(time_in_hour)),
+                     primary_key=True)
+        uid = Column(String(50),
+                     ForeignKey('WeiboUser{}.uid'.format(time_in_hour)))
+
+        def __repr__(self):
+            return "<User2Blog%s(mid='%s', uid='%s')>" % (
+                time_in_hour,
+                self.mid,
+                self.uid)
+
 
     return _WeiboUser, _Microblog, _User2Blog
 

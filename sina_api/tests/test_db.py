@@ -2,10 +2,28 @@
 import unittest
 from datetime import datetime
 import pdb
+import time
+
+from sqlalchemy import create_engine
 
 from weibo_crawl.persist import WeiboUserHandler,\
     MicroblogHandler,\
-    DatabaseHandler
+    DatabaseHandler,\
+    create_model_class,\
+    Base,\
+    DB_URL
+
+
+class TestTableExist(unittest.TestCase):
+    def test_table(self):
+        u, b, u2b = create_model_class((long)(time.time()))
+        # self.assertFalse(u.__table__.exists())
+        engine = create_engine(
+            DB_URL,
+            pool_size=0,
+            pool_timeout=60,
+        )
+        Base.metadata.create_all(engine)
 
 
 class TestDB(unittest.TestCase):
@@ -96,5 +114,8 @@ class TestDB(unittest.TestCase):
         self.assertFalse(self.bhandler.blog_exist('001'))
         self.assertFalse(self.uhandler.user_exist(uid='110'))
 
+
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestTableExist)
+    unittest.TextTestRunner(verbosity=2).run(suite)
