@@ -21,7 +21,7 @@ ordered_keys_for_init = [
 ]
 
 
-def run():
+def api():
     setup_logging()
     logger = logging.getLogger()
 
@@ -48,13 +48,13 @@ def run():
 
 
 def report():
-    DatabaseHandler.open()
-    Statistics.loadup()
+    # HOURS = 24
+    # ONE_DAY = 3600.0 * HOURS
+    # while True:
+    #     schedule = Schedule(ONE_DAY)
+    #     for _ in range(HOURS):
+    #         schedule.add_callback(Statistics.report)
+    #     schedule.run()
 
-    HOURS = 24
-    ONE_DAY = 3600.0 * HOURS
-    while True:
-        schedule = Schedule(ONE_DAY)
-        for _ in range(HOURS):
-            schedule.add_callback(Statistics.report)
-        schedule.run()
+    # debug
+    Statistics.report()

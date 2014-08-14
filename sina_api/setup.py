@@ -26,7 +26,7 @@ setup(
             "build_db = weibo_crawl.build_db:BuildDBCommand",
         ],
         'console_scripts': [
-            'run_api = weibo_crawl.run:run',
+            'run_api = weibo_crawl.run:api',
             'run_report = weibo_crawl.run:report',
         ],
     },
