@@ -54,7 +54,7 @@ logger.addHandler(email_handler)
 logger.setLevel(logging.INFO)
 
 
-MESSAGE_TEMPLATE = """
+MESSAGE_TEMPLATE = b"""
 Time: {0} - {1}
 New: WeiboUser: {2}; MicroBlog: {3}; User2Blog: {4}
 Current: WeiboUser: {5}; MicroBlog: {6}; User2Blog: {7}
@@ -87,8 +87,8 @@ class Statistics(object):
         one_hour_ago = time.localtime(time.time() - 3600)
 
         text = MESSAGE_TEMPLATE.format(
-            one_hour_ago.asctime(),
-            current_time.asctime(),
+            time.asctime(one_hour_ago),
+            time.asctime(current_time),
             diffs[0],
             diffs[1],
             diffs[2],
