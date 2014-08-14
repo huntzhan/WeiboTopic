@@ -5,13 +5,22 @@ from __future__ import (unicode_literals, print_function, absolute_import)
 
 import logging
 
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import exists
 
+from .model_manager import ModelManager
 
 logger = logging.getLogger(__name__)
 
+DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
+    'root',
+    '123456',
+    'localhost',
+    '3306',
+    'sina',
+)
 
 engine = create_engine(
     DB_URL,
@@ -92,3 +101,86 @@ class ThreadSafeHandler(object):
         result = Session.query(exists().where(condition)).scalar()
         logger.info(result)
         return result
+
+
+# def open_engine():
+#     global engine
+#     engine = create_engine(
+#         DB_URL,
+#         pool_size=0,
+#         pool_timeout=60,
+#     )
+
+
+class DatabaseHandler:
+
+    @classmethod
+    def open(cls):
+        # if not engine:
+        #     open_engine()
+        cls.Session = sessionmaker(bind=engine)
+
+    @classmethod
+    def close(cls):
+        pass
+
+    @classmethod
+    @contextmanager
+    def modify_scope(cls):
+        """Provide a transactional scope around a series of operations."""
+        session = cls.Session()
+        try:
+            yield session
+            session.commit()
+        except IntegrityError:
+            session.rollback()
+        finally:
+            session.close()
+
+    @classmethod
+    @contextmanager
+    def query_scope(cls):
+        """Provide a transactional scope around a series of operations."""
+        session = cls.Session()
+        try:
+            yield session
+        finally:
+            session.close()
+
+    @classmethod
+    def add_entry(cls, user, msg):
+        u_dict = dict(user._asdict())
+        b_dict = dict(msg._asdict())
+        # examine timestamp of msg
+        t_str = b_dict['created_time']
+        t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
+        models = ModelManager.get_models(t_struct)
+        # add user
+        with cls.modify_scope() as session:
+            # try:
+            #     session.query(_WeiboUser).filter(_WeiboUser.uid == uid).one()
+            # except NoResultFound:
+            #     user = _WeiboUser(uid=uid, **kwargs)
+            #     session.add(user)
+            u = models[0](**u_dict)
+            session.add(u)
+        # add blog
+        with cls.modify_scope() as session:
+            # try:
+            #     session.query(_Microblog).filter(_Microblog.mid == mid)\
+            #         .one()
+            # except NoResultFound:
+            #     b = _Microblog(mid=mid, **kwargs)
+            #     session.add(b)
+            #     u2b = _User2Blog(mid=mid, uid=uid)
+            #     session.add(u2b)
+
+            b = models[1](**b_dict)
+            session.add(b)
+        # add User2Blog
+        # make sure that foreign key exist.
+        uid = u_dict['uid']
+        mid = b_dict['mid']
+        with cls.modify_scope() as session:
+            u2b = models[2](mid=mid, uid=uid)
+            session.add(u2b)
