@@ -26,6 +26,10 @@ Base = declarative_base()
 
 
 def create_model_class(time_in_hour):
+    """
+    @brief: create new models and ensures that the corresponseding tables were
+            created in database.
+    """
     class _WeiboUser(Base):
         __tablename__ = 'WeiboUser{}'.format(time_in_hour)
         __table_args__ = {'mysql_engine': 'InnoDB'}
@@ -74,7 +78,8 @@ def create_model_class(time_in_hour):
                 self.mid,
                 self.uid)
 
-
+    # create tables here.
+    # Base.metadata.create_all(cls.engine)
     return _WeiboUser, _Microblog, _User2Blog
 
 
@@ -84,8 +89,6 @@ class DatabaseHandler:
     def switch_tables(cls):
         anew_timestamp()
         cls.User, cls.Blog, cls.UserToBlob = create_model_class(NOW_IN_HOUR)
-        global Base
-        Base.metadata.create_all(cls.engine)
 
     @classmethod
     def _table_exist(cls):
