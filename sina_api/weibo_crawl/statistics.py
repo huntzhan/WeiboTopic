@@ -19,7 +19,7 @@ class ProjectSMTPHandler(SMTPHandler):
         return b'[虚拟项目] 数据监控 ' + time.ctime()
 
 
-formatter = logging.Formatter(b'%(message)s\n')
+formatter = logging.Formatter(b'%(message)s')
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 
