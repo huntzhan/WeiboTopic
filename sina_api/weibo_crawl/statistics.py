@@ -56,7 +56,7 @@ logger.addHandler(email_handler)
 logger.setLevel(logging.INFO)
 
 
-MESSAGE_TEMPLATE = """
+MESSAGE_TEMPLATE = b"""
 Time: {0} - {1}
 New: WeiboUser: {2}; MicroBlog: {3}; User2Blog: {4}
 Current: WeiboUser: {5}; MicroBlog: {6}; User2Blog: {7}
