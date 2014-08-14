@@ -12,7 +12,7 @@ import requests
 from selenium import webdriver
 
 from .config import ConfigurationCenter
-from .persist import DatabaseHandler
+from .db_handler import DatabaseHandler
 
 
 logger = logging.getLogger(__name__)
