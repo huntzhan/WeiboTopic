@@ -77,3 +77,27 @@ class ThreadSafeHandler(object):
 
     def close(self):
         Session.remove()
+
+    def commit(self):
+        Session.commit()
+
+
+class UserHandler(ThreadSafeHandler):
+
+    def add_user(self, uid, **kwargs):
+        user = _WeiboUser(uid=uid, **kwargs)
+        Session.merge(user, load=False)
+
+
+class MessageHandler(ThreadSafeHandler):
+
+    def add_blog(cls, mid, **kwargs):
+        message = _Microblog(mid=mid, **kwargs)
+        Session.merge(message, load=False)
+
+
+class User2MessageHandler(ThreadSafeHandler):
+
+    def add_relation(cls, uid, mid):
+        u2m = _User2Blog(mid=mid, uid=uid)
+        Session.merge(u2m, load=False)
