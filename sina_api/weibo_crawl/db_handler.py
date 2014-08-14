@@ -3,11 +3,16 @@
 """
 from __future__ import (unicode_literals, print_function, absolute_import)
 
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.sql import exists
 
 from .persist import (_WeiboUser, _User2Blog, _Microblog,
                       DB_URL)
+
+logger = logging.getLogger(__name__)
 
 
 engine = create_engine(
@@ -77,3 +82,11 @@ class ThreadSafeHandler(object):
 
     def close(self):
         Session.remove()
+
+    def commit(self):
+        Session.commit()
+
+    def _exist(self, condition):
+        result = Session.query(exists().where(condition)).scalar()
+        logger.info(result)
+        return result
