@@ -38,7 +38,7 @@ class ModelManager(object):
 
     @classmethod
     def get_models(cls, timestamp):
-        rounded_timestamp = cls._round_to_hour()
+        rounded_timestamp = cls._round_to_hour(timestamp)
         models = cls.time_models_mapping.get(rounded_timestamp, None)
         if models:
             return models
