@@ -9,8 +9,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql import exists
 
-from .persist import (_WeiboUser, _User2Blog, _Microblog,
-                      DB_URL)
 
 logger = logging.getLogger(__name__)
 
@@ -77,15 +75,19 @@ def week_filter(*required_keys):
 
 class ThreadSafeHandler(object):
 
+    @classmethod
     def open(self):
         Session()
 
+    @classmethod
     def close(self):
         Session.remove()
 
+    @classmethod
     def commit(self):
         Session.commit()
 
+    @classmethod
     def _exist(self, condition):
         result = Session.query(exists().where(condition)).scalar()
         logger.info(result)

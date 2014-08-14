@@ -346,11 +346,11 @@ class PublicTimelineQuery(object):
             user = self._extract_user(item)
             message = self._extract_message(item)
             # examine timestamp of msg
-            t_str = message['created_time']
-            t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
-            t_sec = time.mktime(t_struct)
-            if t_sec-DatabaseHandler.NOW_IN_HOUR > 3600:
-                DatabaseHandler.switch_tables()
+            # t_str = message['created_time']
+            # t_struct = time.strptime(t_str, "%a %b %d %H:%M:%S +0800 %Y")
+            # t_sec = time.mktime(t_struct)
+            # if t_sec-DatabaseHandler.NOW_IN_HOUR > 3600:
+            #     DatabaseHandler.switch_tables()
 
             logger.debug("Adding user to db.")
             WeiboUserHandler.add_user(
