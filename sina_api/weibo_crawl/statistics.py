@@ -65,8 +65,8 @@ class Statistics(object):
             # format
             epoch, _ = cls._extract_key(table_name)
             if epoch:
-                begin = time.mktime(int(epoch))
-                end = time.mktime(int(epoch) + 3600)
+                begin = time.gmtime(int(epoch))
+                end = time.gmtime(int(epoch) + 3600)
                 time_format = '%m/%d/%H'
                 duration = "[{0} - {1}]".format(
                     time.strftime(time_format, begin),
