@@ -63,20 +63,23 @@ class Statistics(object):
                 select([func.count()]).select_from(table),
             ).scalar()
             # format
+            LINE_FORMAT = 'Table: {0}, Duration: {1}, Size: {2}'
+            DURATION_FORMAT = "[{0} - {1}]"
+            TIME_FORMAT = '%m/%d:%H'
+
             epoch, _ = cls._extract_key(table_name)
             if epoch:
                 begin = time.gmtime(int(epoch))
                 end = time.gmtime(int(epoch) + 3600)
-                time_format = '%m/%d/%H'
-                duration = "[{0} - {1}]".format(
-                    time.strftime(time_format, begin),
-                    time.strftime(time_format, end),
+                duration = DURATION_FORMAT.format(
+                    time.strftime(TIME_FORMAT, begin),
+                    time.strftime(TIME_FORMAT, end),
                 )
-                table_name += duration
             else:
-                table_name += '[unknow]'
+                duration = '[UNKNOW]'
             texts.append(
-                "{0}: {1}".format(table_name, size))
+                LINE_FORMAT.format(table_name, duration, size),
+            )
 
         text = '\n'.join(texts)
         logger.info(text.encode('utf-8'))

@@ -50,10 +50,10 @@ def api():
 def report():
     HOURS = 24
     ONE_DAY = 3600.0 * HOURS
+
+    Statistics.report()
     while True:
         schedule = Schedule(ONE_DAY)
         for _ in range(HOURS):
             schedule.add_callback(Statistics.report)
         schedule.run()
-    # debug
-    # Statistics.report()
