@@ -9,8 +9,11 @@
 #include "DEBUG.h"
 #include "Weibo.h"
 #include "DBdao.h"
+#include<time.h>
+#include<math.h>
 #include<algorithm>
-//#define DEBUG5
+//#define DEBUG2
+#define TIME
 using namespace std;
 
 
@@ -39,65 +42,156 @@ void GetTopic::AddKeyToMap(map<string,TopicWord>&filterMap,string key,std::strin
 /*
  * return 是销毁并创建一个新的对象返回
  */
-void GetTopic::GetEveryWordInCurrentHour(){
-//	this->GetCurrentHourWeiboList("time");//获取当前时间段微博ID列表
+void GetTopic::GetEveryWordInCurrentHour() {
+	int count = 0;
+	list<string>::iterator m_c_iter;
+	for (m_c_iter = this->m_current_messageList.begin(); m_c_iter
+			!= this->m_current_messageList.end(); ++m_c_iter) {
+#ifdef DEBUG1
+		count++;
+		std::cout<<count<<std::endl;
+#endif
+		Weibo oneweibo;
+		string oneweiboId = *m_c_iter;
 
+		this->dbdao->GetEveryWeiboFromDatabase(oneweiboId, oneweibo);
 
-	int count=0;
-		list<string>::iterator m_c_iter;
-		for(m_c_iter=this->m_current_messageList.begin();
-				m_c_iter!=this->m_current_messageList.end();++m_c_iter){
-	#ifdef DEBUG1
-			count++;
-			std::cout<<count<<std::endl;
-	#endif
-			Weibo oneweibo;
-			string oneweiboId=*m_c_iter;
-
-
-
-			this->dbdao->GetEveryWeiboFromDatabase(oneweiboId,oneweibo);
-
-
-
-			vector<string> * oneWeiboContent=oneweibo.GetWords();//这里是创建了新对象呢还是直接指针
-			vector<string>::iterator it;
-			for(it=oneWeiboContent->begin();it!=oneWeiboContent->end();++it){
-				string key=*it;
-				AddKeyToMap(this->m_topic_word,key,oneweiboId);
-			}
+		vector<string> * oneWeiboContent = oneweibo.GetWords();//这里是创建了新对象呢还是直接指针
+		vector<string>::iterator it;
+		for (it = oneWeiboContent->begin(); it != oneWeiboContent->end(); ++it) {
+			string key = *it;
+			AddKeyToMap(this->m_topic_word, key, oneweiboId);
 		}
-	#ifdef DEBUG2
-	printMaps(this->m_topic_word);
-	#endif
+	}
+}
+void GetTopic::GetEveryWordInCurrentHourByWordProperty() {
+	this->overMapNum=0;
+	int count = 0;
+	list<string>::iterator m_c_iter;
+	for (m_c_iter = this->m_current_messageList.begin(); m_c_iter
+			!= this->m_current_messageList.end(); ++m_c_iter) {
+#ifdef DEBUG1
+		count++;
+		std::cout<<count<<std::endl;
+#endif
+		Weibo oneweibo;
+		string oneweiboId = *m_c_iter;
+
+		this->dbdao->GetEveryWeiboWithProperty(oneweiboId, oneweibo);
+
+		vector<Word> * oneWeiboContent = oneweibo.GetContentWithProperty();//这里是创建了新对象呢还是直接指针
+		vector<Word>::iterator it;
+		for (it = oneWeiboContent->begin(); it != oneWeiboContent->end(); ++it) {
+			AddKeyToMapWithProperty(this->m_topic_word, *it, oneweiboId);
+		}
+	}
+}
+void GetTopic::AddKeyToMapWithProperty(map<string, TopicWord>&filterMap,
+		Word &word, std::string weiboId) {
+	std::string key=word.word;
+	map<string, TopicWord>::iterator it;
+	if (word.word.size()>=4&&(word.proper.compare("v")==0||word.proper.compare("vn") == 0||word.proper.compare("n") == 0||word.proper.compare("un") == 0)) {//只要名次，地点词
+		it=filterMap.find(key);
+		if (it == filterMap.end()) {
+			TopicWord topicword(key, 1.0);
+			topicword.GetWordToWeiboidList()->insert(weiboId);
+			filterMap.insert(make_pair(key, topicword));
+		} else {
+//			this->isOverThrodandDelete(it->second);
+			it->second.SetFrequency(it->second.GetFrequency() + 1);
+			it->second.GetWordToWeiboidList()->insert(weiboId);
+		}
+	}
+	if(filterMap.size()>TOPICMAPTHROD){
+		this->DeleteElementsBelowThrod(filterMap);
+	}
+}
+
+void GetTopic::DeleteElementsBelowThrod(map<string, TopicWord>&filterMap){
+	map<string, TopicWord>::iterator map_it=filterMap.begin();
+
+	for(;map_it!=filterMap.end();++map_it){
+		if(map_it->second.m_dFrequency<10){
+			filterMap.erase(map_it);
+		}
+	}
+}
+void GetTopic::CalWordIDF(){
+	map<string, TopicWord>::iterator t_it = this->m_topic_word.begin();
+	double IDF;
+	int size=t_it->second.word_to_weiboid_list.size();
+	for (; t_it != this->m_topic_word.end();++t_it){
+		IDF=log((double)this->weibo_size/t_it->second.word_to_weiboid_list.size());
+		double temp=t_it->second.m_dFrequency;
+		t_it->second.m_dFrequency*=IDF;
+		t_it->second.IDF=temp;
+
+//		std::cout<<IDF<<std::endl;
+	}
+	this->m_k_messageList.clear();
 }
 void  GetTopic::GenTopicWordByFrequency(){
-	this->GetEveryWordInCurrentHour();
+#ifdef TIME
+	time_t start;
+	start=time(NULL);
+#endif
+//	this->GetEveryWordInCurrentHour();
+	this->GetEveryWordInCurrentHourByWordProperty();
+#ifdef TIME
+	time_t ends;
+	ends=time(NULL);
+	std::cout<<"获取特征词用时："<<difftime(ends,start)<<std::endl;
+#endif
+	this->CalWordIDF();
 	this->TopicWordSort();
+#ifdef DEBUG22
+	printMaps(this->m_topic_word);
+#endif
 }
 void GetTopic::GenTopicWord(){
 
 	this->GetEveryWordInCurrentHour();//获取当前一小时内不重复的词
+#ifdef TIME
+	time_t start1;
+	start1 = time(NULL);
+#endif
 	this->CalTopicWordInKhours();
-	map<string,TopicWord>::iterator t_it=this->m_topic_word.begin();
+#ifdef TIME
+	time_t ends1;
+	ends1 = time(NULL);
+	std::cout << "计算特征词增长率用时：" << difftime(ends1, start1) << std::endl;
+#endif
+	map<string, TopicWord>::iterator t_it = this->m_topic_word.begin();
 
-	for(;t_it!=this->m_topic_word.end();++t_it){
-		string key=t_it->first;
-		map<string,double>::iterator find_K_it=this->k_hour_topic_word.find(key);
-		if(find_K_it!=this->k_hour_topic_word.end()){
-			if(find_K_it->second==0){
-				t_it->second.SetFrequency(t_it->second.GetFrequency()*this->K_WINDOW/0.9);//如果之前都没有出现这个词，就除以比1小的数
+	for (; t_it != this->m_topic_word.end(); ++t_it) {
+		string key = t_it->first;
+		map<string, double>::iterator find_K_it = this->k_hour_topic_word.find(
+				key);
+		if (find_K_it != this->k_hour_topic_word.end()) {
+			if (find_K_it->second == 0) {
+				t_it->second.SetFrequency(
+						t_it->second.GetFrequency() * this->K_WINDOW / 0.9);//如果之前都没有出现这个词，就除以比1小的数
 				continue;
 			}
-			double tempvalue=t_it->second.GetFrequency()*this->K_WINDOW/find_K_it->second;//计算词的权重
+			double tempvalue = t_it->second.GetFrequency() * this->K_WINDOW
+					/ find_K_it->second;//计算词的权重
 			t_it->second.SetFrequency(tempvalue);
 		}
 	}
 	this->m_k_messageList.clear();//释放内存，因为前几个小时的基本用不上了
 #ifdef DEBUG3
-printMaps(this->m_topic_word);
+	printMaps(this->m_topic_word);
+#endif
+#ifdef TIME
+	time_t start2;
+	start2 = time(NULL);
 #endif
 	this->TopicWordSort();
+#ifdef TIME
+	time_t ends2;
+	ends2 = time(NULL);
+	std::cout << "特征词排序用时：" << difftime(ends2, start2) << std::endl;
+#endif
 }
 
 
@@ -114,7 +208,9 @@ void GetTopic::TopicWordSort(){
 std::cout<<"sort_vec size is : "<<sort_vec.size()<<std::endl;
 #endif
 	sort(sort_vec.begin(),sort_vec.end(),SortCmp);
-
+#ifdef DEBUG2
+	printVector(sort_vec);
+#endif
 //	map<string,double> map_topicwordResult;
 
 	int topicWordNum= this->m_topic_word.size();
@@ -129,7 +225,10 @@ std::cout<<"sort_vec size is : "<<sort_vec.size()<<std::endl;
 #ifdef DEBUG5
 std::cout<<"after sort : "<<key<<"		weibolist size: "<<*value_topic.word_to_weiboid_list.begin()<<std::endl;
 #endif
-		this->m_topic_word.insert(make_pair(key,value_topic));
+		if(v_it->second.IDF>10){
+			this->m_topic_word.insert(make_pair(key,value_topic));
+		}
+
 		++v_it;
 		++count;
 	}
@@ -185,4 +284,51 @@ int count=0;
 //	this->k_hour_topic_word=temp_map;
 
 }
+
+
+/*
+ void isOverThrodandDelete(TopicWord &topicword){
+	if (topicword.GetWordToWeiboidList()->size() > this->TOPICMAPTHROD) {
+		this->overMapNum++;
+		if (this->overMapNum >= 100) {
+			this->ClearTopicWordMapOverThrod();
+		}
+	}
+}
+void GetTopic::ClearTopicWordMapOverThrod(map<string, TopicWord>&filterMap){
+	map<string, TopicWord>::iterator map_it=filterMap.begin();
+	for(;map_it!=filterMap.end();++map_it){
+		if(map_it->second.word_to_weiboid_list.size()>this->TOPICMAPTHROD){
+			std::set<std::string>::iterator set_it=map_it->second.word_to_weiboid_list.begin();
+			for(;set_it!=map_it->second.word_to_weiboid_list.end();++set_it){
+
+			}
+		}
+	}
+}
+void ReadFileAndMergeSet(TopicWord & topicword){
+	std::string output;
+	std::set<std::string> temp_weiboidset;
+	std::string filename=topicword.m_sword;
+	std::set<std::string>::iterator set_it=topicword.word_to_weiboid_list.begin();
+	std::ifstream topicfile("./TopicWordFile/"+filename+".txt");
+	if (!topicfile) {
+//		std::cout << "open file failed" << std::endl;
+		std::ofstream outputfile("./TopicWordFile/"+filename+".txt");
+		for(;set_it!=topicword.word_to_weiboid_list.end();++set_it){
+			outputfile << *set_it << std::endl;
+		}
+
+
+		outputfile.close();
+	} else {
+		std::string temp;
+		if (!topicfile.eof()) {
+			topicfile >> temp;
+			std::cout << temp << std::endl;
+			weiboidset.insert(temp);
+		}
+	}
+}
+ */
 

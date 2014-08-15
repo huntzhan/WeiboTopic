@@ -28,7 +28,7 @@
 	void DBdao::GetKHourWeiboList(std::string time ,int timeslip,int k){
 //		std::string time2="2013-04-12 23:00:00";
 		std::vector<string> temp_vec;
-		Get_MIDs(time,ktimeslip,temp_vec);
+		Get_MIDs(time,timeslip,temp_vec);
 		std::copy(temp_vec.begin(),temp_vec.end(),std::back_inserter(k_hours_weibo_id_list));
 	}
 	void DBdao::GetEveryWeiboFromDatabase(std::string weiboID,Weibo &oneweibo){
@@ -39,6 +39,11 @@
 	//	 std::copy(mylist.begin(),mylist.end(),std::back_inserter(vec));
 
 		 oneweibo.SetWeiboContentWords(mylist,weiboID);
+	}
+	void DBdao::GetEveryWeiboWithProperty(std::string mid,Weibo &weibo){
+		std::vector<Word> words;
+		Get_StringVectorProperty(mid,stop_word_set,words);
+		weibo.SetWeiboContentWords2(mid,words);
 	}
 	void DBdao::DBdaoInit(std::string current_time,int timeslip,std::string K_hour_time,int ktimeslip,int hours){
 //		StopWordInit(filename);
@@ -58,4 +63,5 @@
 		result=temp[0][0];
 		return result;
 	}
+
 

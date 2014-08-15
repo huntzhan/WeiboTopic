@@ -22,17 +22,17 @@ void TopicView::GenAllTopicView(){
 	}
 #ifdef TOPICVIEW
 //		printTopicView(*it);
-		printTopic(this->clusterList,this->dbdao);
+		printTopic(this->clusterList,this->dbdao,this->BELONG_TOPIC_THROD);
 #endif
 
 }
 void TopicView::GenOneTopicView(Topic & onetopic){
-	std::vector<std::string>* topic_weibo_id=onetopic.GetWeiboIdList();
-	std::vector<std::string>::iterator twid_it=topic_weibo_id->begin();
+	std::vector<subword>* topic_weibo_id=onetopic.GetWeiboIdList();
+	std::vector<subword>::iterator twid_it=topic_weibo_id->begin();
 	std::string weiboid;
 	Weibo oneweibo;
 	for(;twid_it!=topic_weibo_id->end();++twid_it){
-		weiboid=*twid_it;
+		weiboid=twid_it->word;
 		this->dbdao->GetEveryWeiboFromDatabase(weiboid,oneweibo);
 		std::vector<std::string>::iterator v_it = oneweibo.GetWords()->begin();
 		std::string twoword;
@@ -87,7 +87,7 @@ void TopicView::SortSubTopicMap(Topic &onetopic){
 	std::vector<PAIRS>::iterator sort_vec_it=vec_sort.begin();
 	for(;sort_vec_it!=vec_sort.end();++sort_vec_it){
 		++count;
-		if(count>num_of_sub_word)break;
+		if(count>=num_of_sub_word-1)break;
 //		zhutici_map->insert(*sort_vec_it);
 		subword sw(sort_vec_it->first,sort_vec_it->second);
 //		std::cout<<"push back!"<<std::endl;

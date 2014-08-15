@@ -21,6 +21,7 @@ public:
 	int BELONG_TOPIC_THROD;
 	int randsize;
 	int RAND_SIZE;
+	double THROD_ADD;//额外调节阈值的参数
 	double CLSTER_THROD;
 	std::vector<Topic> clusterList;//最终生成的话题列表
 	std::map<std::string,CooccurrenceWord> co_ccur_matrix;
@@ -37,9 +38,10 @@ public:
 		this->dbdao=dbdao;
 		this->topicword=topicword;
 	}
-	void InitConfigure(int randsize,int BELONG_TOPIC_THROD){
+	void InitConfigure(int randsize,int BELONG_TOPIC_THROD,double THROD_ADD){
 		this->RAND_SIZE=randsize;
 		this->BELONG_TOPIC_THROD=BELONG_TOPIC_THROD;
+		this->THROD_ADD=THROD_ADD;
 	}
 	std::vector<Topic> * GetClusterList(){
 		return & clusterList;

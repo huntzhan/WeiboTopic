@@ -23,11 +23,11 @@ public:
 	std::list<string> weibo_id_list;
 	std::list<string> k_hours_weibo_id_list;
 	void GetCurrentHourWeiboList(std::string time,int timeslip);
-	void DBdaoInit(std::string current_time,int timeslip,std::string K_hour_time,int ktimeslip,int hours);
 	void GetEveryWeiboFromDatabase(std::string weiboID,Weibo &oneweibo); //这个函数是用来从数据库边读取前七个小时的微博，避免读取进去内存。
 	std::string GetOriginalWeibo(std::string weiboId);
-//	void StopWordInit(std::string filename);
+	void GetKHourWeiboList(std::string time ,int timeslip,int k);
 	void DBdaoInit(std::string current_time,int timeslip,std::string K_hour_time,int ktimeslip,int hours);
+	void GetEveryWeiboWithProperty(std::string mid,Weibo &weibo);
 
 };
 

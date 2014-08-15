@@ -16,9 +16,10 @@
 using namespace std;
 class TopicWord{
 public:
+	double IDF;
 	string m_sword;
 	double m_dFrequency;
-	std::set<std::string> word_to_weiboid_list;
+	std::set<std::string> word_to_weiboid_list;//词对应的微博列表
 
 	std::set<std::string>* GetWordToWeiboidList(){
 		return &this->word_to_weiboid_list;
@@ -27,6 +28,7 @@ public:
 	TopicWord(string word,double frequency){
 		m_sword=word;
 		m_dFrequency=frequency;
+		this->IDF=1.0;
 	}
 	string GetTopicWord (){
 		return m_sword;

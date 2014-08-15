@@ -24,12 +24,14 @@ typedef pair<std::string,double> PAIRS;
 bool SubTopicSort(const PAIRS & key1,const PAIRS & key2);
 class TopicView{
 	int NUM_OF_SUB_WORD;
+	int BELONG_TOPIC_THROD;
 	std::vector<Topic> *clusterList;//最终生成的话题列表
 	std::map<std::string,CooccurrenceWord> *co_ccur_matrix;
 	DBdao *dbdao;
 public:
-	void InitTopicView(int NUM_OF_SUB_WORD){
+	void InitTopicView(int NUM_OF_SUB_WORD,int BELONG_TOPIC_THROD){
 		this->NUM_OF_SUB_WORD=NUM_OF_SUB_WORD;
+		this->BELONG_TOPIC_THROD=BELONG_TOPIC_THROD;
 	}
 	TopicView(DBdao *dbdao,std::vector<Topic> *clusterList,
 				std::map<std::string,CooccurrenceWord> *co_ccur_matrix){
