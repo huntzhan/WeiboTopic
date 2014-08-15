@@ -29,7 +29,7 @@ class Topic{
 
 	vector<TopicWord> m_stopic;
 	std::map<std::string ,double> topic_weibo_id;
-	std::vector<std::string> weibo_id_list;
+	std::vector<subword> weibo_id_list;
 	std::map<std::string,double > main_idea;
 	std::list<subword> sub_word_list;
 public:
@@ -43,12 +43,12 @@ public:
 	std::map<std::string ,double>* GetTopicWeiboId(){
 		return &this->topic_weibo_id;
 	}
-	std::vector<std::string> * GetWeiboIdList(){
+	std::vector<subword> * GetWeiboIdList(){
 		return &this->weibo_id_list;
 	}
 
-	Topic(TopicWord &firstWord){//这里可以这样吗？
-		m_stopic.push_back(firstWord);
+	void TopicInit(TopicWord firstWord){//这里可以这样吗？
+		this->m_stopic.push_back(firstWord);
 	}
 	vector<TopicWord> *GetsTopic(){
 		return &this->m_stopic;

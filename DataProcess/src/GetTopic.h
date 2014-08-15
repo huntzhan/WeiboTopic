@@ -28,13 +28,16 @@ bool SortCmp (const PAIR & key1,const PAIR & key2);
 class GetTopic{
 	int TOPIC_WORD_NUM;									       	//想要得到前几个主题词，这个默认是前1000个
 	int K_WINDOW;										 		//时间窗口的大小
+	int weibo_size;
 	list<string> m_current_messageList;							//根据时间获取到的微博ID列表
 	list<string> m_k_messageList;
 	map<string,TopicWord> m_topic_word;							//提取出的没有重复词列表，包括单词和词的权值
 	map<string,double> k_hour_topic_word;						//前K个小时的单词的出现频率，词跟m_topicword内容一样,用完之后要释放掉
 	DBdao *dbdao;
+	int TOPICMAPTHROD;
 
 public:
+	int overMapNum;
 	map<string,TopicWord> * GetTopicWord(){
 		return &m_topic_word;
 	}
@@ -56,11 +59,20 @@ public:
 
     void GenTopicWord();
     void GenTopicWordByFrequency();
-    GetTopic(DBdao *dbdao,int TOPIC_WORD_NUM,int K_WINDOW){
-    	this->TOPIC_WORD_NUM=TOPIC_WORD_NUM;
-    	this->K_WINDOW=K_WINDOW;
-    	SetDBdao(dbdao);
+    void InitGetTopic(DBdao *dbdao,int TOPIC_WORD_NUM,int K_WINDOW,int weibo_size,int TOPICMAPTHROD){
+    	this->weibo_size = weibo_size;
+		this->TOPIC_WORD_NUM = TOPIC_WORD_NUM;
+		this->K_WINDOW = K_WINDOW;
+		this->TOPICMAPTHROD=TOPICMAPTHROD;
+		SetDBdao(dbdao);
     }
+
+    void GetEveryWordInCurrentHourByWordProperty();
+    void AddKeyToMapWithProperty(map<string, TopicWord>&filterMap,
+    		Word &key, std::string weiboId);
+
+    void CalWordIDF();
+    void DeleteElementsBelowThrod(map<string, TopicWord>&filterMap);
 };
 
 #endif /* GETTOPIC_H_ */

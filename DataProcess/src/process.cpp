@@ -8,8 +8,9 @@ History    :
 *******************************************************************************/
 #include "process.h"
 
-static std::string ICTspilt(const char * sinput);
-static void goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword);
+ static std::string ICTspilt(const char * sinput,int property);
+
+ static void goodWordArticlePorperty(const std::string &rawtext,std::set<std::string> &stopwords,std::vector<Word> &words);
 static void select_time(char * sql_query,char *result);
 static std::string RegexReplace(std::string input);
 static  std::wstring StringToWide(std::string &sToMatch);
@@ -17,7 +18,6 @@ static  std::string WidetoString(std::wstring &wsm);
 static struct tm tranformTime(std::string &starttime );
 
 MYSQL my_connection;
-
 
 
 //中文字符
@@ -41,38 +41,83 @@ int main()
 
 
 
-	std::set<std::string> stopwords;
-	std::vector<std::string> vec;
+//	std::set<std::string> stopwords;
+//	std::vector<std::string> vec;
+//	std::list<std::string> wordproper;
+//	std::vector<std::string> IDs;
+//	MakeStopSet(stopwords);
+//	std::string ID="2013-04-12 08:38:16";
+//	char sql[60];
+//	double total;
+//	time_t startT,endT;
+//	init_ICTCAL();
+//
+////	goodWordsinPieceArticle("　本报记者陈雪频实习记者唐翔发自上随着司法部门对中行高山案的调查逐步深入，有迹象表明涉案的还有其他银行。昨日，有知情人士透露农业银行有近1.2亿资金也卷入其中。昨日，记者来到位于哈尔滨市红军街的中行黑龙江省分行办公大楼。虽然已过立春，但2月下旬的哈尔滨依旧寒冷如严冬，用当地人的话说，春节之后的天气甚至比三九时还冷。",stopwords,vec,wordproper);
+//
+//
+//
+//	Get_MIDs("2013-04-12 08:38:16",7400,IDs);
+//		startT=time(NULL);
+//		for(std::vector<std::string>::iterator it_ids=IDs.begin();it_ids!=IDs.end();it_ids++){
+//			ID=*it_ids;
+//			Get_StringVector(ID,stopwords,vec);
+//		for(std::vector<std::string>::iterator it=vec.begin() ; it!=vec.end();it++){
+//					std::cout<<*it<<"|";
+//				}
+//			std::cout<<std::endl;
+//
+////			std::vector<std::vector<std::string> > vecs;
+////			sprintf(sql,"select text from weibo where mid=%s ",ID.c_str());
+////			vecs=mysql_query(sql);
+////			std::cout<<vecs[0][0]<<std::endl;
+//			vec.clear();
+//			wordproper.clear();
+//		}
+//	endT=time(NULL);
+//	total=difftime(endT,startT);
+//	std::cout<<"程序运行时间"<<total<<"   num"<<IDs.size()<<std::endl;
 
+
+	std::set<std::string> stopwords;
+	std::vector<Word> vec;
+	std::list<std::string> wordproper;
 	std::vector<std::string> IDs;
 	MakeStopSet(stopwords);
-	std::string ID="2013-04-12 08:38:16";
+	std::string ID="　本报记者陈雪频实习记者唐翔发自上随着司法部门对中行高山案的调查逐步深入，有迹象表明涉案的还有其他银行。昨日，有知情人士透露农业银行有近1.2亿资金也卷入其中。昨日，记者来到位于哈尔滨市红军街的中行黑龙江省分行办公大楼。虽然已过立春，但2月下旬的哈尔滨依旧寒冷如严冬，用当地人的话说，春节之后的天气甚至比三九时还冷。";
 	char sql[60];
 	double total;
 	time_t startT,endT;
 	init_ICTCAL();
 
+//	goodWordsinPieceArticle("　本报记者陈雪频实习记者唐翔发自上随着司法部门对中行高山案的调查逐步深入，有迹象表明涉案的还有其他银行。昨日，有知情人士透露农业银行有近1.2亿资金也卷入其中。昨日，记者来到位于哈尔滨市红军街的中行黑龙江省分行办公大楼。虽然已过立春，但2月下旬的哈尔滨依旧寒冷如严冬，用当地人的话说，春节之后的天气甚至比三九时还冷。",stopwords,vec,wordproper);
 
 
-	Get_MIDs("2013-04-12 08:38:16",7400,IDs);
+
+	Get_MIDs("2013-04-12 08:38:16",27400,IDs);
 		startT=time(NULL);
 		for(std::vector<std::string>::iterator it_ids=IDs.begin();it_ids!=IDs.end();it_ids++){
 			ID=*it_ids;
-			Get_StringVector(ID,stopwords,vec);
-			for(std::vector<std::string>::iterator it=vec.begin() ; it!=vec.end();it++){
-					std::cout<<*it<<"|";
-				}
-			std::cout<<std::endl;
+			Get_StringVectorProperty(ID,stopwords,vec);
+	//		Get_StringVector(ID,stopwords,vec);
+	//		ICTspilt(ID.c_str(),1);
+	//	for(std::vector<Word>::iterator it=vec.begin() ; it!=vec.end();it++){
 
-			std::vector<std::vector<std::string> > vecs;
-			sprintf(sql,"select text from weibo where mid=%s ",ID.c_str());
-			vecs=mysql_query(sql);
-			std::cout<<vecs[0][0]<<std::endl;
+		//	std::cout<<(*it).word<<"|"<<(*it).proper<<std::endl;
+	//	}
+	//	std::cout<<std::endl;
+
+	//	std::vector<std::vector<std::string> > vecs;
+	//		sprintf(sql,"select text from weibo where mid=%s ",ID.c_str());
+	//		vecs=mysql_query(sql);
+	//		std::cout<<vecs[0][0]<<std::endl;
 			vec.clear();
+			wordproper.clear();
 		}
 	endT=time(NULL);
 	total=difftime(endT,startT);
 	std::cout<<"程序运行时间"<<total<<"   num"<<IDs.size()<<std::endl;
+
+
 /****************************************************************************************************************/
 
 	getchar();
@@ -83,7 +128,7 @@ int main()
 /**************************************************************************************
  * 		分词函数
  */
- static std::string ICTspilt(const char * sinput){
+ static std::string ICTspilt(const char * sinput,int property){
 	  std::string result;
 	  int nRstLen=0;
 	  unsigned int nPaLen;
@@ -95,13 +140,11 @@ int main()
 	  char* sRst=(char *)malloc(1024); //建议长度为字符串长度的倍。
 	  if(sRst==NULL)
 	    return NULL;
-      nRstLen = ICTCLAS_ParagraphProcess(sinput,nPaLen,sRst,CODE_TYPE_UTF8,0);  //字符串处理
+      nRstLen = ICTCLAS_ParagraphProcess(sinput,nPaLen,sRst,CODE_TYPE_UTF8,property);  //字符串处理
       result=sRst;
       free(sRst);
       sRst=NULL;
-      boost::wregex reg(L"\\s+", boost::regex::perl);
-      std::wstring wresult=boost::regex_replace(StringToWide(result),reg,std::wstring(L"|"));
-      return WidetoString(wresult);
+      return result ;
 }
  /**************************************************************************************
   * 		初始化中文分词库
@@ -134,6 +177,7 @@ void init_ICTCAL(void){
 						fprintf(stderr, "Connection error %d: %s\n", mysql_errno(&my_connection), mysql_error(&my_connection));
 					}
 			}
+		std::setlocale(LC_ALL,"zh_CN.UTF-8");
 }
 
 
@@ -141,9 +185,69 @@ void init_ICTCAL(void){
 /*****************************************************************************************
  * 		去噪分割函数   //如果为空  就是空字符""
  */
-static void goodWordsinPieceArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword){
+static void goodWordArticlePorperty(const std::string &rawtext,std::set<std::string> &stopwords,std::vector<Word> &words){
 
-  std::vector<std::wstring> goodWordstemp;
+  std::vector<std::string> goodWordstemp;
+  std::vector<std::string> goodWordstempSub;
+  std::wstring wresult;
+  bool flag_empty=true;
+  if(stopwords.empty())
+  {
+	  std::cout<<"input goodWordsinPieceArticle error"<<std::endl;
+	  return ;
+  }
+   std::string temp=RegexReplace(rawtext);  //先正则表达式
+
+  std::string  result=ICTspilt(temp.c_str(),1);
+  if(result=="")
+  {
+	  Word word;
+	  word.word="";
+	  word.proper="";
+	  words.push_back(word);
+	  return ;
+  }
+  boost::trim(result);
+//  wresult=StringToWide(result);
+  boost::split(goodWordstemp,result ,boost::is_any_of(" "));//分割
+
+
+  std::vector<std::string>::iterator it_good=goodWordstemp.begin();
+  std::vector<std::string>::iterator end_good=goodWordstemp.end();
+  std::string word,property;
+  std::wstring temp2;
+ for(;it_good<end_good; ++it_good){
+	 	 //去掉一些特殊符号
+		// boost::wregex reg3(L"[^\/0-9a-zA-Z\u4e00-\u9fa5]*|", boost::regex::perl);
+		//  std::wstring result=boost::regex_replace(*it_good,reg3,std::wstring(L""));
+		  boost::split(goodWordstempSub,*it_good ,boost::is_any_of("/"));//分割
+		  if(goodWordstempSub.size()==2){
+			  word=goodWordstempSub[0];
+			 property=goodWordstempSub[1];
+			  if(!stopwords.count(word)&&!word.empty()){
+				  	Word word_struct;
+				  	word_struct.word=word;
+				  	word_struct.proper=property;
+				 	words.push_back(word_struct);
+			    }
+		  }
+
+   }
+  if(words.size()<1)
+  {
+	  Word word;
+	  word.word="";
+	  word.proper="";
+	  words.push_back(word);
+  }
+
+}
+
+
+
+ void goodWordArticle(const std::string &rawtext,std::set<std::string> &stopwords, std::vector<std::string> &goodword){
+
+  std::vector<std::string> goodWordstemp;
   bool flag_empty=true;
   if(stopwords.empty())
   {
@@ -151,28 +255,22 @@ static void goodWordsinPieceArticle(const std::string &rawtext,std::set<std::str
 	  return ;
   }
   const std::string temp=RegexReplace(rawtext);  //先正则表达式
-  std::string  result=ICTspilt(temp.c_str());
+  std::string  result=ICTspilt(temp.c_str(),0);
   if(result=="")
   {
 	  goodword.push_back(result);
 	  return ;
   }
-  boost::wregex reg(L"\\d+", boost::regex::perl);  //去掉空格
-  std::wstring wtemp=StringToWide(result);
-  std::wstring wrtesult=boost::regex_replace(wtemp,reg,std::wstring(L""));
-  boost::split(goodWordstemp,wrtesult ,boost::is_any_of("|"));//分割
-
-
-
-  for(std::vector<std::wstring>::iterator it=goodWordstemp.begin();it!=goodWordstemp.end();it++){
-	  boost::wregex reg3(L"[^0-9a-zA-Z\u4e00-\u9fa5]*|", boost::regex::perl);
-	   	std::wstring result=boost::regex_replace(*it,reg3,std::wstring(L""));
-	   	std::string temp=WidetoString(result);
-	    boost::trim(temp);
+  boost::trim(result);
+  std::wstring wresult=StringToWide(result);
+  boost::split(goodWordstemp,result ,boost::is_any_of(" "));//分割
+ for(std::vector<std::string>::iterator it=goodWordstemp.begin();it!=goodWordstemp.end();it++){
+	   	std::string temp=*it;
+	//   	boost::trim(temp);
 	    if(!stopwords.count(temp)&&!temp.empty()){
 	    	goodword.push_back(temp);
-	    }
-	}
+    }
+  }
   if(goodword.size()<1)
   {
 	  goodword.push_back("");
@@ -268,6 +366,19 @@ void Get_MIDs(std::string starttimes, int seconds,std::vector<std::string> &IDs)
 
 }
 
+void Get_StringVectorProperty(std::string &mid,std::set<std::string> &stopwordsSet,std::vector<Word> &words){
+	char  sql_query[60];
+	std::vector< std::vector<std::string> > temp;
+	if(mid.empty()){
+		printf("____________________Get_StringVector funciton imput error_____________\n");
+		return ;
+	}
+	sprintf(sql_query,"select text from weibo where mid=%s ",mid.c_str());
+	temp=mysql_query( sql_query);
+	goodWordArticlePorperty(temp[0][0],stopwordsSet,words);
+}
+
+
 void Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet,std::vector<std::string> &vec){
 	char  sql_query[60];
 	std::vector< std::vector<std::string> > temp;	
@@ -277,7 +388,7 @@ void Get_StringVector(std::string &mid,std::set<std::string> &stopwordsSet,std::
 	}
 	sprintf(sql_query,"select text from weibo where mid=%s ",mid.c_str());
 	temp=mysql_query( sql_query);
-	goodWordsinPieceArticle(temp[0][0],stopwordsSet,vec);
+	goodWordArticle(temp[0][0],stopwordsSet,vec);
 }
 
 /*************************************************************************************
@@ -312,7 +423,7 @@ static struct tm tranformTime(std::string &starttime ){
  * 窄字符转换成宽字符
  */
 static std::wstring StringToWide(std::string &sToMatch){
-	std::setlocale(LC_ALL,"zh_CN.UTF-8");
+//	std::setlocale(LC_ALL,"zh_CN.UTF-8");
 	int iWLen=1024;
 	wchar_t lpwsz[iWLen];
 	 mbstowcs( lpwsz, sToMatch.c_str(), iWLen-2 );
@@ -325,12 +436,13 @@ static std::wstring StringToWide(std::string &sToMatch){
  * 宽字符转换成窄字符
  */
 static std::string WidetoString(std::wstring &wsm){
-		std::setlocale(LC_ALL,"zh_CN.UTF-8");
+		std::string sToMatch;
+
 		int iLen=1024;
 		char lpsz[iLen];
 	    wcstombs( lpsz, wsm.c_str(), iLen-2 ); // 转换。（没有结束符）
 	    lpsz[iLen-2] = '\0';
-	    std::string sToMatch(lpsz);
+	    sToMatch=lpsz;
 	  //  std::setlocale(LC_ALL,"");
 	    return sToMatch;
 }
@@ -355,7 +467,7 @@ static std::string RegexReplace(std::string input){
 	}
 	//去掉表情
 	input.append(" ");
-	boost::wregex reg(L"\\[([^x00-xff]*)\\]|/?/?\@([^ ]*)[:]|/?/?\@([^ ]*)[ ]|[a-zA-z]+://[^s]*", boost::regex::perl);
+	boost::wregex reg(L"\\[([^x00-xff]*)\\]|/?/?\@([^ ]*)[:]|/?/?\@([^ ]*)[ ]|[a-zA-z]+://[^s]*|[^ 0-9a-zA-Z\u4e00-\u9fa5]*", boost::regex::perl);
 	put=boost::regex_replace(StringToWide(input),reg,std::wstring(L""));
 	input=WidetoString(put);
 //	boost::wregex reg1(L"[a-zA-z]+://[^s]*", boost::regex::perl);
@@ -365,9 +477,6 @@ static std::string RegexReplace(std::string input){
 	//去掉@人名转发     思路去输掉空格                  @非空格+空格
 //	boost::wregex reg2(L"/?/?\@([^ ]*)[ ]", boost::regex::perl);
 	//匹配非数字英文中文等特殊符号
-	boost::wregex reg2(L"【动画】|[()——_*$#┮【】「┭∠」ʑ≦≧▽з؞]*", boost::regex::perl);
-	put=boost::regex_replace(StringToWide(input),reg2,std::wstring(L""));
-	input=WidetoString(put);
 	return input;
 }
 

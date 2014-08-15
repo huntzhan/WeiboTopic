@@ -12,11 +12,13 @@
 #include"Topic.h"
 #include"DBdao.h"
 #include<iostream>
+#include<unistd.h>
 #include<time.h>
 #include<string>
 using namespace std;
 //#define THROD 3.0
 #define MINVALUE -1
+#define TIME
 //#define BELONT_TOPIC_THROD 2.0
 //#define DEBUG_CLUSTER1
 //#define CALDIS
@@ -25,6 +27,10 @@ using namespace std;
 typedef map<string,TopicWord> MAP;
 bool TopicCmp(const Topic &topic1,const Topic &topic2){
 	if(topic1.topic_message_num>topic2.topic_message_num)return true;
+	return false;
+}
+bool weibosort(const subword & s1,const subword & s2){
+	if(s1.fre>s2.fre)return true;
 	return false;
 }
 void Cluster::CalWordsCooccurrence(){
@@ -97,18 +103,28 @@ void Cluster::CalWordsCooccurrence(){
 }
 
 void Cluster::Singlepass(){
+#ifdef TIME
+	time_t start3;
+	start3=time(NULL);
+#endif
 	this->CalWordsCooccurrence();
-	this->SetClusterThrod(this->GenClusterThrod());
+#ifdef TIME
+	time_t ends3;
+	ends3=time(NULL);
+	std::cout<<"计算特征词共现度用时："<<difftime(ends3,start3)<<std::endl;
+#endif
+	this->SetClusterThrod(this->GenClusterThrod()+THROD_ADD);
 	std::cout<<"CLUSTER_THROD: "<<this->CLSTER_THROD<<std::endl;
 #ifdef DEBUG_CLUSTER1
 	printMatrix(this->co_ccur_matrix);
 #endif
+
 //	vector<Topic> v_clusterList;
 
 	MAP::iterator topic_w_it = this->topicword->begin();
-//	TopicWord t_word(topic_w_it->first,topic_w_it->second);
-
-	Topic topic(topic_w_it->second);
+	TopicWord firstword=topic_w_it->second;
+	Topic topic;
+	topic.TopicInit(firstword);
 	this->clusterList.push_back(topic);
 	topic_w_it++;
 	for(;topic_w_it != this->topicword->end();++topic_w_it){
@@ -134,13 +150,31 @@ void Cluster::Singlepass(){
 	std::cout<<"CALDIS finish one!"<<std::endl;
 #endif
 		if(maxDistance < this->CLSTER_THROD){
-			Topic newTopic(topic_w_it->second);
+			Topic newTopic;
+			newTopic.TopicInit(topic_w_it->second);
 			this->clusterList.push_back(newTopic);//这里虽然newTopic是局部变量，但是由于会复制一个新的，有类的时候会动态调用拷贝构造函数
 		}else{
 			belong_clus_it->addTopicWord(topic_w_it->second);
 		}
 	}
+#ifdef TIME
+	time_t ends4;
+	ends4=time(NULL);
+	std::cout<<"一趟聚类用时："<<difftime(ends4,start3)<<std::endl;
+#endif
+
+#ifdef TIME
+	time_t start5;
+	start5=time(NULL);
+
+#endif
 	this->ListAllTopicWeiboId();
+//	sleep(3);
+#ifdef TIME
+	time_t ends5;
+	ends5=time(NULL);
+	std::cout<<"微博对应话题用时："<<difftime(ends5,start5)<<std::endl;
+#endif
 	this->SortTopic();
 #ifdef PRINTTOPIC2
 	printTopic(this->clusterList,this->dbdao);
@@ -197,19 +231,30 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic){
 			topic_weibo_id_map_it=topic_weibo_id_map->find(weiboid);
 			if(topic_weibo_id_map_it!=topic_weibo_id_map->end()){
 				topic_weibo_id_map_it->second=topic_weibo_id_map_it->second+1;
-				if(this->BELONG_TOPIC_THROD>=2){
-					one_topic.topic_message_num+=1;//按消息量进行排序     //这是是聚类好的话题簇中，至少有两个词同时出现在这条微博，才将该微博加入该话题
-					one_topic.GetWeiboIdList()->push_back(weiboid);
-				}
+//				if(this->BELONG_TOPIC_THROD>=2){
+//					one_topic.topic_message_num+=1;//按消息量进行排序     //这是是聚类好的话题簇中，至少有两个词同时出现在这条微博，才将该微博加入该话题
+//					one_topic.GetWeiboIdList()->push_back(weiboid);
+//				}
 			}else{
 				topic_weibo_id_map->insert(make_pair(weiboid,1.0));
-				if(this->BELONG_TOPIC_THROD<2){
-					one_topic.topic_message_num+=1;//按消息量进行排序在这里是出现一次就算      //这是是聚类好的话题簇中，只要一个词出现在这条微博，才将该微博加入该话题
-					one_topic.GetWeiboIdList()->push_back(weiboid);
-				}
+//				if(this->BELONG_TOPIC_THROD<2){
+//					one_topic.topic_message_num+=1;//按消息量进行排序在这里是出现一次就算      //这是是聚类好的话题簇中，只要一个词出现在这条微博，才将该微博加入该话题
+//					one_topic.GetWeiboIdList()->push_back(weiboid);
+//				}
 			}
 		}
 	}
+	topic_weibo_id_map_it=topic_weibo_id_map->begin();
+
+	for(;topic_weibo_id_map_it!=topic_weibo_id_map->end();++topic_weibo_id_map_it){
+		if(topic_weibo_id_map_it->second>=this->BELONG_TOPIC_THROD){
+			subword sw(topic_weibo_id_map_it->first,topic_weibo_id_map_it->second);
+			one_topic.GetWeiboIdList()->push_back(sw);
+			one_topic.topic_message_num+=1;
+		}
+	}
+	std::sort(one_topic.GetWeiboIdList()->begin(),one_topic.GetWeiboIdList()->end(),weibosort);
+
 }
 
 void Cluster::InsertTopicToDatabase(Topic &one_topic){
