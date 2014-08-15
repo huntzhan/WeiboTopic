@@ -9,6 +9,7 @@ import logging
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
+from sqlalchemy.exc import IntegrityError
 
 from .model_manager import ModelManager
 from .persist import engine

@@ -6,7 +6,6 @@ import time
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import ForeignKey
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 
 
