@@ -9,7 +9,7 @@ import logging
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, TimeoutError
 
 from .model_manager import ModelManager
 from .persist import engine
@@ -110,11 +110,11 @@ class DatabaseHandler:
     @contextmanager
     def modify_scope(cls):
         """Provide a transactional scope around a series of operations."""
-        session = cls.Session()
         try:
+            session = cls.Session()
             yield session
             session.commit()
-        except IntegrityError:
+        except (IntegrityError, TimeoutError):
             session.rollback()
         finally:
             session.close()
@@ -123,8 +123,8 @@ class DatabaseHandler:
     @contextmanager
     def query_scope(cls):
         """Provide a transactional scope around a series of operations."""
-        session = cls.Session()
         try:
+            session = cls.Session()
             yield session
         finally:
             session.close()
