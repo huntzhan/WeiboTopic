@@ -5,15 +5,12 @@
  *      Author: jeffzhuang
  */
 #include "connection_pool.h"
-
 #include <stdexcept>
 #include <exception>
 #include <stdio.h>
 #include "connection_pool.h"
-
 using namespace std;
 using namespace sql;
-
 ConnPool *ConnPool::connPool = NULL;
 
 //连接池的构造函数

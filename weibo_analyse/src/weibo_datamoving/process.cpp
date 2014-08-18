@@ -7,10 +7,10 @@
  History    :
  *******************************************************************************/
 #include "process.h"
-#include "DBoperation.h"
-#include "Textspilt.h"
-#include "DBpool.h"
-#include "connection_pool.h"
+#include "DB/DBoperation.h"
+#include "split/Textspilt.h"
+#include "DB/DBpool.h"
+#include "DB/connection_pool.h"
 static struct tm tranformTime(std::string &starttime);
 void Spilitword(std::string tablename, std::set<std::string> &stopwords);
 TextSpilt split;
@@ -52,18 +52,15 @@ int main() {
     if (!settable.count(*it_table))
       Spilitword(*it_table, stopwords);
   }
-  std::cout<<"finish the program"<<std::endl
+  std::cout<<"finish the program"<<std::endl;
   getchar();
   return 1;
 }
 
 #endif
 
-/**
- *  @brief MakeStopSet 获得停词
- *
- *  @param
- *  @return
+/***************************************************************************************************
+ * 获得停词
  */
 void MakeStopSet(std::set<std::string> &stopwordsSet) {
   std::ifstream ifile("stopwords.txt");
@@ -75,11 +72,8 @@ void MakeStopSet(std::set<std::string> &stopwordsSet) {
   }
 }
 
-/**
- *  @brief display 显示vector二维里面的内容
- *
- *  @param
- *  @return
+/**************************************************************************
+ * 显示vector二维里面的内容
  */
 void display(std::list<std::list<std::string> > &msg) {
   std::list<std::list<std::string> >::iterator it_first = msg.begin();
@@ -93,12 +87,8 @@ void display(std::list<std::list<std::string> > &msg) {
 
   }
 }
-
 /**
- *  @brief Spilitword 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
- *
- *  @param
- *  @return
+ * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
  */
 void Spilitword(std::string tablename, std::set<std::string> &stopwords) {
   std::list<std::list<std::string> > resultList;

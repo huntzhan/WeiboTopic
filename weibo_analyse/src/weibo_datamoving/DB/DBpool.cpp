@@ -29,6 +29,7 @@ long DBpool::GetTablecount() {
   string str;
   char sql_query[100];
   sprintf(sql_query, "select count(*) from %s ", table_name.c_str());
+
   try {
     result = state->executeQuery(sql_query);
     while (result->next()) {
@@ -37,6 +38,7 @@ long DBpool::GetTablecount() {
   } catch (sql::SQLException&e) {
     perror(e.what());
   }
+
   long count = atol(str.c_str());
   return count;
 }
@@ -46,6 +48,7 @@ long DBpool::GetTablecount() {
  */
 void DBpool::ShowTable(std::list<std::string> &tables) {
   ResultSet *result;
+
   try {
     result = state->executeQuery("show tables");
     while (result->next()) {
@@ -59,13 +62,16 @@ void DBpool::ShowTable(std::list<std::string> &tables) {
 DBpool::~DBpool() {
   DBclose();
 }
-
+/**
+ *创建表格 具体创建什么表 可以修改sql_query
+ */
 void DBpool::CreateTable() {
   int res;
   char sql_query[1024];
   sprintf(sql_query,
       "  CREATE TABLE `%s` (`mid` varchar(50) NOT NULL, `text` varchar(250) DEFAULT NULL, `spilt` varchar(1000) DEFAULT NULL,  PRIMARY KEY (`mid`)) ENGINE=InnoDB DEFAULT CHARSET=utf8",
       table_name.c_str());
+
   try {
     state->execute(sql_query);
 
@@ -73,12 +79,17 @@ void DBpool::CreateTable() {
     perror(e.what());
   }
 }
-
+/*
+ *从数据库获得文本内容 
+ *
+ */
 void DBpool::GetText(long startline, long length,
     std::list<std::list<std::string> > &result) {
+
   char sql_query[200];
   sprintf(sql_query, "select mid,content from %s limit %ld ,%ld ",
       table_name.c_str(), startline, length);
+
   ResultSet *resultset;
   try {
     resultset = state->executeQuery(sql_query);

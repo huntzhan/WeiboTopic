@@ -1,22 +1,19 @@
 #include "Textspilt.h"
-
 void TextSpilt::init_ICTCAL(void) {
   if (!ICTCLAS_Init()) {
     printf("Init fails\n");
     return;
   } else {
+#ifdef DEBUG
     printf("Init ok\n");
+#endif
   }
-  /** 设置词性标注集(
-   *  0 计算所二级标注集，
-   *  1 计算所一级标注集，
-   *  2 北大二级标注集，
-   *  3 北大一级标注集) */
+  //设置词性标注集(0 计算所二级标注集，1 计算所一级标注集，2 北大二级标注集，3 北大一级标注集)
   ICTCLAS_SetPOSmap(2);
   unsigned int nItems = ICTCLAS_ImportUserDictFile("userdict.txt",
       CODE_TYPE_UTF8);
   std::cout << "add " << nItems << " user word" << std::endl;
-  ICTCLAS_SaveTheUsrDic();  /// 保存用户词典
+  ICTCLAS_SaveTheUsrDic(); //保存用户词典
   std::setlocale(LC_ALL, "zh_CN.UTF-8");
 }
 
@@ -24,7 +21,7 @@ std::string TextSpilt::ICTspilt(const char * sinput, int property) {
   std::string result;
   int nRstLen = 0;
   unsigned int nPaLen;
-  nPaLen = strlen(sinput);  // 需要分词的长度
+  nPaLen = strlen(sinput); // 需要分词的长度
   if (nPaLen < 2) {
     result = "";
     return result;
@@ -40,21 +37,16 @@ std::string TextSpilt::ICTspilt(const char * sinput, int property) {
   return result;
 }
 
-/**
- *  @brief RegexReplace 正则表达式去噪
- *
- *  1 表情  如 [高兴] 
- *    regex：-----------------   \\[([^x00-xff]*)\\]
- *  2 @微博名  @traa @傅fuuuu @记得我叫青蛙忘了我叫俞映庭:  
- *    regex  -------- /?/?\@([^ ]*)[:]|/?/?\@([^ ]*)[ ]   以空格和:结尾
- *  3 超链接  http  
- *    regex -----------------[a-zA-z]+://[^s]*
- *  3 一些特殊的字符  ~@#￥%%……&…… 
- *    regex ----------------[()——_*$#]*|【动画】|〜
- *
- *  @param  需要去噪的句子
- *  @return 已经去砸的句子
+/*************************************************************************************
+ * 正则表达式去噪
+ * input 需要去噪的句子
+ * output 已经去砸的句子
+ *  1 表情  如 [高兴]                     regex：-----------------   \\[([^x00-xff]*)\\]
+ *  2 @微博 名         @traa @傅fuuuu @记得我叫青蛙忘了我叫俞映庭:  regex  -------- /?/?\@([^ ]*)[:]|/?/?\@([^ ]*)[ ]   以空格和:结尾
+ *  3 超链接    http                   regex -----------------[a-zA-z]+://[^s]*
+ *  3 一些特殊的字符              ~@#￥%%……&……                   regex ----------------[()——_*$#]*|【动画】|〜
  */
+
 std::string TextSpilt::RegexReplace(std::string input) {
   std::string output;
   std::wstring put;
@@ -80,11 +72,8 @@ std::string TextSpilt::RegexReplace(std::string input) {
   return input;
 }
 
-/**
- *  @brief StringToWide  窄字符转换成宽字符
- *
- *  @param
- *  @return
+/*************************************************************************************
+ * 窄字符转换成宽字符
  */
 std::wstring TextSpilt::StringToWide(std::string &sToMatch) {
 //  std::setlocale(LC_ALL,"zh_CN.UTF-8");
@@ -96,12 +85,8 @@ std::wstring TextSpilt::StringToWide(std::string &sToMatch) {
   //std::setlocale(LC_ALL,"");
   return wsToMatch;
 }
-
-/**
- *  @brief WidetoString 宽字符转换成窄字符
- *
- *  @param
- *  @return
+/*************************************************************************************
+ * 宽字符转换成窄字符
  */
 std::string TextSpilt::WidetoString(std::wstring &wsm) {
   std::string sToMatch;
@@ -170,10 +155,8 @@ void TextSpilt::goodWordArticlePorperty(const std::string &rawtext,
 
 }
 
-void TextSpilt::goodWordArticle(
-    const std::string &rawtext,
-    std::set<std::string> &stopwords, 
-    std::vector<std::string> &goodword) {
+void TextSpilt::goodWordArticle(const std::string &rawtext,
+    std::set<std::string> &stopwords, std::vector<std::string> &goodword) {
 
   std::vector<std::string> goodWordstemp;
   bool flag_empty = true;

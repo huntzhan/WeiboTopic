@@ -1,4 +1,2 @@
-add_subdirectory(DB)
-add_subdirectory(split)
 
-add_executable(a.out process.cpp db_lib lexical_analysis_lib)
+include_directories(${weibo_analyse_SOURCE_DIR}/lib/ICTCLAS50 ${weibo_analyse_SOURCE_DIR}/lib)
