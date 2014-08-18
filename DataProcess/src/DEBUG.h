@@ -7,10 +7,11 @@
 
 #ifndef DEBUG_H_
 #define DEBUG_H_
+#include"DBoperation.h"
 #include"GetTopic.h"
 #include"CooccurrenceWord.h"
 #include"Topic.h"
-#include"DBdao.h"
+//#include"DBdao.h"
 #include<iostream>
 #include<string>
 #include<list>
@@ -18,7 +19,7 @@
 
 void printVectors(std::list<std::string>&list);
 void printMaps(std::map<std::string,TopicWord> &map);
-void printTopic(std::vector<Topic>*clusterlist,DBdao* dbdao,int BELONG_TOPIC_THROD);
+void printTopic(std::vector<Topic>*clusterlist);
 void printMatrix(std::map<std::string,CooccurrenceWord> &co_ccur_matrix);
 void printTopicView(Topic &onetopic);
 void printVector(std::vector<PAIR>&sort_vec);

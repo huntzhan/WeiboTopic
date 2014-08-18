@@ -19,24 +19,20 @@ void printVectors(std::list<std::string>&mylist){
 }
 
 void printMaps(std::map<std::string,TopicWord> &mymap){
-	std::cout<<mymap.size()<<std::endl;
+	std::cout<<"topicword size: "<<mymap.size()<<std::endl;
 	std::map<std::string,TopicWord>::iterator it=mymap.begin();
 	int count=0;
 	for(;it!=mymap.end();++it){
 		count++;
 		if(count>10000000)break;
-		std::cout<<"map: "<<it->first<<"		"<<it->second.m_dFrequency<<"		"<<it->second.GetWordToWeiboidList()->size()<<std::endl;
-//		if(it->second.m_dFrequency<0||it->second.m_dFrequency>MAX){
-//
-//		}
+		std::cout<<"map: "<<it->first<<"		词频："<<it->second.m_dFrequency<<std::endl;
 	}
 }
-void printTopic(std::vector<Topic>*clusterlist,DBdao *dbdao,int BELONG_TOPIC_THROD){
+void printTopic(std::vector<Topic>*clusterlist){
 	std::vector<Topic>::iterator clit=clusterlist->begin();
 	int ti=0;
 	for(;clit!=clusterlist->end();++clit){
 		++ti;
-//		Topic topic = *clit;
 		std::vector<TopicWord>*topic_vec=clit->GetsTopic();
 		std::vector<TopicWord>::iterator it=topic_vec->begin();
 		std::cout<<std::endl<<std::endl;
@@ -47,30 +43,12 @@ void printTopic(std::vector<Topic>*clusterlist,DBdao *dbdao,int BELONG_TOPIC_THR
 			std::cout<<it->GetTopicWord()<<"	";//<<it->GetFrequency()<<"	";
 		}
 		std::cout<<std::endl;//这里以后插入数据库要换成vector来查找
-		double weiboid_num=0.0;
-		std::vector<subword>::iterator itt=clit->GetWeiboIdList()->begin();
-		std::string weiboid;
-		for (; itt != clit->GetWeiboIdList()->end(); ++itt) {
-			weiboid = itt->word;
-			weiboid_num = itt->fre;
-
-			std::string oneweibo;
-			if (weiboid_num >= BELONG_TOPIC_THROD) {
-				//这里应该插入数据库
-				//InsertOneTopicToDatabase(one_topic);
-				std::cout << "话题词在本微博出现次数：" << weiboid_num << std::endl;
-				oneweibo = dbdao->GetOriginalWeibo(weiboid);
-				std::cout << "topic weibo ：";
-				std::cout << oneweibo << std::endl;
-			}
-		}
-//		std::map<std::string, double>*topic_weibo_id_map =clit->GetTopicWeiboId();
-//		double weiboid_num = 0.0;
+//		double weiboid_num=0.0;
+//		std::vector<subword>::iterator itt=clit->GetWeiboIdList()->begin();
 //		std::string weiboid;
-//		std::map<std::string, double>::iterator topic_weibo_id_map_it =topic_weibo_id_map->begin();
-//		for (; topic_weibo_id_map_it != topic_weibo_id_map->end(); ++topic_weibo_id_map_it) {
-//			weiboid = topic_weibo_id_map_it->first;
-//			weiboid_num = topic_weibo_id_map_it->second;
+//		for (; itt != clit->GetWeiboIdList()->end(); ++itt) {
+//			weiboid = itt->word;
+//			weiboid_num = itt->fre;
 //
 //			std::string oneweibo;
 //			if (weiboid_num >= BELONG_TOPIC_THROD) {
@@ -112,6 +90,6 @@ void printVector(std::vector<PAIR> &sort_vec){
 	for(;it!=sort_vec.end();++it){
 		std::string word=it->first;
 		double value=it->second.m_dFrequency;
-		std::cout<<word<<"		IDF："<<value<<"		出现次数："<<it->second.word_to_weiboid_list.size()<<"		词频："<<it->second.IDF<<std::endl;
+		std::cout<<word<<"		词频："<<value<<std::endl;
 	}
 }

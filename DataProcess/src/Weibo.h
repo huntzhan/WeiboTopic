@@ -9,49 +9,44 @@
 
 #ifndef MESSAGE_H_
 #define MESSAGE_H_
-#include"process.h"
 #include<iostream>
 #include<vector>
 #include<string>
 
 using namespace std;
 
-class Weibo{
-	string MID;
+class Weibo {
+public:
+	string belongtable;
 	string time;
-	vector<string> weibo_content_words;
-	std::vector<Word> weibo_content_property;
+	std::string mid;
+	std::string text;
+	std::string spilt;
 	double forword;
 	double mark;
 	double comment;
-public:
-//	Weibo(vector<string>& weibo_content_words,string & mid){
-//		this->MID=mid;
-//		this->weibo_content_words=weibo_content_words;
+
+//	vector<Word> * GetContentWithProperty() {
+//		return &this->weibo_content_property;
 //	}
-	vector<Word> * GetContentWithProperty(){
-		return &this->weibo_content_property;
-	}
-	vector<string> * GetWords(){
-		return  &weibo_content_words;
-	}
-	double GetForword(){
+//	vector<string> * GetWords() {
+//		return &weibo_content_words;
+//	}
+	double GetForword() {
 		return this->forword;
 	}
-	double GetMark(){
+	double GetMark() {
 		return this->mark;
 	}
-	double GetComment(){
+	double GetComment() {
 		return this->comment;
 	}
-	void SetWeiboContentWords(vector<string> &vec,std::string MID){
-		this->weibo_content_words=vec;
-		this->MID=MID;
+
+	void SetWeiboContentWords(std::string &spilt, std::string &text) {
+		this->spilt = spilt;
+		this->text = text;
 	}
-	void SetWeiboContentWords2(std::string MID,vector<Word> &vec) {
-		this->weibo_content_property = vec;
-		this->MID = MID;
-	}
+
 };
 
 #endif /* MESSAGE_H_ */

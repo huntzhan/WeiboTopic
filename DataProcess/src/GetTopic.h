@@ -11,10 +11,11 @@
 /*
  * 可以改进的地方：可以不必每次都计算七个小时的频率，只要减去最前一个小时就可以了
  */
-
+#include"DBoperation.h"
 #include "Weibo.h"
 #include "TopicWord.h"
-#include"DBdao.h"
+//#include"DBdao.h"
+#include"OneWeibo.h"
 #include<list>
 #include<set>
 #include<map>
@@ -28,24 +29,23 @@ bool SortCmp (const PAIR & key1,const PAIR & key2);
 class GetTopic{
 	int TOPIC_WORD_NUM;									       	//想要得到前几个主题词，这个默认是前1000个
 	int K_WINDOW;										 		//时间窗口的大小
-	int weibo_size;
-	list<string> m_current_messageList;							//根据时间获取到的微博ID列表
-	list<string> m_k_messageList;
+
 	map<string,TopicWord> m_topic_word;							//提取出的没有重复词列表，包括单词和词的权值
-	map<string,double> k_hour_topic_word;						//前K个小时的单词的出现频率，词跟m_topicword内容一样,用完之后要释放掉
-	DBdao *dbdao;
+
+	DBoperation *dboper;
 	int TOPICMAPTHROD;
 
 public:
+
 	int overMapNum;
+
+
+
 	map<string,TopicWord> * GetTopicWord(){
 		return &m_topic_word;
 	}
-	void SetDBdao(DBdao *dbdao){
-		init_ICTCAL();
-		this->dbdao=dbdao;
-		this->m_current_messageList=this->dbdao->weibo_id_list;
-		this->m_k_messageList=this->dbdao->k_hours_weibo_id_list;
+	void SetDBdao(DBoperation *dboper){
+		this->dboper=dboper;
 	}
 	void GetEveryWordInCurrentHour();
 
@@ -59,20 +59,22 @@ public:
 
     void GenTopicWord();
     void GenTopicWordByFrequency();
-    void InitGetTopic(DBdao *dbdao,int TOPIC_WORD_NUM,int K_WINDOW,int weibo_size,int TOPICMAPTHROD){
-    	this->weibo_size = weibo_size;
+    void InitGetTopic(DBoperation *dboper,int TOPIC_WORD_NUM,int K_WINDOW,int TOPICMAPTHROD){
 		this->TOPIC_WORD_NUM = TOPIC_WORD_NUM;
 		this->K_WINDOW = K_WINDOW;
 		this->TOPICMAPTHROD=TOPICMAPTHROD;
-		SetDBdao(dbdao);
+		SetDBdao(dboper);
+
     }
 
     void GetEveryWordInCurrentHourByWordProperty();
     void AddKeyToMapWithProperty(map<string, TopicWord>&filterMap,
-    		Word &key, std::string weiboId);
+    		Word &key);
 
     void CalWordIDF();
     void DeleteElementsBelowThrod(map<string, TopicWord>&filterMap);
+    bool ChangeToNextTable(int &firstcount,int & count);
+    void ChangeOneTableCount(int &firstcount,int & count);
 };
 
 #endif /* GETTOPIC_H_ */
