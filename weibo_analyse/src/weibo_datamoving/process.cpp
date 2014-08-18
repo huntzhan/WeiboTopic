@@ -59,8 +59,11 @@ int main() {
 
 #endif
 
-/***************************************************************************************************
- * 获得停词
+/**
+ *  @brief MakeStopSet 获得停词
+ *
+ *  @param
+ *  @return
  */
 void MakeStopSet(std::set<std::string> &stopwordsSet) {
   std::ifstream ifile("stopwords.txt");
@@ -72,8 +75,11 @@ void MakeStopSet(std::set<std::string> &stopwordsSet) {
   }
 }
 
-/**************************************************************************
- * 显示vector二维里面的内容
+/**
+ *  @brief display 显示vector二维里面的内容
+ *
+ *  @param
+ *  @return
  */
 void display(std::list<std::list<std::string> > &msg) {
   std::list<std::list<std::string> >::iterator it_first = msg.begin();
@@ -87,8 +93,12 @@ void display(std::list<std::list<std::string> > &msg) {
 
   }
 }
+
 /**
- * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
+ *  @brief Spilitword 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
+ *
+ *  @param
+ *  @return
  */
 void Spilitword(std::string tablename, std::set<std::string> &stopwords) {
   std::list<std::list<std::string> > resultList;
