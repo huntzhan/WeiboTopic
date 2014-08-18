@@ -14,30 +14,32 @@
 #include<string>
 #include<set>
 using namespace std;
-class TopicWord{
+
+class TopicWord {
+
 public:
-	double IDF;
+//	double IDF;
 	string m_sword;
 	double m_dFrequency;
 	std::set<std::string> word_to_weiboid_list;//词对应的微博列表
 
-	std::set<std::string>* GetWordToWeiboidList(){
+	std::set<std::string>* GetWordToWeiboidList() {
 		return &this->word_to_weiboid_list;
 	}
 
-	TopicWord(string word,double frequency){
-		m_sword=word;
-		m_dFrequency=frequency;
-		this->IDF=1.0;
+	TopicWord(string word, double frequency) {
+		m_sword = word;
+		m_dFrequency = frequency;
+//		this->IDF = 1.0;
 	}
-	string GetTopicWord (){
+	string GetTopicWord() {
 		return m_sword;
 	}
-	double GetFrequency(){
+	double GetFrequency() {
 		return this->m_dFrequency;
 	}
-	void SetFrequency(double frequency){
-		this->m_dFrequency=frequency;
+	void SetFrequency(double frequency) {
+		this->m_dFrequency = frequency;
 	}
 };
 
