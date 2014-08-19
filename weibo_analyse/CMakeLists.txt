@@ -26,7 +26,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -I /usr/include/mysql -m64  -O3 -D
 ################
 # Intergration #
 ################
-add_subdirectory(src/weibo_datamoving)  # utility should be built before everything else.
+add_subdirectory(src)  # utility should be built before everything else.
 
 # target_link_libraries(run simple_calculator)
 
