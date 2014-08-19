@@ -14,25 +14,27 @@ using std::string;
 
 struct User{
   string uid;
-  long followees;
-  long fans;
-  long bi_followers_count;
-  long posts;
-  string sex;
-  long favourites_count;
-  string created_at;
-  long verified;
 };
 
 struct Blog{
-  string mid;
-  string uid; /// added for foreign relationship, not exists in table
-  string created_time;
-  string content;
-  long favorites;
-  long comments;
-  long forwards;
-  string source;
+  /// user data
+  string u_uid;
+  long u_followees;
+  long u_fans;
+  long u_bi_followers_count;
+  long u_posts;
+  string u_sex;
+  long u_favourites_count;
+  string u_created_at;
+  long u_verified;
+  /// blog data
+  string m_mid;
+  string m_created_time;
+  string m_content;
+  long m_favorites;
+  long m_comments;
+  long m_forwards;
+  string m_source;
 }
 #endif
 

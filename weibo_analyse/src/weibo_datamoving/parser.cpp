@@ -13,7 +13,6 @@
  *  @param
  */
 Parser::Parser() {
-  split.init_ICTCAL();
   MakeStopSet(stopwords);
 }
 
@@ -49,5 +48,5 @@ void Parser::MakeStopSet() {
  *  @return
  */
 void LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words) {
-  split.goodWordArticlePorperty(rawtext, stopwords, words);
+  Textspilt.goodWordArticlePorperty(rawtext, stopwords, words);
 }

@@ -19,17 +19,18 @@ typedef struct _Word {
 } Word;
 class TextSpilt {
 public:
-  void init_ICTCAL(void);
-  std::string ICTspilt(const char * sinput, int property);
-  void goodWordArticlePorperty(const std::string &rawtext,
-      std::set<std::string> &stopwords, std::vector<Word> &words);
-  void goodWordArticle(const std::string &rawtext,
-      std::set<std::string> &stopwords,
-      std::vector<std::string> &goodword);
+  static void init_ICTCAL(void);
+  static void goodWordArticlePorperty(const std::string &rawtext,
+                               std::set<std::string> &stopwords, 
+                               std::vector<Word> &words);
+  static void goodWordArticle(const std::string &rawtext,
+                       std::set<std::string> &stopwords,
+                       std::vector<std::string> &goodword);
 private:
-  std::string RegexReplace(std::string input);
-  std::wstring StringToWide(std::string &sToMatch);
-  std::string WidetoString(std::wstring &wsm);
+  static std::string ICTspilt(const char * sinput, int property);
+  static std::string RegexReplace(std::string input);
+  static std::wstring StringToWide(std::string &sToMatch);
+  static std::string WidetoString(std::wstring &wsm);
 };
 
 #endif

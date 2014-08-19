@@ -1,5 +1,5 @@
 #include "Textspilt.h"
-void TextSpilt::init_ICTCAL(void) {
+static void TextSpilt::init_ICTCAL(void) {
   if (!ICTCLAS_Init()) {
     printf("Init fails\n");
     return;
@@ -17,7 +17,7 @@ void TextSpilt::init_ICTCAL(void) {
   std::setlocale(LC_ALL, "zh_CN.UTF-8");
 }
 
-std::string TextSpilt::ICTspilt(const char * sinput, int property) {
+static std::string TextSpilt::ICTspilt(const char * sinput, int property) {
   std::string result;
   int nRstLen = 0;
   unsigned int nPaLen;
@@ -47,7 +47,7 @@ std::string TextSpilt::ICTspilt(const char * sinput, int property) {
  *  3 一些特殊的字符              ~@#￥%%……&……                   regex ----------------[()——_*$#]*|【动画】|〜
  */
 
-std::string TextSpilt::RegexReplace(std::string input) {
+static std::string TextSpilt::RegexReplace(std::string input) {
   std::string output;
   std::wstring put;
   if (input.empty()) {
@@ -75,7 +75,7 @@ std::string TextSpilt::RegexReplace(std::string input) {
 /*************************************************************************************
  * 窄字符转换成宽字符
  */
-std::wstring TextSpilt::StringToWide(std::string &sToMatch) {
+static std::wstring TextSpilt::StringToWide(std::string &sToMatch) {
 //  std::setlocale(LC_ALL,"zh_CN.UTF-8");
   int iWLen = 1024;
   wchar_t lpwsz[iWLen];
@@ -88,7 +88,7 @@ std::wstring TextSpilt::StringToWide(std::string &sToMatch) {
 /*************************************************************************************
  * 宽字符转换成窄字符
  */
-std::string TextSpilt::WidetoString(std::wstring &wsm) {
+static std::string TextSpilt::WidetoString(std::wstring &wsm) {
   std::string sToMatch;
 
   int iLen = 1024;
@@ -100,9 +100,9 @@ std::string TextSpilt::WidetoString(std::wstring &wsm) {
   return sToMatch;
 }
 
-void TextSpilt::goodWordArticlePorperty(const std::string &rawtext,
-    std::set<std::string> &stopwords, std::vector<Word> &words) {
-
+static void TextSpilt::goodWordArticlePorperty(const std::string &rawtext,
+                                        std::set<std::string> &stopwords, 
+                                        std::vector<Word> &words) {
   std::vector<std::string> goodWordstemp;
   std::vector<std::string> goodWordstempSub;
   std::wstring wresult;
@@ -155,7 +155,7 @@ void TextSpilt::goodWordArticlePorperty(const std::string &rawtext,
 
 }
 
-void TextSpilt::goodWordArticle(const std::string &rawtext,
+static void TextSpilt::goodWordArticle(const std::string &rawtext,
     std::set<std::string> &stopwords, std::vector<std::string> &goodword) {
 
   std::vector<std::string> goodWordstemp;

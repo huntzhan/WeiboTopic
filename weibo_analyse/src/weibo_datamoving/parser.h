@@ -9,7 +9,8 @@
 
 #ifndef parser_INC
 #define parser_INC
-
+#include <set>
+#include <string>
 #include "split/Textspilt.h"
 
 /**
@@ -23,9 +24,8 @@ public:
   void LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words);
 
 private:
-  void Parser::MakeStopSet();
+  void MakeStopSet();
 
-  TextSpilt split;
   std::set<std::string> stopwords;
 
   // DISALLOW_COPY_AND_ASSIGN
