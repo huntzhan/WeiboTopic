@@ -11,6 +11,7 @@
 #include "DB/connection_pool.h"
 #include "split/parser.h"
 #include "split/Textspilt.h"
+void display(std::list<std::list<std::string> > &msg) ;
 void MakeStopSet(std::set<std::string> &stopwordsSet);
 void Spilitword(std::string tablename);
 DBoperation query;
@@ -71,15 +72,28 @@ void Init_Main() {
 int main() {
   Init_Main();
 
-
   std::set<std::string> tables;
   FilterTables(tables);
   std::set<std::string>::iterator it_beg = tables.begin();
   std::set<std::string>::iterator it_end = tables.end();
-  for (; it_beg != it_end; it_beg++) {
-	  std::cout<<*it_beg<<std::endl;
-  //  Spilitword(*it_beg);
-  }
+
+
+  std::list<Blog> weibos;
+  std::list<std::list<std::string> > result;
+  query.SetTableName(*it_beg);
+  ///先测试一个表先和测试10条  query。getcount获得表的行数
+  query.GetWeiBos(0,10,weibos);
+
+
+
+
+//  for (; it_beg != it_end; it_beg++) {
+//	  std::cout<<*it_beg<<std::endl;
+//  //  Spilitword(*it_beg);
+//  }
+
+
+
   std::cout<<"finish the program"<<std::endl;
 //  std::cin.ignore();
   return 1;
@@ -99,7 +113,7 @@ void display(std::list<std::list<std::string> > &msg) {
     for (; id_second != end_second; id_second++) {
       std::cout << *id_second << std::endl;
     }
-
+    std::cout << "################################################" << std::endl;
   }
 }
 /**
