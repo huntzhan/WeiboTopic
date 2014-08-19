@@ -13,20 +13,23 @@
 using std::string;
 
 typedef struct _BLOG {
-  string mid;
-  string uid; /// added for foreign relationship, not exists in table
-  string created_time;
-  string content;
-  long favorites;
-  long comments;
-  long forwards;
+  string m_mid;
+  string m_created_time;
+  string m_content;
+  string m_source;
+  long m_favorites;
+  long m_comments;
+  long m_forwards;
 
+  string u_uid;
+  string sex;
+  string u_created_at;
   long u_followees;
   long u_fans;
+  long u_bi_followers_count;
   long u_posts;
   long u_favourites_count;
   long u_vierfied;
-  string u_created_at;
-}Blog;
+} Blog;
 #endif
 
