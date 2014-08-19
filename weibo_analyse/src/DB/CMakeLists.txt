@@ -1,5 +1,5 @@
 
-include_directories(${weibo_analyse_SOURCE_DIR}/lib)
+include_directories(${weibo_ad_filter_SOURCE_DIR}/lib)
 set(CONNECTION_POOL connection_pool.h connection_pool.cpp)
 set(DB_POOL DBpool.h DBpool.cpp) 
 set(DB_OPERATION DBoperation.h DBoperation.cpp) 

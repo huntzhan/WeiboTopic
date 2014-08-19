@@ -31,7 +31,7 @@ private:
 /**
  *  @brief ZombieTactic 
  */
-class ZombieTactic {
+class ZombieTactic : Tactic {
   public:
     // ====================  LIFECYCLE     ==================================
     ZombieTactic() {}

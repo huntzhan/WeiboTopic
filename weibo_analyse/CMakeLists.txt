@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(weibo_analyse CXX)
+project(weibo_ad_filter CXX)
 
 
 ###########################

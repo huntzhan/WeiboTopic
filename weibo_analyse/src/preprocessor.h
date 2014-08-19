@@ -31,7 +31,7 @@ using std::list;
 using std::begin;
 using std::end;
 /**
- *  @brief Preprocessor 
+ *  @brief Preprocessor return true if the blog is useful
  */
 class Preprocessor {
   public:
@@ -40,7 +40,7 @@ class Preprocessor {
     ~Preprocessor() {}
     bool PerformTactic(Blog b){
       if (t_zombie.IsSpam(b))
-        return true;
+        return false;
     }
 
   private:

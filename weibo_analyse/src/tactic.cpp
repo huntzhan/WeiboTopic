@@ -16,6 +16,8 @@
 bool ZombieTactic::IsSpam(Blog b) {
   if (b.u_vierfied)
     return false;
-  if (b.u_bi_followers_count*1.0 / b.u_followees < 0.2)
+  if (b.u_fans <= 25 || 
+      b.u_followees >= 1000 || 
+      b.u_bi_followers_count*1.0 / b.u_followees < 0.2)
     return true;
 }
