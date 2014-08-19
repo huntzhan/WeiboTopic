@@ -74,7 +74,7 @@ int main() {
 	gettopic.GenTopicWordByFrequency();
 
 	//一趟聚类模块
-	std::map<std::string, TopicWord>* topicwordmap
+	std::map<std::string, TopicWord>* topicwordmap;
 	topicwordmap = gettopic.GetTopicWord();
 	Cluster cluster(&dboper, topicwordmap);
 	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,(int)weibosize);
