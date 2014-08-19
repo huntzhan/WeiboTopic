@@ -8,7 +8,7 @@ develop-eggs
 dist
 eggs
 parts
-.DS_Store
+*DS_Store
 Makefile~
 *.cpp~
 .repoproject
