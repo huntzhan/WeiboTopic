@@ -10,10 +10,10 @@
 #include "DB/DBoperation.h"
 #include "DB/DBpool.h"
 #include "DB/connection_pool.h"
-#include "parser.h"
+#include "split/parser.h"
 #include "split/Textspilt.h"
 static struct tm tranformTime(std::string &starttime);
-void Spilitword(std::string tablename, std::set<std::string> &stopwords);
+void Spilitword(std::string tablename);
 DBoperation query;
 DBpool insert;
 Parser parser;
@@ -34,7 +34,7 @@ void Init_Main() {
   insert.DBinit("use test", connpool);
   query.DBinit(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
-  Textspilt.init_ICTCAL();
+  TextSpilt::init_ICTCAL();
 }
 
 
@@ -54,17 +54,15 @@ std::set<std::string>& FilterTables() {
 
   /// remove the duplicated tables
   std::set<std::string> settable;
-  for (std::list<std::string>::iterator it_table = tables.begin(), 
-       std::list<std::string>::iterator end_table = tables.end();
-       it_table != end_table; 
-       it_table++) {
+  std::list<std::string>::iterator it_table = tables.begin();
+  std::list<std::string>::iterator end_table = tables.end();
+  for ( ; it_table != end_table; it_table++) {
     settable.insert(*it_table);
   }
-  for (std::list<std::string>::iterator it_inserttable = inserttables.begin(),
-       std::list<std::string>::iterator end_inserttable = inserttables.end();
-       it_inserttable != end_inserttable; 
-       it_inserttable++) {
-    if (settable.count(*it_inserttable) == end_inserttable)
+  std::list<std::string>::iterator it_inserttable = inserttables.begin();
+  std::list<std::string>::iterator end_inserttable = inserttables.end();
+  for ( ; it_inserttable != end_inserttable; it_inserttable++) {
+    if (settable.count(*it_inserttable))
       settable.erase(*it_inserttable);
   }
   return settable;
@@ -74,11 +72,13 @@ std::set<std::string>& FilterTables() {
 int main() {
   Init_Main();
   std::set<std::string> tables = FilterTables();
-  for (std::string t : tables) {
-    Spilitword(*it_table);
+  std::set<std::string>::iterator it_beg = tables.begin();
+  std::set<std::string>::iterator it_end = tables.end();
+  for (; it_beg != it_end; it_beg++) {
+    Spilitword(*it_beg);
   }
   std::cout<<"finish the program"<<std::endl;
-  getchar();
+  std::cin.ignore();
   return 1;
 }
 
@@ -103,7 +103,7 @@ void display(std::list<std::list<std::string> > &msg) {
 /**
  * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
  */
-void Spilitword(std::string tablename, std::set<std::string> &stopwords) {
+void Spilitword(std::string tablename) {
   std::list<std::list<std::string> > resultList;
   query.SetTableName(tablename);
   insert.SetTableName(tablename);
@@ -130,7 +130,7 @@ void Spilitword(std::string tablename, std::set<std::string> &stopwords) {
         continue;
       std::string fenci;
       std::vector<Word> words;
-      parser.LexcicalAnalysis(rawtext, words);
+      parser.LexicalAnalysis(rawtext, words);
       std::vector<Word>::iterator it_word = words.begin();
       std::vector<Word>::iterator end_word = words.end();
       for (; it_word != end_word; it_word++) {

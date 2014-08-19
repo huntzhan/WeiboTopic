@@ -11,7 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include "ICTCLAS50.h"
+#include "ICTCLAS50/ICTCLAS50.h"
 #include <locale>
 typedef struct _Word {
   std::string word;
