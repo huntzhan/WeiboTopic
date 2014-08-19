@@ -101,8 +101,8 @@ std::string TextSpilt::WidetoString(std::wstring &wsm) {
 }
 
 void TextSpilt::goodWordArticlePorperty(const std::string &rawtext,
-    std::set<std::string> &stopwords, std::vector<Word> &words) {
-
+                                        std::set<std::string> &stopwords, 
+                                        std::vector<Word> &words) {
   std::vector<std::string> goodWordstemp;
   std::vector<std::string> goodWordstempSub;
   std::wstring wresult;

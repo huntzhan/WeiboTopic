@@ -22,10 +22,11 @@ public:
   void init_ICTCAL(void);
   std::string ICTspilt(const char * sinput, int property);
   void goodWordArticlePorperty(const std::string &rawtext,
-      std::set<std::string> &stopwords, std::vector<Word> &words);
+                               std::set<std::string> &stopwords, 
+                               std::vector<Word> &words);
   void goodWordArticle(const std::string &rawtext,
-      std::set<std::string> &stopwords,
-      std::vector<std::string> &goodword);
+                       std::set<std::string> &stopwords,
+                       std::vector<std::string> &goodword);
 private:
   std::string RegexReplace(std::string input);
   std::wstring StringToWide(std::string &sToMatch);
