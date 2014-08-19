@@ -130,7 +130,7 @@ void Spilitword(std::string tablename, std::set<std::string> &stopwords) {
         continue;
       std::string fenci;
       std::vector<Word> words;
-      parser.LexcicalAnalysis(rawtext, words);  /// invoke ICTCLAS50
+      parser.LexcicalAnalysis(rawtext, words);
       std::vector<Word>::iterator it_word = words.begin();
       std::vector<Word>::iterator end_word = words.end();
       for (; it_word != end_word; it_word++) {
