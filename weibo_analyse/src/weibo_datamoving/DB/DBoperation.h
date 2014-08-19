@@ -22,7 +22,7 @@ class DBoperation {
 private:
   std::string table_name;
   std::string table_user_name;
-  std:;string table_user_to_blog;
+  std::string table_user_to_blog;
   std::string mysql_addr;
   std::string mysql_usr;
   std::string mysql_pwd;
