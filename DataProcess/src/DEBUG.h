@@ -3,6 +3,8 @@
  *
  *  Created on: 2014年8月6日
  *      Author: hogachen
+ *  description：
+ *      用来调试时打印信息
  */
 
 #ifndef DEBUG_H_
@@ -11,7 +13,6 @@
 #include"GetTopic.h"
 #include"CooccurrenceWord.h"
 #include"Topic.h"
-//#include"DBdao.h"
 #include<iostream>
 #include<string>
 #include<list>

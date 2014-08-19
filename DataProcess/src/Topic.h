@@ -1,8 +1,10 @@
 /*
  * Cluster.h
  *
- *  Created on: 2014骞�7鏈�31鏃�
+ *  Created on: 2014年8月12日
  *      Author: hogachen
+ *  description：
+ *      话题类，存放话题的关键词列表，话题对应微博ID列表，话题主要观点列表，话题下有多少条微博
  */
 
 #ifndef TOPIC_H_
@@ -30,12 +32,23 @@ class Topic {
 
 
 public:
-	vector<TopicWord> m_stopic;
-	std::map<std::string, double> topic_weibo_id; //临时统计微博ID出现的次数
-	std::vector<subword> weibo_id_list; //微博ID对应该ID出现的次数
-	std::map<std::string, double> main_idea; //话题下的主要观点临时统计数据结构
-	std::list<subword> sub_word_list; //最终的主要观点
-	std::list<Weibo> topic_weibo; //获取到的话题微博
+  //话题下的特征词
+	list<TopicWord> m_stopic;
+
+	//临时统计微博ID出现的次数
+	std::map<std::string, double> topic_weibo_id;
+
+	//微博ID对应该ID出现的次数
+	std::vector<subword> weibo_id_list;
+
+	//话题下的主要观点临时统计数据结构
+	std::map<std::string, double> main_idea;
+
+	//最终的主要观点
+	std::list<subword> sub_word_list;
+
+	//获取到的话题微博
+	std::list<Weibo> topic_weibo;
 	int topic_message_num;
 	std::list<subword>* GetSubWordList() {
 		return &this->sub_word_list;
@@ -46,14 +59,14 @@ public:
 	std::map<std::string, double>* GetTopicWeiboId() {
 		return &this->topic_weibo_id;
 	}
-	std::vector<subword> * GetWeiboIdList() {
+	std::vector<subword> *GetWeiboIdList() {
 		return &this->weibo_id_list;
 	}
-
-	void TopicInit(TopicWord firstWord) {//这里可以这样吗？
+	//生成一个簇（话题）时，先将该话题的第一个点加入簇中
+	void TopicInit(TopicWord firstWord) {
 		this->m_stopic.push_back(firstWord);
 	}
-	vector<TopicWord> *GetsTopic() {
+	list<TopicWord> *GetsTopic() {
 		return &this->m_stopic;
 	}
 	void addTopicWord(TopicWord t_word) {
