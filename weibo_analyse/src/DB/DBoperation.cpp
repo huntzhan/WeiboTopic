@@ -119,8 +119,8 @@ long  DBoperation::Getcount(){
 void DBoperation::GetText(long startline,long length,std::list<std::list<std::string> > &result){
   char sql_query[1024];
  // sprintf(sql_query,"select mid,content from %s limit %ld ,%ld ",table_name.c_str(),startline,length);
-  sprintf(sql_query,"select %s.mid ,%s.uid, created_time, content,favorites,comments,forwards,\
-		  followees,fans,posts,favourites_count,created_at,verified from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %d,%d ",
+  sprintf(sql_query,"select %s.mid ,%s.uid, created_time, content,favorites,comments,forwards,source ,\
+		  followees,fans,posts,favourites_count,created_at,verified , bi_followers_count,sex from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %d,%d ",
 		  table_name.c_str(),table_user_name.c_str(),
 		  table_name.c_str(),table_user_name.c_str(),table_user_to_blog.c_str(),
 		  table_name.c_str(),table_user_to_blog.c_str(),
@@ -143,38 +143,38 @@ void DBoperation::GetTables(std::list<std::string> &tables){
       std::string table=it_list->back();
       if(table[0]=='M')
       {
-      std::cout<<it_list->back()<<std::endl;
         tables.push_back(it_list->back());
       }
     }
 }
 
-//sprintf(sql_query,"select %s.mid ,%s.uid, created_time, content,favorites,comments,forwards,\
-//		  followees,fans,posts,favourites_count,created_at,verified from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %d,%d ",
+
 void DBoperation::GetWeiBos(long startline,long length,std::list<Blog> &weibos){
   std::list<std::list<std::string> > result;
-  GetText(startline,10,result);
+  GetText(startline,length,result);
   std::list<std::list<std::string> >::iterator it_first=result.begin();
   std::list<std::list<std::string> >::iterator end_first=result.end();
   for(;it_first!=end_first;it_first++){
      list<string>::iterator it_second=it_first->begin();
      list<string>::iterator end_second=it_first->end();
      Blog blog;
-     blog.mid=*it_second;
+     blog.m_mid=*it_second;
      it_second++;
-     blog.uid=*it_second;
+     blog.u_uid=*it_second;
      it_second++;
-     blog.created_time=*it_second;
+     blog.m_created_time=*it_second;
      it_second++;
-     blog.content=*it_second;
+     blog.m_content=*it_second;
      it_second++;
-     blog.favorites=atol((*it_second).c_str());
+     blog.m_favorites=atol((*it_second).c_str());
      it_second++;
-     blog.comments=atol((*it_second).c_str());
+     blog.m_comments=atol((*it_second).c_str());
      it_second++;
-     blog.forwards=atol((*it_second).c_str());
+     blog.m_forwards=atol((*it_second).c_str());
      it_second++;
-     blog.u_favourites_count=atol((*it_second).c_str());
+     blog.m_source=*it_second;
+     it_second++;
+     blog.u_followees=atol((*it_second).c_str());
      it_second++;
      blog.u_fans=atol((*it_second).c_str());
      it_second++;
@@ -183,8 +183,13 @@ void DBoperation::GetWeiBos(long startline,long length,std::list<Blog> &weibos){
      blog.u_favourites_count=atol((*it_second).c_str());
      it_second++;
      blog.u_created_at=*it_second;
+
      it_second++;
      blog.u_vierfied=atol((*it_second).c_str());
+     it_second++;
+     blog.u_bi_followers_count=atol((*it_second).c_str());
+     it_second++;
+     blog.sex=*it_second;
      weibos.push_back(blog);
   }
 }
