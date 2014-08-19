@@ -143,7 +143,6 @@ void DBoperation::GetTables(std::list<std::string> &tables){
       std::string table=it_list->back();
       if(table[0]=='M')
       {
-      std::cout<<it_list->back()<<std::endl;
         tables.push_back(it_list->back());
       }
     }

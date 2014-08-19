@@ -6,18 +6,17 @@
  Description:
  History    :
  *******************************************************************************/
-#include "process.h"
 #include "DB/DBoperation.h"
 #include "DB/DBpool.h"
 #include "DB/connection_pool.h"
 #include "split/parser.h"
 #include "split/Textspilt.h"
-static struct tm tranformTime(std::string &starttime);
+void MakeStopSet(std::set<std::string> &stopwordsSet);
 void Spilitword(std::string tablename);
 DBoperation query;
 DBpool insert;
 Parser parser;
-#define SQL_ADDR "192.168.1.105"
+#define SQL_ADDR "192.168.1.108"
 #define SQL_USER "root"
 #define SQL_PWD    "123456"
 #define SQL_DATABASE "sina"
@@ -29,12 +28,12 @@ Parser parser;
  *  @return
  */
 void Init_Main() {
-  ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
-      "123456", 50);
+ ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
+     "123456", 50);
   insert.DBinit("use test", connpool);
   query.DBinit(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
-  TextSpilt::init_ICTCAL();
+//  TextSpilt::init_ICTCAL();
 }
 
 
@@ -44,7 +43,7 @@ void Init_Main() {
  *  @param
  *  @return
  */
-std::set<std::string>& FilterTables() {
+ void FilterTables(std::set<std::string> &settable) {
   /// get tables from to be processed
   std::list<std::string> tables;
   query.GetTables(tables);
@@ -53,7 +52,7 @@ std::set<std::string>& FilterTables() {
   insert.GetTables(inserttables);
 
   /// remove the duplicated tables
-  std::set<std::string> settable;
+
   std::list<std::string>::iterator it_table = tables.begin();
   std::list<std::string>::iterator end_table = tables.end();
   for ( ; it_table != end_table; it_table++) {
@@ -65,24 +64,27 @@ std::set<std::string>& FilterTables() {
     if (settable.count(*it_inserttable))
       settable.erase(*it_inserttable);
   }
-  return settable;
+  std::cout<<settable.size()<<std::endl;
 }
 
-#ifdef DEBUG
+
 int main() {
   Init_Main();
-  std::set<std::string> tables = FilterTables();
+
+
+  std::set<std::string> tables;
+  FilterTables(tables);
   std::set<std::string>::iterator it_beg = tables.begin();
   std::set<std::string>::iterator it_end = tables.end();
   for (; it_beg != it_end; it_beg++) {
-    Spilitword(*it_beg);
+	  std::cout<<*it_beg<<std::endl;
+  //  Spilitword(*it_beg);
   }
   std::cout<<"finish the program"<<std::endl;
-  std::cin.ignore();
+//  std::cin.ignore();
   return 1;
 }
 
-#endif
 
 
 /**************************************************************************
@@ -111,10 +113,9 @@ void Spilitword(std::string tablename) {
   insert.CreateTable();
   long count = query.Getcount();
   std::cout << tablename << " " << count << std::endl;
-#ifdef DEBUG
+
   time_t startT, endT;
   double total;
-#endif
   for (long pos = 0; pos < count - 1000;) {
     startT = time(NULL);
     query.GetText(pos, 1000, resultList);

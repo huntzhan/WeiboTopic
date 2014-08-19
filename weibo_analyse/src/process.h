@@ -13,6 +13,6 @@
 
 
 #define DEBUG
-void MakeStopSet(std::set<std::string> &stopwordsSet);
+
 
 #endif
