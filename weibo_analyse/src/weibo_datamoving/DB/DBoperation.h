@@ -8,7 +8,10 @@
 #include "mysql.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include "model.h"
 
+using std::list;
+using std::string;
 typedef struct _insert_data {
   std::string mid;
   std::string text;
@@ -18,6 +21,8 @@ typedef struct _insert_data {
 class DBoperation {
 private:
   std::string table_name;
+  std::string table_user_name;
+  std:;string table_user_to_blog;
   std::string mysql_addr;
   std::string mysql_usr;
   std::string mysql_pwd;
@@ -43,6 +48,7 @@ public:
   void CreateTable();
   long Getcount();
   void DB_query(const char * sql_query, std::list<std::list<std::string> > &result);
+  void GetWeiBos(long startline,long length,std::list<Blog> &weibos);
 };
 
 #endif

@@ -12,19 +12,7 @@
 #include <string>
 using std::string;
 
-struct User{
-  string uid;
-  long followees;
-  long fans;
-  long bi_followers_count;
-  long posts;
-  string sex;
-  long favourites_count;
-  string created_at;
-  long verified;
-};
-
-struct Blog{
+typedef struct _BLOG {
   string mid;
   string uid; /// added for foreign relationship, not exists in table
   string created_time;
@@ -32,7 +20,13 @@ struct Blog{
   long favorites;
   long comments;
   long forwards;
-  string source;
-}
+
+  long u_followees;
+  long u_fans;
+  long u_posts;
+  long u_favourites_count;
+  long u_vierfied;
+  string u_created_at;
+}Blog;
 #endif
 

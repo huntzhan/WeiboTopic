@@ -23,7 +23,7 @@ public:
   void LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words);
 
 private:
-  void Parser::MakeStopSet();
+  void MakeStopSet();
 
   TextSpilt split;
   std::set<std::string> stopwords;

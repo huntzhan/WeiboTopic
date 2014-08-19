@@ -93,6 +93,11 @@ void DBoperation::CreateTable(){
 
 void DBoperation::SetTableName(const std::string table_name){
   this->table_name=table_name;
+  this->table_user_name=table_name;
+  this->table_user_name.replace(0,9,"WeiboUser");
+  this->table_user_to_blog=table_name;
+  this->table_user_to_blog.replace(0,9,"UserToBlog");
+  std::cout<< this->table_user_to_blog<<std::endl;
 }
 
 
@@ -108,10 +113,21 @@ long  DBoperation::Getcount(){
   long count=atol(result.front().front().c_str());
   return  count;
 }
-
+/**
+ * 获得文本内容返回一个二维的数组
+ */
 void DBoperation::GetText(long startline,long length,std::list<std::list<std::string> > &result){
-  char sql_query[200];
-  sprintf(sql_query,"select mid,content from %s limit %ld ,%ld ",table_name.c_str(),startline,length);
+  char sql_query[1024];
+ // sprintf(sql_query,"select mid,content from %s limit %ld ,%ld ",table_name.c_str(),startline,length);
+  sprintf(sql_query,"select %s.mid ,%s.uid, created_time, content,favorites,comments,forwards,\
+		  followees,fans,posts,favourites_count,created_at,verified from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %d,%d ",
+		  table_name.c_str(),table_user_name.c_str(),
+		  table_name.c_str(),table_user_name.c_str(),table_user_to_blog.c_str(),
+		  table_name.c_str(),table_user_to_blog.c_str(),
+		  table_user_name.c_str(),table_user_to_blog.c_str(),
+		  startline,length
+		  );
+  std::cout<< sql_query<<std::endl;
   DB_query(sql_query,result);
 }
 
@@ -133,6 +149,45 @@ void DBoperation::GetTables(std::list<std::string> &tables){
     }
 }
 
+//sprintf(sql_query,"select %s.mid ,%s.uid, created_time, content,favorites,comments,forwards,\
+//		  followees,fans,posts,favourites_count,created_at,verified from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %d,%d ",
+void DBoperation::GetWeiBos(long startline,long length,std::list<Blog> &weibos){
+  std::list<std::list<std::string> > result;
+  GetText(startline,10,result);
+  std::list<std::list<std::string> >::iterator it_first=result.begin();
+  std::list<std::list<std::string> >::iterator end_first=result.end();
+  for(;it_first!=end_first;it_first++){
+     list<string>::iterator it_second=it_first->begin();
+     list<string>::iterator end_second=it_first->end();
+     Blog blog;
+     blog.mid=*it_second;
+     it_second++;
+     blog.uid=*it_second;
+     it_second++;
+     blog.created_time=*it_second;
+     it_second++;
+     blog.content=*it_second;
+     it_second++;
+     blog.favorites=atol((*it_second).c_str());
+     it_second++;
+     blog.comments=atol((*it_second).c_str());
+     it_second++;
+     blog.forwards=atol((*it_second).c_str());
+     it_second++;
+     blog.u_favourites_count=atol((*it_second).c_str());
+     it_second++;
+     blog.u_fans=atol((*it_second).c_str());
+     it_second++;
+     blog.u_posts=atol((*it_second).c_str());
+     it_second++;
+     blog.u_favourites_count=atol((*it_second).c_str());
+     it_second++;
+     blog.u_created_at=*it_second;
+     it_second++;
+     blog.u_vierfied=atol((*it_second).c_str());
+     weibos.push_back(blog);
+  }
+}
 
 
 
