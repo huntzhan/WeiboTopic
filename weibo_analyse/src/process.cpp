@@ -106,9 +106,9 @@ void display(std::list<std::list<std::string> > &msg) {
 void Spilitword(std::string tablename) {
   std::list<std::list<std::string> > resultList;
   query.SetTableName(tablename);
-  insert.SetTableName(tablename);
-  //建立数据库的表
-  insert.CreateTable();
+  /// insert.SetTableName(tablename);
+  /// 建立数据库的表
+  /// insert.CreateTable();
   long count = query.Getcount();
   std::cout << tablename << " " << count << std::endl;
 #ifdef DEBUG
@@ -130,7 +130,8 @@ void Spilitword(std::string tablename) {
         continue;
       std::string fenci;
       std::vector<Word> words;
-      parser.LexicalAnalysis(rawtext, words);
+      /// ICTCLAS and stopwrods parsing
+      /// parser.LexicalAnalysis(rawtext, words);
       std::vector<Word>::iterator it_word = words.begin();
       std::vector<Word>::iterator end_word = words.end();
       for (; it_word != end_word; it_word++) {
@@ -142,7 +143,8 @@ void Spilitword(std::string tablename) {
       insertdata.spilt = fenci;
       insert_datas.push_back(insertdata);
     }
-    insert.DB_insertData(insert_datas);
+    /// 
+    /// insert.DB_insertData(insert_datas);
     pos = pos + 1000;
     endT = time(NULL);
     total = difftime(endT, startT);
