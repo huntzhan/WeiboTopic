@@ -66,7 +66,6 @@ DBpool::~DBpool() {
  *创建表格 具体创建什么表 可以修改sql_query
  */
 void DBpool::CreateTable() {
-  int res;
   char sql_query[1024];
   sprintf(sql_query,
       "  CREATE TABLE `%s` (`mid` varchar(50) NOT NULL, `text` varchar(250) DEFAULT NULL, `spilt` varchar(1000) DEFAULT NULL,  PRIMARY KEY (`mid`)) ENGINE=InnoDB DEFAULT CHARSET=utf8",

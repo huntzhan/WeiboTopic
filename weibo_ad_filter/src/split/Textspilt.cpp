@@ -106,7 +106,6 @@ void TextSpilt::goodWordArticlePorperty(const std::string &rawtext,
   std::vector<std::string> goodWordstemp;
   std::vector<std::string> goodWordstempSub;
   std::wstring wresult;
-  bool flag_empty = true;
   if (stopwords.empty()) {
     std::cout << "input goodWordsinPieceArticle error" << std::endl;
     return;
@@ -159,7 +158,6 @@ void TextSpilt::goodWordArticle(const std::string &rawtext,
     std::set<std::string> &stopwords, std::vector<std::string> &goodword) {
 
   std::vector<std::string> goodWordstemp;
-  bool flag_empty = true;
   if (stopwords.empty()) {
     std::cout << "input goodWordsinPieceArticle error" << std::endl;
     return;

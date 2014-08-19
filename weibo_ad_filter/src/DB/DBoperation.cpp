@@ -120,7 +120,7 @@ void DBoperation::GetText(long startline,long length,std::list<std::list<std::st
   char sql_query[1024];
  // sprintf(sql_query,"select mid,content from %s limit %ld ,%ld ",table_name.c_str(),startline,length);
   sprintf(sql_query,"select %s.mid ,%s.uid, created_time, content,favorites,comments,forwards,source ,\
-		  followees,fans,posts,favourites_count,created_at,verified , bi_followers_count,sex from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %d,%d ",
+		  followees,fans,posts,favourites_count,created_at,verified , bi_followers_count,sex from %s ,%s, %s where %s.mid=%s.mid and %s.uid=%s.uid limit %ld,%ld ",
 		  table_name.c_str(),table_user_name.c_str(),
 		  table_name.c_str(),table_user_name.c_str(),table_user_to_blog.c_str(),
 		  table_name.c_str(),table_user_to_blog.c_str(),
@@ -133,7 +133,6 @@ void DBoperation::GetText(long startline,long length,std::list<std::list<std::st
 
 void DBoperation::GetTables(std::list<std::string> &tables){
   std::list<std::list<std::string> > result;
-  char sql_query[200];
   DB_query("show tables",result);
 
   std::list<std::list<std::string> >::iterator it_list=result.begin();
