@@ -52,7 +52,7 @@ public:
 	int  GetNewserID();
 	void InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytablename);
 
-	void InsertData(Topic &onetopic);
+	void InsertData(Topic &onetopic, int flag);
 	~DBoperation();
 };
 

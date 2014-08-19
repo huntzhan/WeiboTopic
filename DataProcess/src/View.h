@@ -12,8 +12,13 @@
 #include<vector>
 
 class View{
-	std::string view_sentences;//观点主题
-	double view_importance;	   //共现重要度
-	std::vector<std::string>temp_view_sentences;//中间生成的单位关键词组合而成的短语
+  //观点主题
+	std::string view_sentences;
+
+	//共现重要度
+	double view_importance;
+
+	//中间生成的单位关键词组合而成的短语
+	std::vector<std::string>temp_view_sentences;
 };
 #endif /* VIEW_H_ */

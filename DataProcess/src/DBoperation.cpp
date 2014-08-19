@@ -119,38 +119,47 @@ DBoperation::~DBoperation(){
 	DBclose();
 }
 
-void DBoperation::InsertData(Topic &onetopic){
+void DBoperation::InsertData(Topic &onetopic, int flag) {
+  char table_name[512];
+  std::string topictablename = "Topic";
+  int newestID = 0;
 
-	std::string mytablename="OneDayTopic";
-	std::string topicwords;
-	int weibonumbers=onetopic.topic_message_num;
-	try{
-		con->setAutoCommit(false);
-		char sql_query[1024];
-		vector<TopicWord>::iterator it=onetopic.m_stopic.begin();
-		for(;it!=onetopic.m_stopic.end();++it)
-		{
-			topicwords+=it->m_sword+" ";
-		}
+  //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
+  try {
+    if (flag == 0) {
+      std::string mytablename = "OneDayTopic";
+      std::string topicwords;
+      int weibonumbers = onetopic.topic_message_num;
 
-		sprintf(sql_query,"insert into %s values('','%s','','%d')",mytablename.c_str(),topicwords.c_str(),weibonumbers);//(topicid,topicwords,mainidea,weibonumber)
+      con->setAutoCommit(false);
+      char sql_query[1024];
+      list<TopicWord>::iterator it = onetopic.m_stopic.begin();
+      for (; it != onetopic.m_stopic.end(); ++it) {
+        topicwords += it->m_sword + " ";
+      }
 
-		state->executeUpdate(sql_query);
-		con->commit();
-		con->setAutoCommit(true);
-		char table_name[512];
-	int newestID=GetNewserID();
-	std::cout<<"newestID "<<newestID<<std::endl;
-	std::string topictablename="Topic";
-	sprintf(table_name,"%s%d",topictablename.c_str(),newestID);
+      sprintf(sql_query, "insert into %s values('','%s','','%d')",
+          mytablename.c_str(), topicwords.c_str(), weibonumbers); //(topicid,topicwords,mainidea,weibonumber)
 
-	CreateTable(table_name);
-	InsertTopicWeiboIdToDatabase(onetopic,table_name);
+      state->executeUpdate(sql_query);
+      con->commit();
+      con->setAutoCommit(true);
+      newestID = GetNewserID();
 
-	} catch (sql::SQLException&e) {
-			perror(e.what());
-	}
-	std::cout<<"插入一个话题"<<std::endl;
+      sprintf(table_name, "%s%d", topictablename.c_str(), newestID);
+
+      CreateTable(table_name);
+    }
+
+    //第二次插入只要查询Topic的ID，然后插入数据
+    newestID = GetNewserID();
+    sprintf(table_name, "%s%d", topictablename.c_str(), newestID);
+    InsertTopicWeiboIdToDatabase(onetopic, table_name);
+    onetopic.topic_weibo.clear();
+  } catch (sql::SQLException&e) {
+    perror(e.what());
+  }
+  std::cout << "插入一个话题" << std::endl;
 }
 void DBoperation::CreateTable(std::string mytablename) {
 
@@ -170,7 +179,7 @@ void DBoperation::CreateTable(std::string mytablename) {
 
 	char sql_query[1024];
 	sprintf(sql_query,statement.c_str(),mytablename.c_str());
-	std::cout<<sql_query<<std::endl;
+//	std::cout<<sql_query<<std::endl;
 	try {
 		state->execute(sql_query);
 
@@ -184,10 +193,10 @@ int DBoperation::GetNewserID(){
 	int res;
 	char sql_query[1024];
 	sprintf(sql_query, "select max(topicid) from OneDayTopic");
-	std::cout<<sql_query<<std::endl;
+//	std::cout<<sql_query<<std::endl;
 	try {
 		result=state->executeQuery(sql_query);
-		std::cout<<"get max id"<<std::endl;
+//		std::cout<<"get max id"<<std::endl;
 		while (result->next()) {
 			res=result->getInt(1);
 
@@ -197,6 +206,8 @@ int DBoperation::GetNewserID(){
 	}
 	return res;
 }
+
+
 void DBoperation::InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytablename){
 	try {
 		con->setAutoCommit(false);
@@ -212,7 +223,7 @@ void DBoperation::InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytab
 
 			sprintf(sql_query,"insert into %s values('%s','','%s','%s','%s','','','','','')",
 					mytablename.c_str(),it->mid.c_str(),goodtext,it->spilt.c_str(),it->belongtable.c_str());
-			std::cout<<sql_query<<std::endl;
+//			std::cout<<sql_query<<std::endl;
 			state->executeUpdate(sql_query);
 		}
 		con->commit();
@@ -252,6 +263,8 @@ bool DBoperation::ChangeToNextTable(int & count){
 	}
 	return true;
 }
+
+
 void DBoperation::SetTableIndexToZero(){
 	this->tableIndex=0;
 	std::string tablename=this->table[this->tableIndex];

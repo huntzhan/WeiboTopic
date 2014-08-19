@@ -10,22 +10,24 @@
 #include "CooccurrenceWord.h"
 #include"TopicWord.h"
 #include"Topic.h"
-//#include"DBdao.h"
 #include<iostream>
 #include<unistd.h>
 #include<time.h>
 #include<string>
 using namespace std;
-//#define THROD 3.0
 #define MINVALUE -1
 #define TIME
 //#define COUNT
-//#define BELONT_TOPIC_THROD 2.0
-//#define DEBUG_CLUSTER1
-//#define CALDIS
-//#define PRINTTOPICA
 
-typedef map<string, TopicWord> MAP;
+typedef std::map<std::string, TopicWord> MAP;
+/*
+ * @description：
+ *  切分mid和微博表字符串
+ * @input
+ *  str：带切分的mid+belongTable格式字符串
+ * @output：
+ *  vector<string> result : result[0]为mid，result[1]为tablename
+ */
 std::vector<std::string> split2(std::string str){
 	std::vector<std::string>result;
 	std::string mid=str.substr(0,16);
@@ -34,30 +36,51 @@ std::vector<std::string> split2(std::string str){
 	result.push_back(table);
 	return result;
 }
+
+/*
+ * @description：
+ *  对话题排序
+ */
 bool TopicCmp(const Topic &topic1, const Topic &topic2) {
 	if (topic1.topic_message_num > topic2.topic_message_num)
 		return true;
 	return false;
 }
-bool weibosort(const subword & s1, const subword & s2) {
+
+/*
+ * @description：
+ *  根据有多少个话题词出现在微博中，对每个话题下微博进行相关度的排序
+ */
+bool weibosort(const subword &s1, const subword &s2) {
 	if (s1.fre > s2.fre)
 		return true;
 	return false;
 }
-
-void Cluster::CalWordsCooccurrence() {
+/*
+ * @description：
+ *  遍历每一条微博，首先查询微博下的那些词出现在特征词中，保存到一个list中
+ *  再将该list中的词两两共现度加1
+ */
+void Cluster::CalWordsCoccurrence() {
 	std::cout<<"计算贡献度"<<std::endl;
+
+	//存放从数据库中取出的一条微博
 	std::list<OneWeibo> resultword;
+
 	std::list<OneWeibo>::iterator re_w_it;
 	std::list<Word>::iterator weiboword_it;
+
+	//存放一条微博中出项在特征词集中的词
 	std::list < std::string > word_coou_oneweibo;
 	std::list < std::string >::iterator wco_it_first;
 	std::list < std::string >::iterator wco_it_second;
 	std::string oneword;
 	int count = 0;
+	//这里需要将表的Index重新设置为0
 	this->dboper->SetTableIndexToZero();
+
+
 	while (true) {
-//		std::cout<<"running in gongxian"<<std::endl;
 		if (!this->dboper->ChangeToNextTable(count))
 			break;
 #ifdef COUNT
@@ -65,35 +88,42 @@ void Cluster::CalWordsCooccurrence() {
 			break;
 #endif
 		this->dboper->ChangeOneTableCount(count);
+
 		resultword.clear();
 		this->dboper->GetMidandText(count,this->dboper->OneTimeReadWeiboNum,resultword);;
 
 		re_w_it = resultword.begin();
+		//找出该微博中出项在特征词集中的词
 		for (; re_w_it != resultword.end(); ++re_w_it) {
+
 			weiboword_it = re_w_it->GetweiboWords()->begin();
 			word_coou_oneweibo.clear();
-			for (; weiboword_it != re_w_it->GetweiboWords()->end();
-					++weiboword_it) {
+
+			for (; weiboword_it != re_w_it->GetweiboWords()->end();++weiboword_it) {
 				oneword = weiboword_it->word;
 				if (this->topicword->count(oneword)) {
 					word_coou_oneweibo.push_back(oneword);
 				}
 			}
+
 			wco_it_first=word_coou_oneweibo.begin();
 			std::string firstword;
+			//对找出的特征词将共现度加到co_ccur_matrix这个共现矩阵中
 			for (;wco_it_first!=word_coou_oneweibo.end();++wco_it_first) {
 				firstword =*wco_it_first;
-				std::map<std::string, CooccurrenceWord>::iterator it =
-						co_ccur_matrix.find(firstword);
+				std::map<std::string, CooccurrenceWord>::iterator it =co_ccur_matrix.find(firstword);
+
 				CooccurrenceWord occurword;
 
 				if (it == co_ccur_matrix.end()) {
 					CooccurrenceWord occurword;
 					std::map<std::string, double>* map_wordmap =
 							occurword.GetWordCooccurrence();
+
 					std::map<std::string, double>::iterator find_it;
 					wco_it_second=word_coou_oneweibo.begin();
 					std::string secondword;
+
 					for (;wco_it_second!=word_coou_oneweibo.end();++wco_it_second) {
 						secondword = *wco_it_second;
 						if (firstword.compare(secondword) == 0)
@@ -105,17 +135,17 @@ void Cluster::CalWordsCooccurrence() {
 							map_wordmap->insert(make_pair(secondword, 1.0));
 						}
 					}
+
 					co_ccur_matrix.insert(make_pair(firstword, occurword));
 					continue;
 				}
-				std::map<std::string, double>* map_wordmap =
-						it->second.GetWordCooccurrence();
-				std::map<std::string, double>::iterator find_it =
-						map_wordmap->begin();
+
+
+				std::map<std::string, double> *map_wordmap =it->second.GetWordCooccurrence();
+				std::map<std::string, double>::iterator find_it =map_wordmap->begin();
 				wco_it_second = word_coou_oneweibo.begin();
 				std::string secondword;
-				for (; wco_it_second != word_coou_oneweibo.end();
-						++wco_it_second) {
+				for (; wco_it_second != word_coou_oneweibo.end();++wco_it_second) {
 					secondword = *wco_it_second;
 					if (firstword.compare(secondword) == 0)
 						continue;
@@ -131,28 +161,40 @@ void Cluster::CalWordsCooccurrence() {
 	}
 }
 
+/*
+ * @description：
+ *  一趟聚类的思想
+ */
 void Cluster::Singlepass() {
 #ifdef TIME
 	time_t start3;
 	start3 = time(NULL);
 #endif
-	this->CalWordsCooccurrence();
+
+	this->CalWordsCoccurrence();
+
 #ifdef TIME
 	time_t ends3;
 	ends3 = time(NULL);
 	std::cout << "计算特征词共现度用时：" << difftime(ends3, start3) << std::endl;
 #endif
+
+
 	this->SetClusterThrod(this->GenClusterThrod() + THROD_ADD);
 	std::cout << "CLUSTER_THROD: " << this->CLSTER_THROD << std::endl;
+
 #ifdef DEBUG_CLUSTER1
 	printMatrix(this->co_ccur_matrix);
 #endif
 
 	MAP::iterator topic_w_it = this->topicword->begin();
 	TopicWord firstword = topic_w_it->second;
+	//这里初始化一个词作为一个簇（topic）
 	Topic topic;
 	topic.TopicInit(firstword);
 	this->clusterList.push_back(topic);
+
+	//对于每一个词，计算词在话题列表Topic的距离
 	topic_w_it++;
 	for (; topic_w_it != this->topicword->end(); ++topic_w_it) {
 
@@ -160,21 +202,24 @@ void Cluster::Singlepass() {
 		double maxDistance = MINVALUE;
 		vector<Topic>::iterator belong_clus_it = vec_clu_it;//这里应该是赋值还是指针？？？？
 		for (; vec_clu_it != this->clusterList.end(); ++vec_clu_it) {
-			double words_distance = Cal_Words_Topic_Distance(*vec_clu_it,
-					topic_w_it->second);
+			double words_distance = Cal_Words_Topic_Distance(*vec_clu_it,topic_w_it->second);
+			//查看是否有比之前保留的最近的簇更近的簇
 			if (maxDistance < words_distance) {
 				maxDistance = words_distance;
 				belong_clus_it = vec_clu_it;
 			}
 		}
+		//如果该词与该簇距离最近，那么将该词加入该簇
 		if (maxDistance < this->CLSTER_THROD) {
 			Topic newTopic;
 			newTopic.TopicInit(topic_w_it->second);
-			this->clusterList.push_back(newTopic);//这里虽然newTopic是局部变量，但是由于会复制一个新的，有类的时候会动态调用拷贝构造函数
+			this->clusterList.push_back(newTopic);
 		} else {
 			belong_clus_it->addTopicWord(topic_w_it->second);
 		}
 	}
+
+
 #ifdef TIME
 	time_t ends4;
 	ends4 = time(NULL);
@@ -184,17 +229,25 @@ void Cluster::Singlepass() {
 #ifdef TIME
 	time_t start5;
 	start5 = time(NULL);
-
 #endif
-	this->MatchWeiboIDToTopic();//match weibo id to topic
-	this->ListAllTopicWeiboId();//select the weibo which have more than two words in topic
+	//及时将共现矩阵清空
+	this->co_ccur_matrix.clear();
+	//match weibo id to topic
+	this->MatchWeiboIDToTopic();
+	//select the weibo which have more than two words in topic
+	this->ListAllTopicWeiboId();
+
 #ifdef TIME
 	time_t ends5;
 	ends5 = time(NULL);
 	std::cout << "微博对应话题用时：" << difftime(ends5, start5) << std::endl;
 #endif
+
+
 	this->SortTopic();
 	this->InsterAllTopicToDatabase();
+
+
 #ifdef PRINTTOPICA
 	printTopic(&this->clusterList);
 #endif
@@ -216,7 +269,7 @@ double Cluster::Cal_Words_Topic_Distance(Topic &topic, TopicWord &topic_word) {
 	} else {
 		return 0.0;
 	}
-	vector<TopicWord>::iterator clu_it = topic.GetsTopic()->begin();//这里一定要指针？？为什么？
+	list<TopicWord>::iterator clu_it = topic.GetsTopic()->begin();//这里一定要指针？？为什么？
 	std::string one_topic_word;
 	std::map<std::string, double>::iterator second_it;
 	for (; clu_it != topic.GetsTopic()->end(); ++clu_it) {
@@ -229,12 +282,16 @@ double Cluster::Cal_Words_Topic_Distance(Topic &topic, TopicWord &topic_word) {
 	}
 	return topic_word_dis / topic.GetsTopic()->size();
 }
-
+/*
+ * @description：
+ *  将话题下的ID索引到话题下
+ *  将所有话题的关键词提取出来放到一个MAP中，扫描一遍数据库所有的微博，将微博链接到关键词下，最后查询每个话题，将词下的微博ID再指向话题
+ */
 void Cluster::MatchWeiboIDToTopic(){
 	std::map<std::string ,std::set<std::string> >wordToweiboid;
 	std::map<std::string ,std::set<std::string> >::iterator w_t_w_it;
 	std::vector<Topic>::iterator topic_list_it=this->clusterList.begin();
-	vector<TopicWord>::iterator onetopic_it;
+	list<TopicWord>::iterator onetopic_it;
 	for(;topic_list_it!=this->clusterList.end();++topic_list_it){
 
 		if(topic_list_it->GetsTopic()->size()>=this->BELONG_TOPIC_THROD){
@@ -250,6 +307,7 @@ void Cluster::MatchWeiboIDToTopic(){
 	std::vector<std::string >word_in_map;
 	int count=0;
 	this->dboper->SetTableIndexToZero();
+
 	while(true){
 
 		if (!this->dboper->ChangeToNextTable(count))
@@ -287,8 +345,12 @@ void Cluster::MatchWeiboIDToTopic(){
 			}
 		}
 	}
-}
 
+}
+/*
+ * @description：
+ *  统计话题下微博ID中每条微博出项了多少个关键词，根据此对微博相关度进行排序，同时删除阈值小于BELONG_TOPIC_THROD（3）的都不要
+ */
 void Cluster::ListAllTopicWeiboId() {
 	int mycount = 0;
 	std::vector<Topic>::iterator clusterList_it = this->clusterList.begin();
@@ -297,11 +359,12 @@ void Cluster::ListAllTopicWeiboId() {
 	}
 }
 void Cluster::ListEveryTopicWeiboId(Topic &one_topic) {
-	vector<TopicWord>::iterator topic_it = one_topic.GetsTopic()->begin();
-	std::map<std::string, double>*topic_weibo_id_map =
-			one_topic.GetTopicWeiboId();
+	list<TopicWord>::iterator topic_it = one_topic.GetsTopic()->begin();
+	std::map<std::string, double> *topic_weibo_id_map =one_topic.GetTopicWeiboId();
 	std::map<std::string, double>::iterator topic_weibo_id_map_it;
 	one_topic.topic_message_num = 0;
+
+
 	for (; topic_it != one_topic.GetsTopic()->end(); ++topic_it) {
 		std::set<std::string>::iterator topicword_weibolist_it =
 				topic_it->GetWordToWeiboidList()->begin();
@@ -316,34 +379,51 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic) {
 			}
 		}
 	}
+
+
+
 	topic_weibo_id_map_it = topic_weibo_id_map->begin();
 
 	for (; topic_weibo_id_map_it != topic_weibo_id_map->end(); ++topic_weibo_id_map_it) {
 		if (topic_weibo_id_map_it->second >= this->BELONG_TOPIC_THROD) {
-			subword sw(topic_weibo_id_map_it->first,
-					topic_weibo_id_map_it->second);
+			subword sw(topic_weibo_id_map_it->first,topic_weibo_id_map_it->second);
+
 			one_topic.GetWeiboIdList()->push_back(sw);
 			one_topic.topic_message_num += 1;
 		}
 	}
+
+	one_topic.GetTopicWeiboId()->clear();
 	std::sort(one_topic.GetWeiboIdList()->begin(),
 			one_topic.GetWeiboIdList()->end(), weibosort);
-	one_topic.GetTopicWeiboId()->clear();
+
+	//及时清除内存
+	if(one_topic.topic_message_num<=10){
+	    one_topic.weibo_id_list.clear();
+	    std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
+	}
 	//将得出的结果存进数据库
-
-
 }
+
+
 void Cluster::InsterAllTopicToDatabase(){
 	std::vector<Topic>::iterator it = clusterList.begin();
 	for(;it!=clusterList.end();++it){
-		if(it->topic_message_num==0)continue;
+		if(it->topic_message_num<=10)continue;
 		this->InsertTopicToDatabase(*it);
 	}
 }
+
+/*
+ * @description：
+ *  将一个话题插入数据库，先将话题的主要信息（包括话题微博数，话题主要观点，话题关键词）插入OneDayTopic表，获取插入时的ID
+ *  再将话题下的微博查询出来，插入数据库，由于最大的话题下的微博数会超过10万，一次读入再插入数据库会占用太多内存，所以分批（达到1000）
+ *  就插入一次
+ */
 void Cluster::InsertTopicToDatabase(Topic &one_topic) {
 	std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
 	std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
-	vector<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
+	list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
 	for(;topicword_it!=one_topic.GetsTopic()->end();++topicword_it){
 		std::cout<<topicword_it->m_sword<<"	";
 	}
@@ -356,6 +436,9 @@ void Cluster::InsertTopicToDatabase(Topic &one_topic) {
 	std::string weiboidandtable;
 	std::vector<std::string>result;
 	Weibo oneweibo;
+	int readnum=0;
+	int flagnum=0;
+	int flag=0;
 	for (; weibo_id_list_it != one_topic.GetWeiboIdList()->end(); ++weibo_id_list_it) {
 		weiboidandtable=weibo_id_list_it->word;
 		result=split2(weiboidandtable);
@@ -363,15 +446,27 @@ void Cluster::InsertTopicToDatabase(Topic &one_topic) {
 		mid=result[0];
 		table_name=result[1];
 		oneweibo.belongtable=table_name;
+		//这里是最耗时的
 		this->dboper->GetOneWeiBo(table_name,mid,oneweibo);
-		one_topic.topic_weibo.push_back(oneweibo);//这里考虑直接插入数据库，还是一个话题完之后再插入
-
-//		std::cout<<"topic_weibo："<<oneweibo.mid<<"	"<<oneweibo.text<<std::endl;
+		one_topic.topic_weibo.push_back(oneweibo);//这里是一个话题完之后再插入
+		flagnum++;
+		if(flagnum==1000){
+		  this->dboper->InsertData(one_topic,flag);
+		  flagnum=0;
+		  std::cout<<"插入数据库一次，插入了 "<<readnum<<" 条微博"<<std::endl;
+		  flag=1;
+		  std::cout<<"size: "<<one_topic.weibo_id_list.size()<<std::endl;
+		}
 	}
-	std::cout<<"开始插入数据库"<<std::endl;
-	this->dboper->InsertData(one_topic);
+	this->dboper->InsertData(one_topic,flag);
 	one_topic.topic_weibo.clear();
+	//释放内存
+	one_topic.weibo_id_list.clear();
+	std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 }
+
+
+
 void Cluster::SortTopic() {
 	std::sort(this->clusterList.begin(), this->clusterList.end(), TopicCmp);
 }
@@ -388,6 +483,11 @@ std::vector<int> Cluster::GenRandomValue() {
 	}
 	return v_i;
 }
+
+/**
+ * @description：
+ *  计算一趟聚类阈值
+ */
 double Cluster::GenClusterThrod() {
 	double tempthrod = 0.0;
 	std::vector<std::string> tempvec;

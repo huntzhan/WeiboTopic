@@ -12,67 +12,99 @@
 #include<math.h>
 #include<algorithm>
 //#define COUNT
-//#define DEBUG
 #define TIME
-using namespace std;
-
-bool SortCmp(const PAIR & key1, const PAIR & key2) {
+/*@description：
+ *  排序函数，需要注意不能放在类的内部
+ *@input
+ *  键值对：key1&key2
+ */
+bool SortCmp(const PAIR &key1, const PAIR &key2) {
 	if (key1.second.m_dFrequency > key2.second.m_dFrequency)
 		return true;
 	return false;
 }
-
+/*
+ * @description：
+ *  扫描数据库一遍来提取特征词
+ */
 void GetTopic::GetEveryWordInCurrentHourByWordProperty() {
-	std::list<OneWeibo> resultword;
-	std::list<OneWeibo>::iterator or_it;
-	int count=0;
-	int num=0;
-	while(true){
-		if(!this->dboper->ChangeToNextTable(count))break;
-#ifdef COUNT
-		if (count > 10000)
-			break;
-#endif
-		this->dboper->ChangeOneTableCount(count);
+  std::list<OneWeibo> resultword;
+  std::list<OneWeibo>::iterator or_it;
 
-		resultword.clear();
-		this->dboper->GetMidandText(count,this->dboper->OneTimeReadWeiboNum,resultword);;
-		or_it=resultword.begin();
-		for(;or_it!=resultword.end();++or_it){
-			num++;
-			std::list<Word>::iterator it= or_it->words.begin();
-			for(;it!=or_it->words.end();++it){
-				this->AddKeyToMapWithProperty(this->m_topic_word, *it);
-			}
-		}
-	}
-	std::cout<<"处理数据："<<num<<"条"<<std::endl;
+  //临时统计变量
+  int count = 0;
+  int num = 0;
+
+
+  while (true) {
+    /*
+     * 这里用了dboper做数据库表之间的切换
+     */
+    if (!this->dboper->ChangeToNextTable(count))
+      break;
+#ifdef COUNT
+    if (count > 10000)
+    break;
+#endif
+    this->dboper->ChangeOneTableCount(count);
+
+    resultword.clear();
+
+    this->dboper->GetMidandText(count, this->dboper->OneTimeReadWeiboNum,resultword);
+
+    or_it = resultword.begin();
+    for (; or_it != resultword.end(); ++or_it) {
+      num++;
+      std::list<Word>::iterator it = or_it->words.begin();
+      for (; it != or_it->words.end(); ++it) {
+        this->AddKeyToMapWithProperty(this->m_topic_word, *it);
+      }
+    }
+  }
+
+
+  std::cout << "处理数据：" << num << "条" << std::endl;
 }
-void GetTopic::AddKeyToMapWithProperty(map<string, TopicWord>&filterMap,
-		Word &word) {
+
+
+
+
+/* @description：
+ *  对每一个单词做判断，只保留v（动词）、vn（动名词）、ns（地名）、n（名词）、un（名词）
+ * @input
+ *  word：               保持词的词性和词本身
+ *  filterMap：存放特征词的map引用
+ */
+void GetTopic::AddKeyToMapWithProperty(map<std::string, TopicWord> &filterMap, Word &word) {
 	std::string key = word.word;
 	map<string, TopicWord>::iterator it;
+
 	if (word.word.size() >= 4 && (word.proper.compare("v") == 0
 			|| word.proper.compare("vn") == 0 || word.proper.compare("n") == 0
-			|| word.proper.compare("un") == 0)) {//只要名词，地点词
+			|| word.proper.compare("un") == 0)) {
+
 		it = filterMap.find(key);
 		if (it == filterMap.end()) {
 			TopicWord topicword(key, 1.0);
 			filterMap.insert(make_pair(key, topicword));
-			//这里有个很重要的结论：23000之后，词的个数基本不增长
-//			std::cout<<"map size:"<<this->m_topic_word.size()<<std::endl;
 		} else {
 			it->second.SetFrequency(it->second.GetFrequency() + 1);
-//			std::cout<<"insert2222"<<std::endl;
 		}
 	}
+
+	//当存放特征词的map size超过某个阈值（100000）时删除里面出次数少于10的词
 	if (filterMap.size() > TOPICMAPTHROD) {
 		this->DeleteElementsBelowThrod(filterMap);
 		std::cout<<"delete the key that below 10...."<<std::endl;
 	}
 }
 
-void GetTopic::DeleteElementsBelowThrod(map<string, TopicWord>&filterMap) {
+
+/*
+ * @description：
+ *  删除map的函数
+ */
+void GetTopic::DeleteElementsBelowThrod(map<std::string, TopicWord> &filterMap) {
 	map<string, TopicWord>::iterator map_it = filterMap.begin();
 
 	for (; map_it != filterMap.end(); ++map_it) {
@@ -80,6 +112,7 @@ void GetTopic::DeleteElementsBelowThrod(map<string, TopicWord>&filterMap) {
 			filterMap.erase(map_it);
 		}
 	}
+
 }
 
 void GetTopic::GenTopicWordByFrequency() {
@@ -87,22 +120,24 @@ void GetTopic::GenTopicWordByFrequency() {
 	time_t start;
 	start = time(NULL);
 #endif
+
+
 	this->GetEveryWordInCurrentHourByWordProperty();
+
+
 #ifdef TIME
 	time_t ends;
 	ends = time(NULL);
 	std::cout << "获取特征词用时：" << difftime(ends, start) << std::endl;
 #endif
-//	this->CalWordIDF();
-//#ifdef DEBUG2
-//	printMaps(this->m_topic_word);
-//#endif
+
+
 	this->TopicWordSort();
 }
 
 
-/*
- * 直接根据成员函数进行排序
+/*@description：
+ * 对提取出来的特征词进行词频排序
  */
 void GetTopic::TopicWordSort() {
 
@@ -110,18 +145,21 @@ void GetTopic::TopicWordSort() {
 	vector<PAIR> sort_vec;
 	for (mapIt = this->m_topic_word.begin(); mapIt != this->m_topic_word.end(); ++mapIt) {
 		sort_vec.push_back(make_pair(mapIt->first, mapIt->second));
-//		std::cout<<"in sort"<<std::endl;
 	}
 
 	sort(sort_vec.begin(), sort_vec.end(), SortCmp);
+
 #ifdef DEBUG2
 	printVector(sort_vec);
 #endif
-
+	//提取指定的特征词数量（10000）个
 	int topicWordNum = this->m_topic_word.size();
 	this->m_topic_word.clear();
-	if (topicWordNum > TOPIC_WORD_NUM)
-		topicWordNum = TOPIC_WORD_NUM;
+
+	if (topicWordNum > TOPIC_WORD_NUM){
+	  topicWordNum = TOPIC_WORD_NUM;
+	}
+
 	vector<PAIR>::iterator v_it = sort_vec.begin();
 	int count = 0;
 	while (v_it != sort_vec.end() && count < topicWordNum) {
