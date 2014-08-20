@@ -18,8 +18,7 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <memory>
-#include "DB/model.h"
+#include "db/model.h"
 #include "tactic.h"
 
 using std::cout;
@@ -36,7 +35,7 @@ class Preprocessor {
     // ====================  LIFECYCLE     ==================================
     Preprocessor() {}
     ~Preprocessor() {}
-    bool PerformTactic(Blog b){
+    bool PerformTactic(const Blog& b){
       if (t_zombie.IsSpam(b))
         return false;
       return true;

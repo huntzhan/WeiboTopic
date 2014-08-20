@@ -1,0 +1,15 @@
+
+# include_directories(${weibo_ad_filter_SOURCE_DIR}/lib)
+set(CONNECTION_POOL_SRC connection_pool.h connection_pool.cpp)
+set(DB_POOL_SRC DBpool.h DBpool.cpp) 
+set(DB_OPERATION_SRC DBoperation.h DBoperation.cpp) 
+set(MODEL_SRC model.cpp) 
+add_library(connection_pool ${CONNECTION_POOL_SRC})
+add_library(db_pool ${DB_POOL_SRC})
+add_library(db_operation ${DB_OPERATION_SRC})
+add_library(model ${MODEL_SRC})
+target_link_libraries(connection_pool -lmysqlcppconn) 
+target_link_libraries(db_pool -lmysqlcppconn)
+target_link_libraries(db_operation -lmysqlclient)
+
+# target_link_libraries(db_pool -lmysqlclient -lmysqlcppconn -lpthread /usr/local/lib/libboost_regex.a) 

@@ -8,9 +8,9 @@
 #include "gtest/gtest.h"
 #include <string>
 #include <list>
-#include "DB/connection_pool.h"
-#include "DB/DBoperation.h"
-#include "DB/DBpool.h"
+#include "db/connection_pool.h"
+#include "db/DBoperation.h"
+#include "db/DBpool.h"
 
 // Step 2. Use the TEST macro to define your tests.
 // Google Test guarantees that each test you define is run exactly
@@ -36,8 +36,7 @@ TEST(TestDB, TestLocalDB) {
 }
 
 TEST(TestDB, TestCrawlerDB) {
-  DBoperation query;
-  query.DBinit(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
+  DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
 
   std::list<std::string> tables;

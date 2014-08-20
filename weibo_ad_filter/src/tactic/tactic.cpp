@@ -13,7 +13,7 @@
  *  @param
  *  @return
  */
-bool ZombieTactic::IsSpam(Blog b) {
+bool ZombieTactic::IsSpam(const Blog &b) {
   if (b.u_vierfied)
     return false;
   if (b.u_fans <= 25 || 
