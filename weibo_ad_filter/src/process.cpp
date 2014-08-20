@@ -6,23 +6,26 @@
  Description:
  History    :
  *******************************************************************************/
-#include "DB/DBoperation.h"
-#include "DB/DBpool.h"
-#include "DB/connection_pool.h"
-#include "DB/model.h"
+#include "db/DBoperation.h"
+#include "db/DBpool.h"
+#include "db/connection_pool.h"
+#include "db/model.h"
 #include "split/parser.h"
 #include "split/Textspilt.h"
-#include "preprocessor.h"
-void display(std::list<std::list<std::string> > &msg) ;
-void MakeStopSet(std::set<std::string> &stopwordsSet);
-void Spilitword(std::string tablename);
-DBoperation query;
-DBpool insert;
-Parser parser;
+#include "tactic/preprocessor.h"
+
 #define SQL_ADDR "192.168.1.108"
 #define SQL_USER "root"
 #define SQL_PWD    "123456"
 #define SQL_DATABASE "sina"
+
+void display(std::list<std::list<std::string> > &msg) ;
+void Spilitword(std::string tablename);
+
+
+Parser parser;
+DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
+DBpool insert;
 
 /**
  *  @brief Init_Main
@@ -30,15 +33,13 @@ Parser parser;
  *  @param
  *  @return
  */
-void Init_Main() {
- ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
+void InitMain() {
+  ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
      "123456", 50);
   insert.DBinit("use test", connpool);
-  query.DBinit(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
   TextSpilt::init_ICTCAL();
 }
-
 
 /**
  *  @brief FilterTables return the tables to be processed
@@ -55,7 +56,6 @@ void Init_Main() {
   insert.GetTables(inserttables);
 
   /// remove the duplicated tables
-
   std::list<std::string>::iterator it_table = tables.begin();
   std::list<std::string>::iterator end_table = tables.end();
   for ( ; it_table != end_table; it_table++) {
@@ -72,7 +72,7 @@ void Init_Main() {
 
 
 int main() {
-  Init_Main();
+  InitMain();
   cout<<"Program Initialized"<<endl;
 
   std::set<std::string> tables;
@@ -82,10 +82,10 @@ int main() {
   std::set<std::string>::iterator it_end = tables.end();
 
 
-  Preprocessor pre;
+
 
   query.SetTableName(*it_beg);
-
+  Preprocessor pre;
   const int ROW_EACH_TIME = 1000;
   int number_all_rows =1000;
   int number_left_rows = number_all_rows;
@@ -100,10 +100,9 @@ int main() {
         ib != ie;
         ib++){
       bool is_good_blog = pre.PerformTactic(*ib);
-      if(is_good_blog){
-
+      if(! is_good_blog){
+        PrintBlog(*ib);
       }
-        ///PrintBlog(*ib);
     }
 
   }

@@ -11,7 +11,7 @@
 using std::cout;
 using std::endl;
 
-void PrintBlog(Blog b) {
+void PrintBlog(const Blog &b) {
   cout<<"User: "
     <<b.u_uid
     <<" "<<b.sex

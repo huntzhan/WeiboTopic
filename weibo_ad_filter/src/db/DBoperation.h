@@ -30,15 +30,10 @@ private:
 public:
   MYSQL my_connection;
 
-  void DBinit(std::string mysql_addr, std::string mysql_usr,
-      std::string mysql_pwd, std::string mysql_database) {
-    this->mysql_addr = mysql_addr;
-    this->mysql_usr = mysql_usr;
-    this->mysql_pwd = mysql_pwd;
-    this->mysql_database = mysql_database;
-
-  }
-
+  DBoperation(std::string mysql_addr, 
+              std::string mysql_usr,
+              std::string mysql_pwd, 
+              std::string mysql_database);
   void DBConnect();
   bool DB_insertData(INSERT_DATA &insert_data);
   void SetTableName(const std::string table_name);

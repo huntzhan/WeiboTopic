@@ -16,7 +16,7 @@
 //static 变量
 std::vector<std::set<std::string> > TopicTcatic::badTopic;
 std::set<std::string> UserTactic::baduser;
-bool ZombieTactic::IsSpam(Blog b) {
+bool ZombieTactic::IsSpam(const Blog &b) {
   if (b.u_vierfied)
     return false;
   if (b.u_fans <= 25 || 
@@ -53,6 +53,7 @@ void TopicTcatic::GetBadTopic(std::vector<std::set<std::string> > &input){
 		  if(pos<size){
 			 std::string s=result.substr(i,pos-i);
 			 set.insert(s);
+			 std::cout<<s<<std::endl;
 			 i=pos;
 		  }
 	  }
@@ -71,7 +72,7 @@ TopicTcatic::TopicTcatic(){
  *  @param
  *  @return
  */
-bool TopicTcatic::IsSpam(Blog b) {
+bool TopicTcatic::IsSpam(const Blog &b) {
   std::vector<std::string> goodword;
   Parser parser;
   ///分词 把微博内容分词
@@ -123,7 +124,7 @@ UserTactic::UserTactic(){
 }
 
 
-bool UserTactic::IsSpam(Blog b){
+bool UserTactic::IsSpam(const Blog &b){
   if(baduser.count(b.u_uid))
 	  return true;
   return false;

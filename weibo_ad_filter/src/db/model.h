@@ -36,7 +36,7 @@ typedef struct _BLOG {
   long u_vierfied;
 } Blog;
 
-void PrintBlog(Blog b);
+void PrintBlog(const Blog &b);
 #endif
 
 // #ifndef model_INC
