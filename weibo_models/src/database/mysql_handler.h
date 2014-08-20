@@ -9,7 +9,7 @@
 //       Revision:  none
 //       Compiler:  g++
 //
-//         Author:  Zhan Haoxun (zhx), programmer.zhx@gmail.com
+//         Author:  Zhan Haoxun (huntzhan), programmer.zhx@gmail.com
 //   Organization:  
 //
 // ============================================================================
@@ -27,6 +27,16 @@ namespace mysql_handler {
 
 using SharedConn = std::shared_ptr<sql::Connection>;
 
+// @brief: class to target table.
+class DatabaseLocation {
+ public:
+  std::string url_;
+  std::string username_;
+  std::string password_;
+  std::string database_;
+};
+
+
 // @brief: Setting up connection to database. Pointer to Connection object
 // would be returned as a shared_ptr, hence you should not manually free such
 // pointer.
@@ -38,28 +48,20 @@ class BasicConnectionSetup {
   static sql::Driver *driver_;
 };
 
+
 // @brief: Connect to a specific database.
 class SimpleConnectionSetup : public BasicConnectionSetup {
  public:
-  // use default values.
-  SimpleConnectionSetup() = default;
   // constructor that use (url, username, password, database) to target db.
-  SimpleConnectionSetup(
-      std::string url,
-      std::string username,
-      std::string password,
-      std::string database);
-
-  // interface.
+  SimpleConnectionSetup(const DatabaseLocation &tl)
+      : db_location_(tl) {/* empty */};
+  // implemented interface.
   SharedConn RetrieveConnection() const override;
 
  private:
-  // default values of (url, username, password, database).
-  const std::string url_ = "tcp://127.0.0.1:3306";
-  const std::string username_ = "root";
-  const std::string password_ = "123456";
-  const std::string database_ = "test";
+  const DatabaseLocation &db_location_;
 };
+
 
 // @brief: Use BasicConnectionSetup and its derived class to open connection.
 // Then use such connection to carried out operations.
@@ -73,9 +75,15 @@ class BasicOperator {
   mutable SharedConn current_conn_ = nullptr;
 };
 
+
 class SimpleOperator : public BasicOperator {
  public:
+  SimpleOperator(const std::string &db_name);
   SharedConn set_current_conn() const override;
+
+ private:
+  // default values of (url, username, password, database).
+  DatabaseLocation db_location_;
 };
 
 }  // namespace mysql_handler

@@ -29,31 +29,25 @@ using sql::Driver;
 
 namespace mysql_handler {
 
-using SharedConn = std::shared_ptr<sql::Connection>;
-
 // BasicConnectionSetup.
 // shared driver.
 Driver *BasicConnectionSetup::driver_ =
   sql::mysql::get_mysql_driver_instance();
 // end BasicConnectionSetup.
 
-// SimpleConnectionSetup.
-SimpleConnectionSetup::SimpleConnectionSetup(
-    string url,
-    string username,
-    string password,
-    string database)
-    : url_(url),
-      username_(username), password_(password),
-      database_(database) {/* empty */}
 
+// SimpleConnectionSetup.
 SharedConn SimpleConnectionSetup::RetrieveConnection() const {
   // let it crash.
-  auto *con = driver_->connect(url_, username_, password_);
-  con->setSchema(database_);
+  auto *con = driver_->connect(
+      db_location_.url_,
+      db_location_.username_,
+      db_location_.password_);
+  con->setSchema(db_location_.database_);
   return SharedConn(con);
 }
 // end SimpleConnectionSetup.
+
 
 // BasicOperator.
 void BasicOperator::Init() const {
@@ -62,9 +56,18 @@ void BasicOperator::Init() const {
 }
 // end BasicOperator.
 
+
 // SimpleOperator.
+SimpleOperator::SimpleOperator(const string &db_name) {
+  db_location_.url_ = "tcp://127.0.0.1:3306";
+  db_location_.username_ = "root";
+  db_location_.password_ = "123456";
+  db_location_.database_ = db_name;
+}
+
+
 SharedConn SimpleOperator::set_current_conn() const {
-  SimpleConnectionSetup conn_setup;
+  SimpleConnectionSetup conn_setup(db_location_);
   return conn_setup.RetrieveConnection();
 }
 // end SimpleOperator.
