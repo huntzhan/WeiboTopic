@@ -24,6 +24,16 @@ TEST(test_mysql_connector, test_conn_setup) {
   EXPECT_NE(nullptr, conn.get());
 }
 
+TEST(test_mysql_connector, test_conn_setup_with_arguments) {
+  mysql_handler::SimpleConnectionSetup conn_setup(
+    "tcp://127.0.0.1:3306",
+    "root",
+    "123456",
+    "testcase");
+  auto conn = conn_setup.RetrieveConnection();
+  EXPECT_NE(nullptr, conn.get());
+}
+
 TEST(test_mysql_connector, test_operator) {
   mysql_handler::SimpleOperator op;
   op.Init();

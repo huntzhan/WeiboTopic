@@ -31,31 +31,42 @@ namespace mysql_handler {
 
 using SharedConn = std::shared_ptr<sql::Connection>;
 
+// BasicConnectionSetup.
 // shared driver.
 Driver *BasicConnectionSetup::driver_ =
   sql::mysql::get_mysql_driver_instance();
+// end BasicConnectionSetup.
 
-// just connect to a database.
+// SimpleConnectionSetup.
+SimpleConnectionSetup::SimpleConnectionSetup(
+    string url,
+    string username,
+    string password,
+    string database)
+    : url_(url),
+      username_(username), password_(password),
+      database_(database) {/* empty */}
+
 SharedConn SimpleConnectionSetup::RetrieveConnection() const {
-  const string url = "tcp://127.0.0.1:3306";
-  const string username = "root";
-  const string password = "123456";
-  const string database = "test";
-
   // let it crash.
-  auto *con = driver_->connect(url, username, password);
-  con->setSchema(database);
+  auto *con = driver_->connect(url_, username_, password_);
+  con->setSchema(database_);
   return SharedConn(con);
 }
+// end SimpleConnectionSetup.
 
+// BasicOperator.
 void BasicOperator::Init() const {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
 }
+// end BasicOperator.
 
+// SimpleOperator.
 SharedConn SimpleOperator::set_current_conn() const {
   SimpleConnectionSetup conn_setup;
   return conn_setup.RetrieveConnection();
 }
+// end SimpleOperator.
 
 }  // namespace mysql_handler

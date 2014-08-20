@@ -14,6 +14,7 @@
 //
 // ============================================================================
 
+#include <string>
 #include <memory>
 
 #include "mysql_driver.h"
@@ -27,7 +28,7 @@ namespace mysql_handler {
 using SharedConn = std::shared_ptr<sql::Connection>;
 
 // @brief: Setting up connection to database. Pointer to Connection object
-// would be return as a shared_ptr, hance you should not manually free such
+// would be returned as a shared_ptr, hence you should not manually free such
 // pointer.
 class BasicConnectionSetup {
  public:
@@ -40,7 +41,24 @@ class BasicConnectionSetup {
 // @brief: Connect to a specific database.
 class SimpleConnectionSetup : public BasicConnectionSetup {
  public:
+  // use default values.
+  SimpleConnectionSetup() = default;
+  // constructor that use (url, username, password, database) to target db.
+  SimpleConnectionSetup(
+      std::string url,
+      std::string username,
+      std::string password,
+      std::string database);
+
+  // interface.
   SharedConn RetrieveConnection() const override;
+
+ private:
+  // default values of (url, username, password, database).
+  const std::string url_ = "tcp://127.0.0.1:3306";
+  const std::string username_ = "root";
+  const std::string password_ = "123456";
+  const std::string database_ = "test";
 };
 
 // @brief: Use BasicConnectionSetup and its derived class to open connection.
