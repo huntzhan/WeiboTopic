@@ -77,25 +77,33 @@ int main() {
 
   std::set<std::string> tables;
   FilterTables(tables);
+
   std::set<std::string>::iterator it_beg = tables.begin();
   std::set<std::string>::iterator it_end = tables.end();
 
+
   Preprocessor pre;
+
   query.SetTableName(*it_beg);
+
   const int ROW_EACH_TIME = 1000;
-  int number_all_rows = query.Getcount();
+  int number_all_rows =1000;
   int number_left_rows = number_all_rows;
+  std::cout<<"ok!!!!!!!!"<<std::endl;
   while(number_left_rows > 0){
     std::list<Blog> weibos;
     int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
+
     query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
     number_left_rows -= ROW_EACH_TIME;
     for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
         ib != ie;
         ib++){
       bool is_good_blog = pre.PerformTactic(*ib);
-      if(! is_good_blog)
-        PrintBlog(*ib);
+      if(is_good_blog){
+
+      }
+        ///PrintBlog(*ib);
     }
 
   }

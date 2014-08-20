@@ -39,12 +39,17 @@ class Preprocessor {
     bool PerformTactic(Blog b){
       if (t_zombie.IsSpam(b))
         return false;
+     if (t_topic.IsSpam(b))
+  	  return false;
+      if (t_user.IsSpam(b))
+          	  return false;
       return true;
     }
 
   private:
     ZombieTactic t_zombie;
-
+    TopicTcatic t_topic;
+    UserTactic t_user;
     // DISALLOW_COPY_AND_ASSIGN
     Preprocessor(const Preprocessor&);
     void operator=(const Preprocessor&);

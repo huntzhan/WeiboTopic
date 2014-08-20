@@ -13,8 +13,11 @@
  *
  *  @param
  */
+std::set<std::string> Parser::stopwords;
 Parser::Parser() {
-  MakeStopSet(stopwords);
+  if(stopwords.size()<1){
+     MakeStopSet(stopwords);
+  }
 }
 
 /**
@@ -49,5 +52,11 @@ void Parser::MakeStopSet(std::set<std::string> &stopwords) {
  *  @return
  */
 void Parser::LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words) {
-  TextSpilt::goodWordArticlePorperty(rawtext, stopwords, words);
+  TextSpilt::goodWordArticlePorperty(rawtext,stopwords, words);
 }
+
+
+void Parser::LexicalAnalysisWord(const std::string &rawtext, std::vector<std::string> &words) {
+  TextSpilt::goodWordArticle(rawtext,stopwords, words);
+}
+
