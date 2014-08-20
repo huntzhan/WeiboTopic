@@ -24,7 +24,7 @@ public:
   void LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words);
 
 private:
-  void MakeStopSet(std::set<std::string> stopwords);
+  void MakeStopSet(std::set<std::string> &stopwords);
 
   std::set<std::string> stopwords;
 

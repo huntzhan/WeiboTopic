@@ -31,7 +31,7 @@ Parser::~Parser() {
  *  @param
  *  @return
  */
-void Parser::MakeStopSet(std::set<std::string> stopwords) {
+void Parser::MakeStopSet(std::set<std::string> &stopwords) {
   std::ifstream ifile("stopwords.txt");
   while (!ifile.eof()) {
     std::string temp;
