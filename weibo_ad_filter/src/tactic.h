@@ -10,6 +10,7 @@
 
 #ifndef tactic_INC
 #define tactic_INC
+#include "DB/model.h"
 /**
  *  @brief Tactic Base class for different tactic performed on every single message
  */
@@ -18,7 +19,7 @@ public:
   // ====================  LIFECYCLE     ==================================
   Tactic() {}
   ~Tactic() {}
-  virtual bool IsSpam(Blog b) {}
+  virtual bool IsSpam(Blog b) = 0;
 
 private:
 
@@ -31,12 +32,12 @@ private:
 /**
  *  @brief ZombieTactic 
  */
-class ZombieTactic : Tactic {
+class ZombieTactic : public Tactic {
   public:
     // ====================  LIFECYCLE     ==================================
     ZombieTactic() {}
     ~ZombieTactic() {}
-    bool IsSpam(Blog b);
+    virtual bool IsSpam(Blog b);
 
   private:
 

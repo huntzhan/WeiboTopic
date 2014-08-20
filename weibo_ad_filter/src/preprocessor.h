@@ -19,7 +19,7 @@
 #include <list>
 #include <string>
 #include <memory>
-#include "model.h"
+#include "DB/model.h"
 #include "tactic.h"
 
 using std::cout;
@@ -28,8 +28,6 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::list;
-using std::begin;
-using std::end;
 /**
  *  @brief Preprocessor return true if the blog is useful
  */
@@ -41,6 +39,7 @@ class Preprocessor {
     bool PerformTactic(Blog b){
       if (t_zombie.IsSpam(b))
         return false;
+      return true;
     }
 
   private:

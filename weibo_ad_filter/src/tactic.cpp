@@ -20,4 +20,5 @@ bool ZombieTactic::IsSpam(Blog b) {
       b.u_followees >= 1000 || 
       b.u_bi_followers_count*1.0 / b.u_followees < 0.2)
     return true;
+  return false;
 }
