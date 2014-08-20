@@ -18,8 +18,13 @@
 
 #include "database/mysql_handler.h"
 
-TEST(test_mysql_connector, test_connect) {
-  mysql_handler::ConnectionSetup connector;
-  auto con = connector.RetrieveConnection();
-  EXPECT_NE(nullptr, con.get());
+TEST(test_mysql_connector, test_conn_setup) {
+  mysql_handler::SimpleConnectionSetup conn_setup;
+  auto conn = conn_setup.RetrieveConnection();
+  EXPECT_NE(nullptr, conn.get());
+}
+
+TEST(test_mysql_connector, test_operator) {
+  mysql_handler::SimpleOperator op;
+  op.Init();
 }

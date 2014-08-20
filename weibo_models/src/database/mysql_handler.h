@@ -24,12 +24,40 @@
 #define _DATABASE_MYSQL_HANDLER_H_
 namespace mysql_handler {
 
-class ConnectionSetup {
+using SharedConn = std::shared_ptr<sql::Connection>;
+
+// @brief: Setting up connection to database. Pointer to Connection object
+// would be return as a shared_ptr, hance you should not manually free such
+// pointer.
+class BasicConnectionSetup {
  public:
-  std::shared_ptr<sql::Connection> RetrieveConnection();
+  // @return: shared pointer to sql::Connection object configured by
+  // (url, username, password, database). 
+  virtual SharedConn RetrieveConnection() const = 0;
+  static sql::Driver *driver_;
+};
+
+// @brief: Connect to a specific database.
+class SimpleConnectionSetup : public BasicConnectionSetup {
+ public:
+  SharedConn RetrieveConnection() const override;
+};
+
+// @brief: Use BasicConnectionSetup and its derived class to open connection.
+// Then use such connection to carried out operations.
+class BasicOperator {
+ public:
+  // @brief: setup connection.
+  virtual void Init() const final;  // forbids override.
+  virtual SharedConn set_current_conn() const = 0;
 
  private:
-  static sql::Driver *driver_;
+  mutable SharedConn current_conn_ = nullptr;
+};
+
+class SimpleOperator : public BasicOperator {
+ public:
+  SharedConn set_current_conn() const override;
 };
 
 }  // namespace mysql_handler
