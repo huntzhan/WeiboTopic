@@ -9,8 +9,10 @@
 #include "DB/DBoperation.h"
 #include "DB/DBpool.h"
 #include "DB/connection_pool.h"
+#include "DB/model.h"
 #include "split/parser.h"
 #include "split/Textspilt.h"
+#include "preprocessor.h"
 void display(std::list<std::list<std::string> > &msg) ;
 void MakeStopSet(std::set<std::string> &stopwordsSet);
 void Spilitword(std::string tablename);
@@ -34,7 +36,7 @@ void Init_Main() {
   insert.DBinit("use test", connpool);
   query.DBinit(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
-//  TextSpilt::init_ICTCAL();
+  TextSpilt::init_ICTCAL();
 }
 
 
@@ -78,21 +80,25 @@ int main() {
   std::set<std::string>::iterator it_beg = tables.begin();
   std::set<std::string>::iterator it_end = tables.end();
 
-
-  std::list<Blog> weibos;
-  std::list<std::list<std::string> > result;
+  Preprocessor pre;
   query.SetTableName(*it_beg);
-  ///先测试一个表先和测试10条  query。getcount获得表的行数
-  query.GetWeiBos(0,10,weibos);
-  TextSpilt::init_ICTCAL();
-  Parser parser;
-  std::string rawtext("你好吗，我是蒙面超人迪加");
-  std::vector<Word> words;
-  parser.LexicalAnalysis(rawtext, words);
-  if(words.size()){
-	std::cout<<"sucesee the program"<<std::endl;
-  }
+  const int ROW_EACH_TIME = 1000;
+  int number_all_rows = query.Getcount();
+  int number_left_rows = number_all_rows;
+  while(number_left_rows > 0){
+    std::list<Blog> weibos;
+    int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
+    query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
+    number_left_rows -= ROW_EACH_TIME;
+    for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
+        ib != ie;
+        ib++){
+      bool is_good_blog = pre.PerformTactic(*ib);
+      if(! is_good_blog)
+        PrintBlog(*ib);
+    }
 
+  }
 
 //  for (; it_beg != it_end; it_beg++) {
 //	  std::cout<<*it_beg<<std::endl;
