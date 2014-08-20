@@ -16,7 +16,12 @@
 
 #include "gtest/gtest.h"
 
+#include <iostream>
+
 #include "database/mysql_handler.h"
+
+using std::cout;
+using std::endl;
 
 TEST(test_mysql_connector, test_conn_setup_with_arguments) {
   // set db.
@@ -35,4 +40,12 @@ TEST(test_mysql_connector, test_conn_setup_with_arguments) {
 TEST(test_mysql_connector, test_operator) {
   mysql_handler::SimpleOperator op("testcase");
   op.Init();
+}
+
+TEST(test_mysql_connector, test_topic_operator) {
+  mysql_handler::TopicOperator op;
+  op.Init();
+
+  auto results = op.topic_for_test();
+  EXPECT_GT(results.size(), 10);
 }

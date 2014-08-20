@@ -21,10 +21,19 @@
 #include <utility>
 
 #include "mysql_driver.h"
-#include "cppconn/driver.h"
-#include "cppconn/connection.h"
+
+#include <cppconn/driver.h>
+#include <cppconn/exception.h>
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 using std::string;
+using std::vector;
 using sql::Driver;
 
 namespace mysql_handler {
@@ -54,6 +63,10 @@ void BasicOperator::Init() const {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
 }
+
+SharedConn BasicOperator::current_conn() const {
+  return current_conn_;
+}
 // end BasicOperator.
 
 
@@ -71,5 +84,23 @@ SharedConn SimpleOperator::set_current_conn() const {
   return conn_setup.RetrieveConnection();
 }
 // end SimpleOperator.
+
+// TopicOperator
+vector<string> TopicOperator::topic_for_test() {
+
+  auto conn = current_conn();
+  auto stmt = conn->createStatement();
+  auto res = stmt->executeQuery(
+      "SELECT topicid, topicwords\n"
+      "FROM OneDayTopic");
+  // fetch result.
+  vector<string> results;
+  while (res->next()) {
+    results.push_back(
+        res->getString("topicwords"));
+  }
+  return results;
+}
+// end TopicOperator
 
 }  // namespace mysql_handler

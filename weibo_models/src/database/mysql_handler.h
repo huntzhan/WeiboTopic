@@ -16,6 +16,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "mysql_driver.h"
 #include "cppconn/driver.h"
@@ -69,6 +70,7 @@ class BasicOperator {
  public:
   // @brief: setup connection.
   virtual void Init() const final;  // forbids override.
+  virtual SharedConn current_conn() const final;
   virtual SharedConn set_current_conn() const = 0;
 
  private:
@@ -84,6 +86,13 @@ class SimpleOperator : public BasicOperator {
  private:
   // default values of (url, username, password, database).
   DatabaseLocation db_location_;
+};
+
+
+class TopicOperator : public SimpleOperator {
+ public:
+  TopicOperator() : SimpleOperator("test") {/* empty */}
+  std::vector<std::string> topic_for_test();
 };
 
 }  // namespace mysql_handler
