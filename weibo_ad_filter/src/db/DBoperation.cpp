@@ -113,6 +113,7 @@ void DBoperation::CreateTable(){
 void DBoperation::SetTableName(const std::string table_name){
   this->table_name=table_name;
   this->table_user_name=table_name;
+
   this->table_user_name.replace(0,9,"WeiboUser");
   this->table_user_to_blog=table_name;
   this->table_user_to_blog.replace(0,9,"UserToBlog");

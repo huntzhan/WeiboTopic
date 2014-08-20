@@ -43,7 +43,7 @@ public:
   Connection*GetConnection(); //获得数据库连接
   void ReleaseConnection(Connection *conn); //将数据库连接放回到连接池的容器中
   static ConnPool*GetInstance(string url, string userName, string password, int maxSize) ;
-  static ConnPool*GetInstance() ;
+  static ConnPool*GetInstance();
 };
 
 
