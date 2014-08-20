@@ -9,18 +9,17 @@
 //       Revision:  none
 //       Compiler:  g++
 //
-//         Author:  Zhan Haoxun (zhx), programmer.zhx@gmail.com
+//         Author:  Zhan Haoxun (huntzhan), programmer.zhx@gmail.com
 //   Organization:  
 //
 // ============================================================================
 
 #include "gtest/gtest.h"
 
-#include "mysql_driver.h"
-
+#include "database/mysql_handler.h"
 
 TEST(test_mysql_connector, test_connect) {
-  auto driver = sql::mysql::get_mysql_driver_instance();
-  auto con = driver->connect("tcp://127.0.0.1:3306", "root", "123456");
-  delete con;
+  mysql_handler::ConnectionSetup connector;
+  auto con = connector.RetrieveConnection();
+  EXPECT_NE(nullptr, con.get());
 }

@@ -26,6 +26,7 @@ include_directories(src)
 
 # Normal build process should be place here.
 add_subdirectory(src/example)  # utility should be built before everything else.
+add_subdirectory(src/database)
 
 
 ################
