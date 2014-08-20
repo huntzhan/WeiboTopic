@@ -49,9 +49,10 @@ endfunction()
 ##############
 # Options related to test cases.
 # option(test_example "an example." ON)
-option(test_db "db example." ON)
+option(test_allow "enable test." ON)
 
-if(test_example)
+if(test_allow)
   # add_subdirectory(test/test_example)
   add_subdirectory(test/test_db)
-endif(test_example)
+  add_subdirectory(test/test_parser)
+endif(test_allow)

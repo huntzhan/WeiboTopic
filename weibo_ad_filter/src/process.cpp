@@ -71,6 +71,7 @@ void Init_Main() {
 
 int main() {
   Init_Main();
+  cout<<"Program Initialized"<<endl;
 
   std::set<std::string> tables;
   FilterTables(tables);
