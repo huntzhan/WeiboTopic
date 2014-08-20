@@ -84,8 +84,14 @@ int main() {
   query.SetTableName(*it_beg);
   ///先测试一个表先和测试10条  query。getcount获得表的行数
   query.GetWeiBos(0,10,weibos);
-
-
+  TextSpilt::init_ICTCAL();
+  Parser parser;
+  std::string rawtext("你好吗，我是蒙面超人迪加");
+  std::vector<Word> words;
+  parser.LexicalAnalysis(rawtext, words);
+  if(words.size()){
+	std::cout<<"sucesee the program"<<std::endl;
+  }
 
 
 //  for (; it_beg != it_end; it_beg++) {
