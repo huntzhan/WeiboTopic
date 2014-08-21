@@ -9,17 +9,21 @@
 
 #ifndef ISPOLITIC_H_
 #define ISPOLITIC_H_
+#include"DBoperation.h"
 #include<iostream>
 #include<string>
 class IsPolitics{
   //最终生成的话题列表
 	std::vector<Topic> *clusterList;
 	std::vector<Topic*> politic_cluster_list;
-	DBdao *dbdao;
+	DBoperation  *dboper;
 public:
-	IsPolitics(DBdao *dbdao,std::vector<Topic> *clusterList);
-	void IsOneTopicPolitic(Topic & onetopic);
+	IsPolitics(DBoperation  *dboper,std::vector<Topic> *clusterList);
+	void IsOneTopicPolitic(Topic &onetopic);
 	void IsAllTopicPolitic();
+	void GetkeyMap();
+	void GetWordMap();
+	double Process();
 };
 
 #endif /* ISPOLITIC_H_ */

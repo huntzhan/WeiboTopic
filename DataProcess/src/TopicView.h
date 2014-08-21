@@ -13,35 +13,44 @@
 
 #ifndef POINT_H_
 #define POINT_H_
+#include"DBoperation.h"
 #include"View.h"
-#include"DBdao.h"
 #include"Topic.h"
-#include"CooccurrenceWord.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 #include<iostream>
 #include<map>
 #include<string>
 typedef pair<std::string,double> PAIRS;
-bool SubTopicSort(const PAIRS & key1,const PAIRS & key2);
+bool SubTopicSort(const PAIRS &key1,const PAIRS &key2);
 class TopicView{
+  //提取的单位词的个数
 	int NUM_OF_SUB_WORD;
-	int BELONG_TOPIC_THROD;
-	std::vector<Topic> *clusterList;//最终生成的话题列表
-	std::map<std::string,CooccurrenceWord> *co_ccur_matrix;
-	DBdao *dbdao;
+
+
+	//最终生成的话题列表
+	std::vector<Topic> *clusterList;
+	DBoperation *dboper;
+
 public:
-	void InitTopicView(int NUM_OF_SUB_WORD,int BELONG_TOPIC_THROD){
+	//字符串分割的长度
+	int splitLen;
+
+	void InitTopicView(DBoperation *dboper,std::vector<Topic> *clusterList,
+	  int NUM_OF_SUB_WORD,int splitLen){
+
+	  this->clusterList=clusterList;
+	  this->dboper=dboper;
 		this->NUM_OF_SUB_WORD=NUM_OF_SUB_WORD;
-		this->BELONG_TOPIC_THROD=BELONG_TOPIC_THROD;
+		this -> splitLen=splitLen;
 	}
-	TopicView(DBdao *dbdao,std::vector<Topic> *clusterList,
-				std::map<std::string,CooccurrenceWord> *co_ccur_matrix){
-		this->clusterList=clusterList;
-		this->co_ccur_matrix=co_ccur_matrix;
-		this->dbdao=dbdao;
-	}
+
+
 	void GenOneTopicView(Topic & onetopic);
 
 	void SortSubTopicMap(Topic &onetopic);
 	void GenAllTopicView();
+	void SelectMainIdeaWithTopicWord(Topic &onetopic);
+	std::vector<std::string> SplitWeiboSplit(std::string &str);
 };
 #endif /* POINT_H_ */

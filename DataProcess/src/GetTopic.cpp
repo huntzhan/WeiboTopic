@@ -43,7 +43,7 @@ void GetTopic::GetEveryWordInCurrentHourByWordProperty() {
     if (!this->dboper->ChangeToNextTable(count))
       break;
 #ifdef COUNT
-    if (count > 10000)
+    if (count > 2000)
     break;
 #endif
     this->dboper->ChangeOneTableCount(count);

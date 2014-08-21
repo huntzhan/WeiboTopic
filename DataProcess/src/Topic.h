@@ -50,6 +50,9 @@ public:
 	//获取到的话题微博
 	std::list<Weibo> topic_weibo;
 	int topic_message_num;
+	std::list<Weibo>  *GetTopicWeibo(){
+	  return &this->topic_weibo;
+	}
 	std::list<subword>* GetSubWordList() {
 		return &this->sub_word_list;
 	}

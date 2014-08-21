@@ -53,6 +53,9 @@ public:
 	void InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytablename);
 
 	void InsertData(Topic &onetopic, int flag);
+	std::vector<std::string> stringSplitToVector(std::string  &str,int splitLen);
+
+	std::vector<std::string> BoostMatchWord(std::string str);
 	~DBoperation();
 };
 
