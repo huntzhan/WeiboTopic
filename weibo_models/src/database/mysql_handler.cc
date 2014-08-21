@@ -58,20 +58,20 @@ SharedConn SimpleConnectionSetup::RetrieveConnection() const {
 // end SimpleConnectionSetup.
 
 
-// BasicOperator.
-void BasicOperator::Init() const {
+// BasicHandler.
+void BasicHandler::Init() const {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
 }
 
-SharedConn BasicOperator::current_conn() const {
+SharedConn BasicHandler::current_conn() const {
   return current_conn_;
 }
-// end BasicOperator.
+// end BasicHandler.
 
 
-// SimpleOperator.
-SimpleOperator::SimpleOperator(const std::string &db_name,
+// SimpleHandler.
+SimpleHandler::SimpleHandler(const std::string &db_name,
                                const std::string &table_name)
     : table_name_(table_name) {
   db_location_.url_ = "tcp://127.0.0.1:3306";
@@ -81,14 +81,14 @@ SimpleOperator::SimpleOperator(const std::string &db_name,
 }
 
 
-SharedConn SimpleOperator::set_current_conn() const {
+SharedConn SimpleHandler::set_current_conn() const {
   SimpleConnectionSetup conn_setup(db_location_);
   return conn_setup.RetrieveConnection();
 }
-// end SimpleOperator.
+// end SimpleHandler.
 
-// TopicOperator
-vector<string> TopicOperator::topic_for_test() {
+// TopicHandler
+vector<string> TopicHandler::topic_for_test() {
 
   auto conn = current_conn();
   auto stmt = conn->createStatement();
@@ -103,6 +103,6 @@ vector<string> TopicOperator::topic_for_test() {
   }
   return results;
 }
-// end TopicOperator
+// end TopicHandler
 
 }  // namespace mysql_handler
