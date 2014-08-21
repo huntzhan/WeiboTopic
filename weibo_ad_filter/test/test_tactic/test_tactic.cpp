@@ -28,16 +28,20 @@ public:
 
 TEST(TestTactic, TestZombieTactic) {
   Preprocessor pre;
+  cout<<"#####"<<"Pre initialized"<<endl;
   Logger log("zombietactic.log");
+  cout<<"#####"<<"Logger initialized"<<endl;
 
   while(log.HasNextBlog()){
     // test each blog
     Blog b = log.NextBlog();
     bool is_good_blog = pre.PerformTactic(b);
     if(! is_good_blog){
-      // log.AddRemovedBlog(b)
-      PrintBlog(b);
+      log.AddRemovedBlog(b);
+      // PrintBlog(b);
     }
   }
+
+  log.ProduceFinalReport();
 }
 

@@ -36,7 +36,17 @@ std::vector<std::string> split2(std::string str){
 	result.push_back(table);
 	return result;
 }
-
+std::string Gentime(){
+  time_t t;
+  t = time(0);
+  char now[64];
+  struct tm *ttime;
+  //将获得的时间进行各种转换的结构体
+  ttime = localtime(&t);
+  strftime(now, 64, "%Y%m%d", ttime);
+  string strtime(now);
+  return strtime;
+}
 /*
  * @description：
  *  对话题排序
@@ -84,7 +94,7 @@ void Cluster::CalWordsCoccurrence() {
 		if (!this->dboper->ChangeToNextTable(count))
 			break;
 #ifdef COUNT
-		if (count > 10000)
+		if (count > 2000)
 			break;
 #endif
 		this->dboper->ChangeOneTableCount(count);
@@ -313,7 +323,7 @@ void Cluster::MatchWeiboIDToTopic(){
 		if (!this->dboper->ChangeToNextTable(count))
 			break;
 #ifdef COUNT
-		if (count > 10000)
+		if (count > 2000)
 			break;
 #endif
 		this->dboper->ChangeOneTableCount(count);
@@ -407,10 +417,14 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic) {
 
 
 void Cluster::InsterAllTopicToDatabase(){
+  TopicView tw;
+  tw.InitTopicView(this->dboper,&this->clusterList,3,4);
+
 	std::vector<Topic>::iterator it = clusterList.begin();
 	for(;it!=clusterList.end();++it){
-		if(it->topic_message_num<=10)continue;
-		this->InsertTopicToDatabase(*it);
+//	  std::cout<<"该话题下的微博有："<<it->topic_message_num<<" 条"<<std::endl;
+		if(it->topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)continue;
+		this->InsertTopicToDatabase(*it,tw);
 	}
 }
 
@@ -420,7 +434,7 @@ void Cluster::InsterAllTopicToDatabase(){
  *  再将话题下的微博查询出来，插入数据库，由于最大的话题下的微博数会超过10万，一次读入再插入数据库会占用太多内存，所以分批（达到1000）
  *  就插入一次
  */
-void Cluster::InsertTopicToDatabase(Topic &one_topic) {
+void Cluster::InsertTopicToDatabase(Topic &one_topic,TopicView &tw) {
 	std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
 	std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
 	list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
@@ -449,16 +463,22 @@ void Cluster::InsertTopicToDatabase(Topic &one_topic) {
 		//这里是最耗时的
 		this->dboper->GetOneWeiBo(table_name,mid,oneweibo);
 		one_topic.topic_weibo.push_back(oneweibo);//这里是一个话题完之后再插入
+		readnum++;
+		if(readnum==this->TOPICVIEW_WEIBO_NUM||readnum == one_topic.topic_message_num){
+		  tw.GenOneTopicView(one_topic);
+		  break;
+		  //test here
+		}
 		flagnum++;
 		if(flagnum==1000){
-		  this->dboper->InsertData(one_topic,flag);
+//		  this->dboper->InsertData(one_topic,flag);
 		  flagnum=0;
 		  std::cout<<"插入数据库一次，插入了 "<<readnum<<" 条微博"<<std::endl;
 		  flag=1;
 		  std::cout<<"size: "<<one_topic.weibo_id_list.size()<<std::endl;
 		}
 	}
-	this->dboper->InsertData(one_topic,flag);
+//	this->dboper->InsertData(one_topic,flag);
 	one_topic.topic_weibo.clear();
 	//释放内存
 	one_topic.weibo_id_list.clear();

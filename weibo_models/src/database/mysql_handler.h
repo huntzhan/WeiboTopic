@@ -66,7 +66,7 @@ class SimpleConnectionSetup : public BasicConnectionSetup {
 
 // @brief: Use BasicConnectionSetup and its derived class to open connection.
 // Then use such connection to carried out operations.
-class BasicOperator {
+class BasicHandler {
  public:
   // @brief: setup connection.
   virtual void Init() const final;  // forbids override.
@@ -78,20 +78,22 @@ class BasicOperator {
 };
 
 
-class SimpleOperator : public BasicOperator {
+class SimpleHandler : public BasicHandler {
  public:
-  SimpleOperator(const std::string &db_name);
+  SimpleHandler(const std::string &db_name, const std::string &table_name);
   SharedConn set_current_conn() const override;
 
  private:
   // default values of (url, username, password, database).
   DatabaseLocation db_location_;
+  const std::string &table_name_;
 };
 
 
-class TopicOperator : public SimpleOperator {
+class TopicHandler : public SimpleHandler {
  public:
-  TopicOperator() : SimpleOperator("test") {/* empty */}
+  TopicHandler(const std::string &db_name, const std::string &table_name)
+      : SimpleHandler(db_name, table_name) {/* empty */}
   std::vector<std::string> topic_for_test();
 };
 

@@ -37,15 +37,15 @@ TEST(test_mysql_connector, test_conn_setup_with_arguments) {
   EXPECT_NE(nullptr, conn.get());
 }
 
-TEST(test_mysql_connector, test_operator) {
-  mysql_handler::SimpleOperator op("testcase");
-  op.Init();
+TEST(test_mysql_connector, test_Handler) {
+  mysql_handler::SimpleHandler handler("test", "testcase");
+  handler.Init();
 }
 
-TEST(test_mysql_connector, test_topic_operator) {
-  mysql_handler::TopicOperator op;
-  op.Init();
+TEST(test_mysql_connector, test_topic_Handler) {
+  mysql_handler::TopicHandler handler("test", "testcase");
+  handler.Init();
 
-  auto results = op.topic_for_test();
+  auto results = handler.topic_for_test();
   EXPECT_GT(results.size(), 10);
 }
