@@ -78,15 +78,19 @@ class BasicHandler {
 };
 
 
+// @brief: Handler that operation on single table.
 class SimpleHandler : public BasicHandler {
  public:
   SimpleHandler(const std::string &db_name, const std::string &table_name);
   SharedConn set_current_conn() const override;
 
+  std::string table_name() const;
+
  private:
   // default values of (url, username, password, database).
   DatabaseLocation db_location_;
-  const std::string &table_name_;
+  // name of table being operated.
+  const std::string table_name_;
 };
 
 
