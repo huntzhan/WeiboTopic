@@ -1,6 +1,5 @@
 #include "DBoperation.h"
 
-
 DBoperation::DBoperation(std::string mysql_addr, 
             std::string mysql_usr,
             std::string mysql_pwd, 
@@ -9,6 +8,10 @@ DBoperation::DBoperation(std::string mysql_addr,
   this->mysql_usr = mysql_usr;
   this->mysql_pwd = mysql_pwd;
   this->mysql_database = mysql_database;
+}
+
+DBoperation::~DBoperation() {
+  mysql_close(&my_connection);
 }
 
 void DBoperation::DBConnect(){
@@ -22,16 +25,16 @@ void DBoperation::DBConnect(){
                          0, 
                          NULL, 
                          0)){
-      if ( mysql_set_character_set( & my_connection, "utf8") ) {
-        fprintf(stderr,"设置中文失败 %s \n",mysql_error(&my_connection));
-      }
+    if ( mysql_set_character_set( & my_connection, "utf8") ) {
+      fprintf(stderr,"设置中文失败 %s \n",mysql_error(&my_connection));
     }
-   else {
-      fprintf(stderr, "Insert_Connection failed\n");
-      if (mysql_errno(&my_connection)){
-          fprintf(stderr, "Insert_Connection error %d: %s\n", mysql_errno(&my_connection), mysql_error(&my_connection));
-      }
-   }
+  }
+  else {
+    fprintf(stderr, "Insert_Connection failed\n");
+    if (mysql_errno(&my_connection)){
+      fprintf(stderr, "Insert_Connection error %d: %s\n", mysql_errno(&my_connection), mysql_error(&my_connection));
+    }
+  }
 
 }
 
@@ -110,10 +113,11 @@ void DBoperation::CreateTable(){
 void DBoperation::SetTableName(const std::string table_name){
   this->table_name=table_name;
   this->table_user_name=table_name;
+
   this->table_user_name.replace(0,9,"WeiboUser");
   this->table_user_to_blog=table_name;
   this->table_user_to_blog.replace(0,9,"UserToBlog");
-  std::cout<< this->table_user_to_blog<<std::endl;
+  /// std::cout<< this->table_user_to_blog<<std::endl;
 }
 
 
@@ -124,7 +128,7 @@ long  DBoperation::Getcount(){
   std::list<std::list<std::string> > result;
   char sql_query[100];
   sprintf(sql_query,"select count(*) from %s ",table_name.c_str());
-  std::cout<<sql_query<<std::endl;
+  /// std::cout<<sql_query<<std::endl;
   DB_query(sql_query,result);
   long count=atol(result.front().front().c_str());
   return  count;

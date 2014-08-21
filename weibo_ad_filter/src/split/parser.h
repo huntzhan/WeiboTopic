@@ -16,21 +16,24 @@
 /**
  *  @brief Parser 
  */
+
 class Parser {
 public:
   // ====================  LIFECYCLE     ==================================
-  Parser();
+   Parser();
   ~Parser();
   void LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words);
-
+  void LexicalAnalysisWord(const std::string &rawtext, std::vector<std::string> &words);
+   std::set<std::string> m_stopwords;
 private:
   void MakeStopSet(std::set<std::string> &stopwords);
 
-  std::set<std::string> stopwords;
+
 
   // DISALLOW_COPY_AND_ASSIGN
   Parser(const Parser&);
   void operator=(const Parser&);
 };
+
 #endif
 

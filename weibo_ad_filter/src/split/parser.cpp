@@ -13,8 +13,11 @@
  *
  *  @param
  */
+
 Parser::Parser() {
-  MakeStopSet(stopwords);
+  if(m_stopwords.empty()){
+     MakeStopSet(m_stopwords);
+  }
 }
 
 /**
@@ -31,14 +34,15 @@ Parser::~Parser() {
  *  @param
  *  @return
  */
-void Parser::MakeStopSet(std::set<std::string> &stopwords) {
+void Parser::MakeStopSet(std::set<std::string> &input) {
   std::ifstream ifile("stopwords.txt");
   while (!ifile.eof()) {
     std::string temp;
     ifile >> temp;
     boost::trim(temp);
-    stopwords.insert(temp);
+    input.insert(temp);
   }
+
 }
 
 
@@ -49,5 +53,11 @@ void Parser::MakeStopSet(std::set<std::string> &stopwords) {
  *  @return
  */
 void Parser::LexicalAnalysis(const std::string &rawtext, std::vector<Word> &words) {
-  TextSpilt::goodWordArticlePorperty(rawtext, stopwords, words);
+  TextSpilt::goodWordArticlePorperty(rawtext,m_stopwords, words);
 }
+
+
+void Parser::LexicalAnalysisWord(const std::string &rawtext, std::vector<std::string> &words) {
+  TextSpilt::goodWordArticle(rawtext,m_stopwords, words);
+}
+

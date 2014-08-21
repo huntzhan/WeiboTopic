@@ -10,6 +10,10 @@
 #ifndef model_INC
 #define model_INC
 #include <string>
+#include <vector>
+#include <set>
+#include <iostream>
+#include <fstream>
 using std::string;
 
 typedef struct _BLOG {

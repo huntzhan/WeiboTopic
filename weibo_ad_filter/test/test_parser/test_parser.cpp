@@ -10,6 +10,9 @@
 #include <vector>
 #include "split/parser.h"
 #include "split/Textspilt.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 // Step 2. Use the TEST macro to define your tests.
 // Google Test guarantees that each test you define is run exactly
@@ -23,6 +26,10 @@ TEST(TestParser, TestParser) {
   std::string rawtext("你好吗，我是蒙面超人迪加");
   std::vector<Word> words;
   parser.LexicalAnalysis(rawtext, words);
+  cout<<"Words: "<<endl;
+  for(auto i: words)
+    cout<<i.word <<"("<<i.proper<<")"<<endl;
+  cout<<"############"<<endl;
   EXPECT_TRUE(words.size() > 1);
 }
 
