@@ -33,7 +33,7 @@
 // using std::endl;
 
 using std::string;
-using std::stringstream;
+using std::ostringstream;
 using std::vector;
 using sql::Driver;
 
@@ -90,8 +90,8 @@ vector<string> TopicHandler::topic_for_test() {
 
   auto conn = current_conn();
   // create sql.
-  stringstream formated_sql;
-  formated_sql << "SELECT *\n"
+  ostringstream formated_sql;
+  formated_sql << "SELECT content\n"
                << "From " << table_name();
   // make query.
   auto stmt = conn->createStatement();
@@ -100,7 +100,7 @@ vector<string> TopicHandler::topic_for_test() {
   vector<string> results;
   while (res->next()) {
     results.push_back(
-        res->getString("topicwords"));
+        res->getString("content"));
   }
   return results;
 }

@@ -6,6 +6,7 @@ project(weibo_models CXX)
 # Settings related to g++ #
 ###########################
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+add_definitions(-DLOGGER_LEVEL=LL_WARN)
 
 
 ############################
@@ -20,6 +21,13 @@ set(CPPJIEBA ${LIB_ROOT}/libcppjieba)
 include_directories(${MYSQL_CONNECT_PATH}/include)
 include_directories(${CPPJIEBA}/include)
 
+# required dataset.
+file(INSTALL ${CPPJIEBA}/dict/jieba.dict.utf8
+             ${CPPJIEBA}/dict/hmm_model.utf8
+             ${CPPJIEBA}/dict/idf.utf8
+             ${CPPJIEBA}/dict/stop_words.utf8
+     DESTINATION data/jieba)
+
 
 #################
 # Build runtime #
@@ -27,8 +35,9 @@ include_directories(${CPPJIEBA}/include)
 include_directories(src)
 
 # Normal build process should be place here.
-add_subdirectory(src/example)  # utility should be built before everything else.
+add_subdirectory(src/example)
 add_subdirectory(src/database)
+add_subdirectory(src/utils)
 
 
 ################
@@ -61,6 +70,8 @@ option(test_example "an example." ON)
 if(test_example)
   add_subdirectory(test/test_example)
 endif(test_example)
+
 add_subdirectory(test/test_mysql_conn)
+add_subdirectory(test/test_utils)
 # debug.
 # add_subdirectory(test/test_cppjieba)
