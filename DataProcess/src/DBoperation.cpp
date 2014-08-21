@@ -18,7 +18,7 @@ void DBoperation::DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIn
 	std::copy(table.begin(), table.end(), std::back_inserter(this->table));
 }
 void DBoperation::DBinit(std::string  database,ConnPool *connpool){
-	m_connpool=connpool;ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "", 50);
+	m_connpool=connpool;ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
 	con = m_connpool->GetConnection();
 	state = con->createStatement();
 	state->execute(database);
@@ -77,6 +77,7 @@ void DBoperation::GetMidandText(long startline,long length,std::list<OneWeibo> &
 		}
 		 result.push_back(originalword);
     }
+	resultsql->close();
 }
 /**
  *输入一个MID返回对应的微博
@@ -193,10 +194,8 @@ int DBoperation::GetNewserID(){
 	int res;
 	char sql_query[1024];
 	sprintf(sql_query, "select max(topicid) from OneDayTopic");
-//	std::cout<<sql_query<<std::endl;
 	try {
 		result=state->executeQuery(sql_query);
-//		std::cout<<"get max id"<<std::endl;
 		while (result->next()) {
 			res=result->getInt(1);
 
@@ -223,7 +222,6 @@ void DBoperation::InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytab
 
 			sprintf(sql_query,"insert into %s values('%s','','%s','%s','%s','','','','','')",
 					mytablename.c_str(),it->mid.c_str(),goodtext,it->spilt.c_str(),it->belongtable.c_str());
-//			std::cout<<sql_query<<std::endl;
 			state->executeUpdate(sql_query);
 		}
 		con->commit();
@@ -250,7 +248,7 @@ bool DBoperation::ChangeToNextTable(int & count){
 
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
-		if (this->tableIndex == 20){//this->table.size()-1
+		if (this->tableIndex == 2){//this->table.size()-1
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}
@@ -272,5 +270,58 @@ void DBoperation::SetTableIndexToZero(){
 	this->weibo_size=(int)this->GetTablecount();
 }
 
+
+std::wstring StringToWide(std::string &sToMatch) {
+  int iWLen = 1024;
+  wchar_t lpwsz[iWLen];
+  mbstowcs(lpwsz, sToMatch.c_str(), iWLen - 2);
+  lpwsz[iWLen - 2] = '\0';
+  std::wstring wsToMatch(lpwsz);
+  return wsToMatch;
+}
+/*
+ * 宽字符转换成窄字符
+ */
+std::string WidetoString(std::wstring &wsm) {
+  std::string sToMatch;
+  int iLen = 1024;
+  char lpsz[iLen];
+  wcstombs(lpsz, wsm.c_str(), iLen - 2); // 转换。（没有结束符）
+  lpsz[iLen - 2] = '\0';
+  sToMatch = lpsz;
+  return sToMatch;
+}
+
+std::vector<std::string> DBoperation::BoostMatchWord(std::string str){
+  std::vector<std::string>resVec;
+  boost::regex expr("[^\\s+]+");
+  boost::smatch what;
+  std::string::const_iterator start = str.begin();
+  std::string::const_iterator end = str.end();
+  while(boost::regex_search(start,end, what, expr)) {
+    resVec.push_back(what[0]);
+    start = what[0].second;
+  }
+  return resVec;
+}
+
+std::vector<std::string> DBoperation::stringSplitToVector(std::string  &str,int splitLen){
+  std::setlocale(LC_ALL, "zh_CN.UTF-8");
+  std::wstring  wstr=StringToWide(str);
+
+  std::wstring temp ;
+  std::wstring tempres;
+  std::string restemp;
+  for(int i=0;i<wstr.length();i+=splitLen){
+    temp=wstr.substr(i,splitLen);
+    tempres+=temp+L" ";
+  }
+  restemp=WidetoString(tempres);
+
+  std::vector<std::string> goodWordstemp =this->BoostMatchWord(restemp);
+//  boost::split(goodWordstemp, restemp, boost::is_any_of("   ")); //分割
+//  std::cout<<restemp<<std::endl;
+  return goodWordstemp;
+}
 
 

@@ -39,6 +39,7 @@ void TopicTcatic::GetBadTopic(std::vector<std::set<std::string> > &input){
   std::string result;
   if(!infile){
 	  std::cout<<"can not find thebadtopic.txt "<<std::endl;
+	  return ;
   }
   while(!infile.eof()){
 	  std::string::size_type pos=0;
