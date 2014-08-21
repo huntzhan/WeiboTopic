@@ -1,0 +1,4 @@
+add_executable(test_dimension_reducer test_dimension_reducer.cc)
+target_link_libraries(test_dimension_reducer dimension_reducer)
+target_link_libraries(test_dimension_reducer mysql_handler)
+add_gtest(test_dimension_reducer)

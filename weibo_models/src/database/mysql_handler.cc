@@ -19,33 +19,31 @@
 #include <string>
 #include <memory>
 #include <utility>
+#include <sstream>
 
 #include "mysql_driver.h"
 
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
+#include "cppconn/driver.h"
+#include "cppconn/exception.h"
+#include "cppconn/resultset.h"
+#include "cppconn/statement.h"
 
-#include <iostream>
-
-using std::cout;
-using std::endl;
+// #include <iostream>
+// using std::cout;
+// using std::endl;
 
 using std::string;
+using std::ostringstream;
 using std::vector;
 using sql::Driver;
 
 namespace mysql_handler {
 
-// BasicConnectionSetup.
 // shared driver.
 Driver *BasicConnectionSetup::driver_ =
   sql::mysql::get_mysql_driver_instance();
-// end BasicConnectionSetup.
 
 
-// SimpleConnectionSetup.
 SharedConn SimpleConnectionSetup::RetrieveConnection() const {
   // let it crash.
   auto *con = driver_->connect(
@@ -55,10 +53,8 @@ SharedConn SimpleConnectionSetup::RetrieveConnection() const {
   con->setSchema(db_location_.database_);
   return SharedConn(con);
 }
-// end SimpleConnectionSetup.
 
 
-// BasicHandler.
 void BasicHandler::Init() const {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
@@ -67,12 +63,10 @@ void BasicHandler::Init() const {
 SharedConn BasicHandler::current_conn() const {
   return current_conn_;
 }
-// end BasicHandler.
 
 
-// SimpleHandler.
 SimpleHandler::SimpleHandler(const std::string &db_name,
-                               const std::string &table_name)
+                             const std::string &table_name)
     : table_name_(table_name) {
   db_location_.url_ = "tcp://127.0.0.1:3306";
   db_location_.username_ = "root";
@@ -85,24 +79,30 @@ SharedConn SimpleHandler::set_current_conn() const {
   SimpleConnectionSetup conn_setup(db_location_);
   return conn_setup.RetrieveConnection();
 }
-// end SimpleHandler.
 
-// TopicHandler
+
+string SimpleHandler::table_name() const {
+  return table_name_;
+}
+
+
 vector<string> TopicHandler::topic_for_test() {
 
   auto conn = current_conn();
+  // create sql.
+  ostringstream formated_sql;
+  formated_sql << "SELECT content\n"
+               << "From " << table_name();
+  // make query.
   auto stmt = conn->createStatement();
-  auto res = stmt->executeQuery(
-      "SELECT topicid, topicwords\n"
-      "FROM OneDayTopic");
+  auto res = stmt->executeQuery(formated_sql.str());
   // fetch result.
   vector<string> results;
   while (res->next()) {
     results.push_back(
-        res->getString("topicwords"));
+        res->getString("content"));
   }
   return results;
 }
-// end TopicHandler
 
 }  // namespace mysql_handler
