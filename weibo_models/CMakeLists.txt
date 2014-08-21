@@ -14,9 +14,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
 # Globals path for CMakeLists.txt of sub-directories.
 set(LIB_ROOT ${weibo_models_SOURCE_DIR}/lib)
 set(MYSQL_CONNECT_PATH ${LIB_ROOT}/mysql-connector-c++)
+set(CPPJIEBA ${LIB_ROOT}/libcppjieba)
 
 # Added headers to search path.
 include_directories(${MYSQL_CONNECT_PATH}/include)
+include_directories(${CPPJIEBA}/include)
 
 
 #################
@@ -60,3 +62,5 @@ if(test_example)
   add_subdirectory(test/test_example)
 endif(test_example)
 add_subdirectory(test/test_mysql_conn)
+# debug.
+# add_subdirectory(test/test_cppjieba)
