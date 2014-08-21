@@ -21,6 +21,8 @@ int main() {
 	time_t startmain;
 	startmain = time(NULL);
 #endif
+	//话题下观点提取代表性的微博数
+	int TOPICVIEW_WEIBO_NUM=50;
   //生成的主题词（待聚类的词）个数
 	int TOPIC_WORD_NUM = 10000;
 
@@ -42,6 +44,8 @@ int main() {
 	//如果map中的词的个数超过某个阈值，就删除掉一些
 	int TOPICMAPTHROD = 100000;
 
+	//话题下的微博数小于这个数时该话题不存入数据库
+	int MIN_TOPIC_MESSAGE_NUM=10;
 
 	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
 	DBoperation dboper;
@@ -77,7 +81,8 @@ int main() {
 	std::map<std::string, TopicWord>* topicwordmap;
 	topicwordmap = gettopic.GetTopicWord();
 	Cluster cluster(&dboper, topicwordmap);
-	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,(int)weibosize);
+	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,
+	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM);
 	cluster.Singlepass();
 
 

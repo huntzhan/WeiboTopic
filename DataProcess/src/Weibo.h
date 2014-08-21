@@ -36,7 +36,12 @@ public:
 	double GetComment() {
 		return this->comment;
 	}
-
+	std::string GetText(){
+	  return this->text;
+	}
+	std::string GetSpilt(){
+	  return this->spilt;
+	}
 	void SetWeiboContentWords(std::string &spilt, std::string &text) {
 		this->spilt = spilt;
 		this->text = text;

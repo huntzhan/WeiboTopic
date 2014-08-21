@@ -73,9 +73,11 @@ void printTopicView(Topic &onetopic) {
   for (; it != subwordlist->end(); ++it) {
     if (count++ > 3)
       break;
-    std::cout << it->word << "		" << it->fre << std::endl;
+    std::cout << it->word << "    " << it->fre << std::endl;
   }
 }
+
+
 void printVector(std::vector<PAIR> &sort_vec) {
   std::vector<PAIR>::iterator it = sort_vec.begin();
   for (; it != sort_vec.end(); ++it) {

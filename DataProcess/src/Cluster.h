@@ -9,6 +9,7 @@
 
 #ifndef CLUSTER_H_
 #define CLUSTER_H_
+#include "TopicView.h"
 #include "CooccurrenceWord.h"
 #include "DBoperation.h"
 #include "DBoperation.h"
@@ -22,6 +23,12 @@
 class Cluster{
 
 public:
+  //话题下观点提取代表性的微博数
+  int TOPICVIEW_WEIBO_NUM;
+
+  //当话题下的微博数小于这个数（10）时，该话题无效
+  int MIN_TOPIC_MESSAGE_NUM;
+
 	int weibosize;
 	//每次批量获取的数据量（1000）
 	int OneTimeReadWeiboNum;
@@ -65,11 +72,14 @@ public:
 		this->topicword=topicword;
 	}
 
-	void InitConfigure(int randsize, int BELONG_TOPIC_THROD, double THROD_ADD, int weibosize){
+	void InitConfigure(int randsize, int BELONG_TOPIC_THROD,
+	    double THROD_ADD, int weibosize, int MIN_TOPIC_MESSAGE_NUM, int TOPICVIEW_WEIBO_NUM){
 		this->RAND_SIZE=randsize;
 		this->weibosize=weibosize;
 		this->BELONG_TOPIC_THROD=BELONG_TOPIC_THROD;
 		this->THROD_ADD=THROD_ADD;
+		this->MIN_TOPIC_MESSAGE_NUM=MIN_TOPIC_MESSAGE_NUM;
+		this->TOPICVIEW_WEIBO_NUM=TOPICVIEW_WEIBO_NUM;
 	}
 
 
@@ -88,7 +98,7 @@ public:
 	//将所有的话题信息和话题下的对应的微博插入数据库
   void InsterAllTopicToDatabase();
   //插入一个话题
-	void InsertTopicToDatabase(Topic &one_topic);
+	void InsertTopicToDatabase(Topic &one_topic,TopicView &tw);
 
 	//筛选话题下对应的微博
 	void ListEveryTopicWeiboId(Topic &one_topic);
