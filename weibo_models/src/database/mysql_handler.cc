@@ -39,14 +39,11 @@ using sql::Driver;
 
 namespace mysql_handler {
 
-// BasicConnectionSetup.
 // shared driver.
 Driver *BasicConnectionSetup::driver_ =
   sql::mysql::get_mysql_driver_instance();
-// end BasicConnectionSetup.
 
 
-// SimpleConnectionSetup.
 SharedConn SimpleConnectionSetup::RetrieveConnection() const {
   // let it crash.
   auto *con = driver_->connect(
@@ -56,10 +53,8 @@ SharedConn SimpleConnectionSetup::RetrieveConnection() const {
   con->setSchema(db_location_.database_);
   return SharedConn(con);
 }
-// end SimpleConnectionSetup.
 
 
-// BasicHandler.
 void BasicHandler::Init() const {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
@@ -68,10 +63,8 @@ void BasicHandler::Init() const {
 SharedConn BasicHandler::current_conn() const {
   return current_conn_;
 }
-// end BasicHandler.
 
 
-// SimpleHandler.
 SimpleHandler::SimpleHandler(const std::string &db_name,
                              const std::string &table_name)
     : table_name_(table_name) {
@@ -91,9 +84,8 @@ SharedConn SimpleHandler::set_current_conn() const {
 string SimpleHandler::table_name() const {
   return table_name_;
 }
-// end SimpleHandler.
 
-// TopicHandler
+
 vector<string> TopicHandler::topic_for_test() {
 
   auto conn = current_conn();
@@ -112,6 +104,5 @@ vector<string> TopicHandler::topic_for_test() {
   }
   return results;
 }
-// end TopicHandler
 
 }  // namespace mysql_handler
