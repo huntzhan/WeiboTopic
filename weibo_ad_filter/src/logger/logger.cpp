@@ -22,7 +22,7 @@ using std::vector;
  */
 
 Logger::Logger(string path) {
-  /// out.open(path);
+  out.open(path);
   DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
   query.SetTableName(tablename);
@@ -34,11 +34,13 @@ Logger::Logger(string path) {
 }
 
 void Logger::AddRemovedBlog(const Blog &b) {
+  if(rand() % 100 == 1)  // output with probability of %1
+    out<<b.m_content<<endl<<"#####"<<endl;
   this->number_removed_rows++;
-  std::vector<Word> words;
-  parser.LexicalAnalysis(b.m_content, words);
-  for(const auto &w : words)
-      ++word_count[w.word];
+  // std::vector<Word> words;
+  // parser.LexicalAnalysis(b.m_content, words);
+  // for(const auto &w : words)
+  //     ++word_count[w.word];
 }
 
 void Logger::ProduceFinalReport() {
@@ -47,15 +49,15 @@ void Logger::ProduceFinalReport() {
   cout<<"#####All blogs number: "<<this->number_removed_rows<<endl;
   cout<<"#####Removed blogs / All blogs: %"<<(this->number_removed_rows*1.0 / this->number_all_rows * 100)<<endl;
 
-  vector<std::pair<string, size_t>> vsort(word_count.size());
-  for(const auto &p : word_count)
-    vsort.push_back(p);
-  std::sort(vsort.begin(), vsort.end(), sort_pair_second());
-  cout<<"#####Frequent Spam Words: "<<endl;
-  cout.width(20);
-  for(const auto &p : vsort){
-    cout<<std::left<<p.first<<std::left<<p.second<<endl;
-  }
+  // vector<std::pair<string, size_t>> vsort(word_count.size());
+  // for(const auto &p : word_count)
+  //   vsort.push_back(p);
+  // std::sort(vsort.begin(), vsort.end(), sort_pair_second());
+  // cout<<"#####Frequent Spam Words: "<<endl;
+  // cout.width(20);
+  // for(const auto &p : vsort){
+  //   cout<<std::left<<p.first<<std::left<<p.second<<endl;
+  // }
 
   cout<<"#####Report ends..."<<endl;
 }

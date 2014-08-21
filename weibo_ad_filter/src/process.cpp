@@ -80,7 +80,7 @@ int main() {
 
   ///simhash 使用例子
   unsigned int hashvalue1=0,hashvalue2=0,hashvalue3;
-  SimHash simhash
+  SimHash simhash;
   hashvalue1=simhash.BlogHash("   发表了博文《邳州卵巢综合症治疗医院》　　【南京长江医院健康咨询热线：025-85262102微信号：njcjbybyyy咨询QQ：1605610800】“名医为医院技术品牌”是南京长江医院建设成功的重http://t.cn/RPj93wJ ");
   hashvalue2=simhash.BlogHash("http://t.cn/RPlHNNV★★★★★怒赞，你是音乐人。哈哈o(≧v≦)o翔哥好棒的嘛[爱你]");
   cout<<hashvalue1<<"|"<<hashvalue2<<endl;

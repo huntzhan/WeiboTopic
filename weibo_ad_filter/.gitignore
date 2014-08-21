@@ -13,3 +13,6 @@
 # *.a
 
 build/
+lib/Data/UserDict.map
+lib/Data/UserDict.pdat
+lib/Data/UserDict.pos
