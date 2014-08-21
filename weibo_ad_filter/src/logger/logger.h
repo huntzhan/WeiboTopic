@@ -12,6 +12,7 @@
 #include <list>
 #include <map>
 #include <utility>
+#include <ctime>
 #include "db/model.h"
 #include "split/parser.h"
 #include "split/Textspilt.h"
@@ -22,7 +23,8 @@ using std::string;
 using std::list;
 using std::map;
 
-#define SQL_ADDR "192.168.1.108"
+// #define SQL_ADDR "192.168.1.108"
+#define SQL_ADDR "localhost"
 #define SQL_USER "root"
 #define SQL_PWD    "123456"
 #define SQL_DATABASE "sina"
@@ -52,6 +54,7 @@ class Logger {
     int number_all_rows = -1;
     int number_left_rows = -1;
     int number_removed_rows = 0;
+    time_t t_start = time(NULL);
     /// int number_spam_rows = 0;
 
     // DISALLOW_COPY_AND_ASSIGN
