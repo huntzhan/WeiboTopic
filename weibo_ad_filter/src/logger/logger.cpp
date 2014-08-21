@@ -29,6 +29,8 @@ Logger::Logger(string path) {
   this->number_all_rows = query.Getcount();
   this->number_left_rows = number_all_rows;
   TextSpilt::init_ICTCAL();
+  cout<<"#####Logger Initialized, Time taken: "<<difftime(time(NULL), t_start)<<endl;
+  cout<<"#####"<<number_all_rows<<endl;
 }
 
 void Logger::AddRemovedBlog(const Blog &b) {
@@ -40,8 +42,10 @@ void Logger::AddRemovedBlog(const Blog &b) {
 }
 
 void Logger::ProduceFinalReport() {
-  cout<<"#####Report about"<<tablename<<endl;
-  cout<<"#####Removed blogs / All blogs: "<<(this->number_removed_rows*1.0 / this->number_all_rows)<<endl;
+  cout<<"#####Report about table: "<<tablename<<endl;
+  cout<<"#####Removed blogs number: "<<this->number_all_rows<<endl;
+  cout<<"#####All blogs number: "<<this->number_removed_rows<<endl;
+  cout<<"#####Removed blogs / All blogs: %"<<(this->number_removed_rows*1.0 / this->number_all_rows * 100)<<endl;
 
   vector<std::pair<string, size_t>> vsort(word_count.size());
   for(const auto &p : word_count)
@@ -57,13 +61,14 @@ void Logger::ProduceFinalReport() {
 }
 
 void Logger::AskDataFromDB() {
-  cout<<"#####Processed: %"<<((number_all_rows-number_left_rows)*1.0 / number_all_rows * 100)<<endl;
   DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
   query.DBConnect();
   query.SetTableName(tablename);
   int n = this->number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: this->number_left_rows;
   query.GetWeiBos(this->number_all_rows-this->number_left_rows, n, cached_blogs);
   this->number_left_rows -= ROW_EACH_TIME;
+  cout<<"#####Processed: %"<<((number_all_rows-number_left_rows)*1.0 / number_all_rows * 100)
+    <<", Time taken: "<<difftime(time(NULL), t_start)<<endl;
 }
 
 Blog Logger::NextBlog(){

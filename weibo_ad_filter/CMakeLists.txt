@@ -36,7 +36,7 @@ link_directories(${MYSQL_LINK_PATH})
 ################
 add_subdirectory(src)
 add_executable(run src/process.cpp)
-target_link_libraries(run model parser tactic connection_pool db_pool db_operation -lpthread)
+target_link_libraries(run model parser tactic connection_pool db_pool simhash db_operation -lpthread)
 # add_subdirectory(src/tactic)
 # target_link_libraries(run simple_calculator)
 

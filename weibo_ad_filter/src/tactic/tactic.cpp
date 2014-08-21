@@ -54,7 +54,7 @@ void TopicTcatic::GetBadTopic(std::vector<std::set<std::string> > &input){
 		  if(pos<size){
 			 std::string s=result.substr(i,pos-i);
 			 set.insert(s);
-			 std::cout<<s<<std::endl;
+			// std::cout<<s<<std::endl;
 			 i=pos;
 		  }
 	  }
