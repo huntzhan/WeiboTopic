@@ -80,18 +80,20 @@ class BasicOperator {
 
 class SimpleOperator : public BasicOperator {
  public:
-  SimpleOperator(const std::string &db_name);
+  SimpleOperator(const std::string &db_name, const std::string &table_name);
   SharedConn set_current_conn() const override;
 
  private:
   // default values of (url, username, password, database).
   DatabaseLocation db_location_;
+  const std::string &table_name_;
 };
 
 
 class TopicOperator : public SimpleOperator {
  public:
-  TopicOperator() : SimpleOperator("test") {/* empty */}
+  TopicOperator(const std::string &db_name, const std::string &table_name)
+      : SimpleOperator(db_name, table_name) {/* empty */}
   std::vector<std::string> topic_for_test();
 };
 

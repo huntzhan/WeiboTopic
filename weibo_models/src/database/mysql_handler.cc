@@ -71,7 +71,9 @@ SharedConn BasicOperator::current_conn() const {
 
 
 // SimpleOperator.
-SimpleOperator::SimpleOperator(const string &db_name) {
+SimpleOperator::SimpleOperator(const std::string &db_name,
+                               const std::string &table_name)
+    : table_name_(table_name) {
   db_location_.url_ = "tcp://127.0.0.1:3306";
   db_location_.username_ = "root";
   db_location_.password_ = "123456";

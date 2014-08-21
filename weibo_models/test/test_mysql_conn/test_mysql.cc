@@ -38,12 +38,12 @@ TEST(test_mysql_connector, test_conn_setup_with_arguments) {
 }
 
 TEST(test_mysql_connector, test_operator) {
-  mysql_handler::SimpleOperator op("testcase");
+  mysql_handler::SimpleOperator op("test", "testcase");
   op.Init();
 }
 
 TEST(test_mysql_connector, test_topic_operator) {
-  mysql_handler::TopicOperator op;
+  mysql_handler::TopicOperator op("test", "testcase");
   op.Init();
 
   auto results = op.topic_for_test();
