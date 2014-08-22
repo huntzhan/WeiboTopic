@@ -22,7 +22,6 @@
 #include <sstream>
 
 #include "mysql_driver.h"
-
 #include "cppconn/driver.h"
 #include "cppconn/exception.h"
 #include "cppconn/resultset.h"
@@ -39,6 +38,7 @@ using sql::ResultSet;
 
 
 namespace mysql_handler {
+
 
 // shared driver.
 Driver *BasicConnectionSetup::driver_ =
@@ -60,6 +60,7 @@ void BasicHandler::Init() {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
 }
+
 
 SharedConn BasicHandler::current_conn() const {
   return current_conn_;
@@ -95,10 +96,9 @@ vector<string> TopicHandler::topic_for_test() {
   formated_sql << "SELECT content\n"
                << "From " << table_name();
   // make query.
-  unique_ptr<Statement> stmt;
-  unique_ptr<ResultSet> res;
-  stmt.reset(conn->createStatement());
-  res.reset(stmt->executeQuery(formated_sql.str()));
+  unique_ptr<Statement> stmt(conn->createStatement());
+  unique_ptr<ResultSet> res(
+      stmt->executeQuery(formated_sql.str()));
   // fetch result.
   vector<string> results;
   while (res->next()) {
@@ -107,5 +107,6 @@ vector<string> TopicHandler::topic_for_test() {
   }
   return results;
 }
+
 
 }  // namespace mysql_handler
