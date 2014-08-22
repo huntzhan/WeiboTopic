@@ -49,7 +49,7 @@ class Preprocessor {
 
   private:
     ZombieTactic t_zombie;
-    TopicTcatic t_topic;
+    /// TopicTcatic t_topic;
     UserTactic t_user;
 
     bool IsBlogInFingerprints(const Blog &b, int dist);

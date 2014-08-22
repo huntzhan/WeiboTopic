@@ -22,12 +22,11 @@ bool Preprocessor::PerformTactic(const Blog& b){
   //  cout<<"#####"<<endl<<b.m_content<<endl;
     return false;
   }
+  else if (t_user.IsSpam(b))  // manually selected user black list
+    return false;
   else return true;
   // if (t_topic.IsSpam(b))
   //   return false;
-  // if (t_user.IsSpam(b))
-  //   return false;
-  return true;
 }
 
 /**

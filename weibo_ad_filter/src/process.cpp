@@ -45,83 +45,52 @@ void InitMain() {
   TextSpilt::init_ICTCAL();
 }
 
-/**
- *  @brief FilterTables return the tables to be processed
- *
- *  @param
- *  @return
- */
- void FilterTables(std::set<std::string> &settable) {
-  /// get tables from to be processed
-  std::list<std::string> tables;
-  query.GetTables(tables);
-  /// get tables that have already been processed
-  std::list<std::string> inserttables;
-  insert.GetTables(inserttables);
-
-  /// remove the duplicated tables
-  std::list<std::string>::iterator it_table = tables.begin();
-  std::list<std::string>::iterator end_table = tables.end();
-  for ( ; it_table != end_table; it_table++) {
-    settable.insert(*it_table);
+void FilterOneTable(string table, list<Blog> &return_weibo_list) {
+  query.SetTableName(table);
+  int number_all_rows = query.Getcount();
+  int number_left_rows = number_all_rows;
+  int ROW_EACH_TIME = 2000;
+  Preprocessor pre;
+  while(number_left_rows > 0){
+    std::list<Blog> weibos;
+    int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
+    /// print IO Operation
+    cout<< "Get blogs from db: " << n << endl;
+    query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
+    number_left_rows -= ROW_EACH_TIME;
+    /// start blogs filtering
+    for(auto &blog : weibos) {
+      bool is_good_blog = pre.PerformTactic(blog);
+      if(is_good_blog){
+        return_weibo_list.push_back(blog);
+        // PrintBlog(*ib);
+      }
+    }
   }
-  std::list<std::string>::iterator it_inserttable = inserttables.begin();
-  std::list<std::string>::iterator end_inserttable = inserttables.end();
-  for ( ; it_inserttable != end_inserttable; it_inserttable++) {
-    if (settable.count(*it_inserttable))
-      settable.erase(*it_inserttable);
-  }
-  std::cout<<settable.size()<<std::endl;
 }
-
 
 int main() {
   InitMain();
   cout<<"Program Initialized"<<endl;
 
-
-
-  std::set<std::string> tables;
+  std::list<std::string> tables;
+  query.GetTables(tables);
   FilterTables(tables);
-
-  std::set<std::string>::iterator it_beg = tables.begin();
-  std::set<std::string>::iterator it_end = tables.end();
-
-
-
-  it_beg++;
-  query.SetTableName(*it_beg);
-  insert.SetTableName(*it_beg);
-  std::cout<<"table name is "<<*it_beg<<std::endl;
-  Preprocessor pre;
-  const int ROW_EACH_TIME = query.Getcount();
-  int number_all_rows =query.Getcount();
-  int number_left_rows = number_all_rows;
-  std::cout<<"table count is"<<number_all_rows<<std::endl;
-
-  list<Blog> goodweibos;
-  while(number_left_rows > 0){
-    std::list<Blog> weibos;
-    int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
-    query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
-    number_left_rows -= ROW_EACH_TIME;
-    for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
-      ib != ie;
-      ib++){
-    //  bool is_good_blog = pre.PerformTactic(*ib);
-    //  if(is_good_blog){
-    	 goodweibos.push_back(*ib);
-         // PrintBlog(*ib);
-   //   }
-    }
+  /// get tables from to be processed
+  for(const auto &table : tables){
+    query.SetTableName(table);
+    int number_all_rows = query.Getcount();
+    cout<<"###Start Filtering One Table: " << number_all_rows << endl;
+    list<Blog> goodweibos;
+    FilterOneTable(table, goodweibos);
+    cout<<"###Blogs in One Table After Filtering: " << goodweibos.size() << "/" << number_all_rows <<endl;
+    /**
+     * Perform DB Insertion Operation here
+     */
   }
-  std::cout<<"start good weibos  "<<goodweibos.size()<<std::endl;
-//  count_the_user(goodweibos);
-  Spilitword(*it_beg,goodweibos);
 
-
-  std::cout<<"finish the program"<<goodweibos.size()<<std::endl;
-  return 1;
+  std::cout<<"Program has finished"<<std::endl;
+  return EXIT_SUCCESS;
 }
 
 bool SortCmp(const std::pair<string,int> &key1 ,const std::pair<string ,int> &key2 ){
@@ -144,7 +113,7 @@ void count_the_user(list<Blog> &weibos) {
 		std::pair<std::map<std::string, int>::iterator, bool> ret =
 				users.insert(std::make_pair((*ib).u_uid, 1));
 		if (!ret.second) {
-			++ret.first->second;
+			++ret.first->second;  /// inc the user count
 		}
 
 	}
@@ -290,6 +259,34 @@ void Spilitword(std::string tablename, std::list<Blog> &weibos) {
 			<< "------------------------------------------" << std::endl;
 }
 
+/**
+ *  @brief FilterTables return the tables to be processed
+ *
+ *  @param
+ *  @return
+ */
+ void FilterTables(std::set<std::string> &settable) {
+  /// get tables from to be processed
+  std::list<std::string> tables;
+  query.GetTables(tables);
+  /// get tables that have already been processed
+  std::list<std::string> inserttables;
+  insert.GetTables(inserttables);
+
+  /// remove the duplicated tables
+  std::list<std::string>::iterator it_table = tables.begin();
+  std::list<std::string>::iterator end_table = tables.end();
+  for ( ; it_table != end_table; it_table++) {
+    settable.insert(*it_table);
+  }
+  std::list<std::string>::iterator it_inserttable = inserttables.begin();
+  std::list<std::string>::iterator end_inserttable = inserttables.end();
+  for ( ; it_inserttable != end_inserttable; it_inserttable++) {
+    if (settable.count(*it_inserttable))
+      settable.erase(*it_inserttable);
+  }
+  std::cout<<settable.size()<<std::endl;
+}
 
 
 
