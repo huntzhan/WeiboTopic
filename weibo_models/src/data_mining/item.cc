@@ -13,9 +13,14 @@
 //   Organization:  
 //
 // ============================================================================
+#include <cstddef>
+#include <iterator>
+
 #include "utils/calculator.h"
 
 
+using std::size_t;
+using std::distance;
 using utils::Cosine;
 
 
@@ -65,8 +70,23 @@ ItemSetWithCosineDistance::items() const {
 }
 
 
-void ItemSetWithCosineDistance::UpdateMeanFeatures() const {
+void ItemSetWithCosineDistance::UpdateMeanFeatures() {
+  auto set_of_features = features();
+  auto dimension = set_of_features[0].size();
 
+  Features sum_of_features(dimension, 0.0);
+  // sum up.
+  for (const auto &features: set_of_features) {
+    for (auto iter = features.cbegin(); iter != features.cend(); ++iter) {
+      auto index = distance(features.cbegin(), iter);
+      sum_of_features[index] += *iter;
+    }
+  }
+  // calculate mean.
+  for (auto &feature_value : sum_of_features) {
+    feature_value /= set_of_features.size();
+  }
+  set_features(sum_of_features);
 }
 
 
@@ -74,7 +94,7 @@ void ItemSetWithCosineDistance::Merge(
     const ItemSetInterface &other) {
   // merge itmes.
   auto other_items = other.items();
-  for (const auto &item : items) {
+  for (const auto &item : other_items) {
     items_.push_back(item);
   }
   // update mean features;
