@@ -16,17 +16,87 @@
 //static 变量
 std::vector<std::set<std::string> > TopicTcatic::badTopic;
 std::set<std::string> UserTactic::baduser;
+
 bool ZombieTactic::IsSpam(const Blog &b) {
+  /// special case for V user
   if (b.u_vierfied)
     return false;
-  if (b.u_fans <= 25 || 
-      b.u_followees >= 1000 || 
-      b.u_bi_followers_count*1.0 / b.u_followees < 0.2)
+
+  if (b.u_fans <= 10 || 
+        b.u_followees >= 1000 || 
+        b.u_bi_followers_count*1.0 / b.u_followees < 0.05){  /// invalid zombie user
+    AddFingerPrint(b, 1);
     return true;
-  return false;
+  }
+  else if (IsBlogInFingerprints(b, 1))  /// valid user, test it's blog
+    return true;
+  else 
+    return false;
 }
 
 
+/**
+ *  @brief AddFingerPrint
+ *  @param
+ *  @return
+ */
+void ZombieTactic::AddFingerPrint(const Blog &b, int dist) {
+  /// blog is determined as spam, add fingerprint of it
+  unsigned int v = sim.BlogHash(b.m_content.c_str());
+  vector<unsigned int> all_values;
+  sim.HammingValuesWithinDistance(v, dist, all_values);
+  bool is_in = false;
+  for(const auto &i : all_values){
+    if(fingerprint.find(i) != fingerprint.end()){
+      is_in = true;
+      break;
+    }
+  }
+  if (!is_in){
+    fingerprint.insert(v);
+    if(fingerprint.size() == FLUSH_DB_THRED)
+      FlushCachedFingerprint(dist);
+  }
+}
+
+/**
+ *  @brief flush and clear the cache
+ *  first query db for duplicated simhash values within dist, then flush non-duplicated values at one time
+ *  @param
+ *  @return
+ */
+void ZombieTactic::FlushCachedFingerprint(int dist) {
+  vector<unsigned int> value_to_insert;
+  for(const auto &i : fingerprint){
+    vector<unsigned int> all_value;
+    sim.HammingValuesWithinDistance(i, dist, all_value);
+    if (IsSimhashValuesInDB(all_value))
+      continue;
+    value_to_insert.push_back(i);
+  }
+  Flush(value_to_insert);
+  value_to_insert.clear();
+}
+
+/**
+ *  @brief Test whether blog's simhash value has been recorded
+ *  @param
+ *  @return true if simhash has been recorded
+ */
+bool ZombieTactic::IsBlogInFingerprints(const Blog &b, int dist) {
+	unsigned int v = sim.BlogHash(b.m_content.c_str());
+    vector<unsigned int> all_value;
+    sim.HammingValuesWithinDistance(v, dist, all_value);
+    /// test whether in cache
+    for(const auto &i : all_value){
+      if(fingerprint.find(i) != fingerprint.end())
+        return true;
+    }
+    /// test whether in db
+    if(IsSimhashValuesInDB(all_value))
+        return true;
+    return false;
+}
 
 /**
  *  @brief read the badtopic.txt

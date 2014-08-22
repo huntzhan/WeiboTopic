@@ -34,7 +34,7 @@ Logger::Logger(string path) {
 }
 
 void Logger::AddRemovedBlog(const Blog &b) {
-  if(rand() % 100 == 1)  // output with probability of %1
+  if(rand() % 1000 == 1)  // output with probability of %1
     out<<b.m_content<<endl<<"#####"<<endl;
   this->number_removed_rows++;
   // std::vector<Word> words;
@@ -69,8 +69,8 @@ void Logger::AskDataFromDB() {
   int n = this->number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: this->number_left_rows;
   query.GetWeiBos(this->number_all_rows-this->number_left_rows, n, cached_blogs);
   this->number_left_rows -= ROW_EACH_TIME;
-  cout<<"#####Processed: %"<<((number_all_rows-number_left_rows)*1.0 / number_all_rows * 100)
-    <<", Time taken: "<<difftime(time(NULL), t_start)<<endl;
+  // cout<<"#####Processed: %"<<((number_all_rows-number_left_rows)*1.0 / number_all_rows * 100)
+  //   <<", Time taken: "<<difftime(time(NULL), t_start)<<endl;
 }
 
 Blog Logger::NextBlog(){
