@@ -20,6 +20,7 @@
 #include <memory>
 #include <utility>
 #include <sstream>
+#include <iostream>
 
 #include "mysql_driver.h"
 
@@ -35,6 +36,8 @@ using std::unique_ptr;
 using sql::Driver;
 using sql::Statement;
 using sql::ResultSet;
+using std::cout;
+using std::endl;
 
 namespace mysql_handler {
 
@@ -84,26 +87,60 @@ string SimpleHandler::table_name() const {
   return table_name_;
 }
 
-
-vector<string> TopicHandler::topic_for_test() {
+int SpamHandler::AddSpams(vector<unsigned int> &spams) {
+  /// timer
+  time_t t_start = time(NULL);
 
   auto conn = current_conn();
   // create sql.
   ostringstream formated_sql;
-  formated_sql << "SELECT content\n"
-               << "From " << table_name();
+  formated_sql << "INSERT INTO spam\n"
+               << "(fingerprint)\n"
+               << "VALUES\n";
+  for(auto ib = spams.cbegin(), ie = spams.cend(); ib != ie; ib++){
+    if(ib == ie-1)
+      formated_sql<< "(" << *ib << ")\n";  /// no comma needed for last one
+    else
+      formated_sql<< "(" << *ib << "),\n";
+  }
+  // make query.
+  unique_ptr<Statement> stmt;
+  stmt.reset(conn->createStatement());
+  int update_count = stmt->executeUpdate(formated_sql.str());
+  /// timer
+  time_t t_end = time(NULL);
+  cout<<"###MYSQL adding "<< update_count << " spams takes time " << (t_end - t_start) << " seconds" <<endl;
+  return update_count;
+}
+
+bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
+  /// timer
+  time_t t_start = time(NULL);
+
+  auto conn = current_conn();
+  // create sql.
+  ostringstream formated_sql;
+  formated_sql << "SELECT EXISTS( SELECT *\n"
+               << "From " << table_name() << "\n"
+               << "WHERE \n";
+  for(auto v : spam) {
+    formated_sql<< "fingerprint = " << v << "\nOR ";
+  }
+  formated_sql<<"0)";  /// make up for ended OR
   // make query.
   unique_ptr<Statement> stmt;
   unique_ptr<ResultSet> res;
   stmt.reset(conn->createStatement());
   res.reset(stmt->executeQuery(formated_sql.str()));
   // fetch result.
-  vector<string> results;
-  while (res->next()) {
-    results.push_back(
-        res->getString("content"));
-  }
-  return results;
+  int exist = -1;
+  if (res->next())
+    exist = res->getInt(1);  /// first column
+
+  /// timer
+  time_t t_end = time(NULL);
+  /// cout<<"###MYSQL querying "<< spam.size() << " simhash values takes time " << (t_end - t_start) << " seconds" <<endl;
+  return exist;
 }
 
 }  // namespace mysql_handler

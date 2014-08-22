@@ -4,4 +4,5 @@ add_subdirectory(tactic)
 add_subdirectory(split)
 add_subdirectory(logger)
 add_subdirectory(simhash)
+add_subdirectory(database)
 

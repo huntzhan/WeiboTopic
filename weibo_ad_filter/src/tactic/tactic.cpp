@@ -16,17 +16,18 @@
 //static 变量
 std::vector<std::set<std::string> > TopicTcatic::badTopic;
 std::set<std::string> UserTactic::baduser;
+
 bool ZombieTactic::IsSpam(const Blog &b) {
+  /// special case for V user
   if (b.u_vierfied)
     return false;
-  if (b.u_fans <= 25 || 
+  if (b.u_fans <= 10 || 
       b.u_followees >= 1000 || 
-      b.u_bi_followers_count*1.0 / b.u_followees < 0.2)
+      b.u_bi_followers_count*1.0 / b.u_followees < 0.05){  /// invalid zombie user
     return true;
+  }
   return false;
 }
-
-
 
 /**
  *  @brief read the badtopic.txt

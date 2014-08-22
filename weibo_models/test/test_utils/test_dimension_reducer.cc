@@ -19,12 +19,11 @@
 #include "utils/dimension_reducer.h"
 #include "database/mysql_handler.h"
 
-#include <iostream>
-
-using std::cout;
-using std::endl;
+#include <algorithm>
+#include <string>
 
 using utils::TFIDFDimensionReducer;
+using std::find;
 
 TEST(test_utils, test_tfidfdimensionreducer) {
   mysql_handler::TopicHandler handler("testcase", "SingleTopic");
@@ -34,7 +33,14 @@ TEST(test_utils, test_tfidfdimensionreducer) {
   TFIDFDimensionReducer<20> reducer;
   reducer.Process(results);
   auto keywords = reducer.GetKeywords();
-  for (const auto &word : keywords) {
-    cout << word << endl;
+  auto messages = reducer.GetVectorizedMessages();
+
+  EXPECT_NE(keywords.cend(), find(keywords.cbegin(), keywords.cend(), "小米"));
+  bool flag = false;
+  for (const auto &message : messages) {
+    if (message.any()) {
+      flag = true;
+    }
   }
+  EXPECT_TRUE(flag);
 }

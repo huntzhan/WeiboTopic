@@ -85,6 +85,7 @@ int main() {
 //  hashvalue2=simhash.BlogHash("http://t.cn/RPlHNNV★★★★★怒赞，你是音乐人。哈哈o(≧v≦)o翔哥好棒的嘛[爱你]");
 //  cout<<hashvalue1<<"|"<<hashvalue2<<endl;
 //  cout<<simhash.Calculate_Distance(hashvalue1,hashvalue2)<<endl;
+  // hashvalue1=simhash.BlogHash("   发表了博文《邳州卵巢综合症治疗医院》　　【南京长江医院健康咨询热线：025-85262102微信号：njcjbybyyy咨询QQ：1605610800】“名医为医院技术品牌”是南京长江医院建设成功的重http://t.cn/RPj93wJ ");
 
 
   std::set<std::string> tables;
@@ -118,7 +119,6 @@ int main() {
     for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
       ib != ie;
       ib++){
-
       bool is_good_blog = pre.PerformTactic(*ib);
       if(is_good_blog){
     	 goodweibos.push_back(*ib);
@@ -128,10 +128,6 @@ int main() {
   }
   std::cout<<"start good weibos  "<<goodweibos.size()<<std::endl;
   count_the_user(goodweibos);
-//  for (; it_beg != it_end; it_beg++) {
-//	  std::cout<<*it_beg<<std::endl;
-//  //  Spilitword(*it_beg);
-//  }
 
 
 

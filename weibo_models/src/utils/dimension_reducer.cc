@@ -13,11 +13,15 @@
 //   Organization:  
 //
 // ============================================================================
+
 #include <string>
+#include <bitset>
 #include <sstream>
 #include <utility>
 
 #include "KeywordExtractor.hpp"
+
+#include "utils/text_cleaner.h"
 
 
 namespace utils {
@@ -25,10 +29,12 @@ namespace utils {
 
 template <int T>
 void TFIDFDimensionReducer<T>::Process(const VecStr &messages) {
+  utils::TextCleaner cleaner;
+  
   std::ostringstream all_messages;
   for (const std::string &message : messages) {
     // read all mes
-    all_messages << message;
+    all_messages << cleaner.Clean(message);
   }
 
   // load dataset. Make sure the path is relative to top-level build directory.
@@ -39,8 +45,25 @@ void TFIDFDimensionReducer<T>::Process(const VecStr &messages) {
       "data/jieba/stop_words.utf8");
   VecStr keywords;
   extractor.extract(all_messages.str(), keywords, T);
-  // move assignment.
+
+  VecBitset<T> vectorized_messages;
+  for (const std::string &message : messages) {
+    int index = 0;
+    std::bitset<T> vectorized_message;
+    // try to find each keyword in message.
+    for (const std::string &keyword : keywords) {
+      if (message.find(keyword) != std::string::npos) {
+        vectorized_message[index] = true;
+      } else {
+        vectorized_message[index] = false;
+      }
+      ++index;
+    }
+    vectorized_messages.push_back(vectorized_message);
+  }
+  // set data member.
   keywords_ = std::move(keywords);
+  vectorized_messages_ = std::move(vectorized_messages);
 }
 
 
@@ -52,7 +75,7 @@ VecStr TFIDFDimensionReducer<T>::GetKeywords() {
 
 template <int T>
 VecBitset<T> TFIDFDimensionReducer<T>::GetVectorizedMessages() {
-
+  return vectorized_messages_;
 }
 
 }  // namespace utils

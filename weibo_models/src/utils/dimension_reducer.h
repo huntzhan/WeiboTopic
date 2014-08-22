@@ -26,7 +26,10 @@ namespace utils {
 using VecStr = std::vector<std::string>;
 
 template <int feature_size>
-using VecBitset = std::vector<std::bitset<feature_size>>;
+using BitsetFeatures = std::bitset<feature_size>;
+
+template <int feature_size>
+using VecBitset = std::vector<BitsetFeatures<feature_size>>;
 
 
 // @brief: Extract keywords of a set of messages and vectorize messages.
