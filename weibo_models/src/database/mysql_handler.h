@@ -60,7 +60,7 @@ class SimpleConnectionSetup : public BasicConnectionSetup {
   SharedConn RetrieveConnection() const override;
 
  private:
-  const DatabaseLocation &db_location_;
+  const DatabaseLocation db_location_;
 };
 
 
@@ -69,12 +69,12 @@ class SimpleConnectionSetup : public BasicConnectionSetup {
 class BasicHandler {
  public:
   // @brief: setup connection.
-  virtual void Init() const final;  // forbids override.
+  virtual void Init() final;  // forbids override.
   virtual SharedConn current_conn() const final;
-  virtual SharedConn set_current_conn() const = 0;
+  virtual SharedConn set_current_conn() = 0;
 
  private:
-  mutable SharedConn current_conn_ = nullptr;
+  SharedConn current_conn_ = nullptr;
 };
 
 
@@ -82,7 +82,7 @@ class BasicHandler {
 class SimpleHandler : public BasicHandler {
  public:
   SimpleHandler(const std::string &db_name, const std::string &table_name);
-  SharedConn set_current_conn() const override;
+  SharedConn set_current_conn() override;
 
   std::string table_name() const;
 

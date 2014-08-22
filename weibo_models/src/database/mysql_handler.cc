@@ -28,6 +28,7 @@
 #include "cppconn/resultset.h"
 #include "cppconn/statement.h"
 
+
 using std::string;
 using std::ostringstream;
 using std::vector;
@@ -35,6 +36,7 @@ using std::unique_ptr;
 using sql::Driver;
 using sql::Statement;
 using sql::ResultSet;
+
 
 namespace mysql_handler {
 
@@ -54,7 +56,7 @@ SharedConn SimpleConnectionSetup::RetrieveConnection() const {
 }
 
 
-void BasicHandler::Init() const {
+void BasicHandler::Init() {
   auto new_conn = set_current_conn();
   current_conn_ = std::move(new_conn);
 }
@@ -74,7 +76,7 @@ SimpleHandler::SimpleHandler(const std::string &db_name,
 }
 
 
-SharedConn SimpleHandler::set_current_conn() const {
+SharedConn SimpleHandler::set_current_conn() {
   SimpleConnectionSetup conn_setup(db_location_);
   return conn_setup.RetrieveConnection();
 }
