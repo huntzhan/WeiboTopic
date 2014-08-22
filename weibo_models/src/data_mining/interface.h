@@ -15,7 +15,7 @@
 //
 // ============================================================================
 #include <vector>
-#include <utility>
+
 
 #ifndef DATA_MINING_INTERFACE_H_
 #define DATA_MINING_INTERFACE_H_
@@ -36,28 +36,20 @@ class AdapterInterface {
 
 class Property {
  public:
-  // features accessor and mutator.
-  void set_features(const Features features) const {
-    features_ = std::move(features);
-  }
-  Features features() const {
-    return features_;
-  }
-  // id accessor and mutator.
-  void set_id(const int &id) const {
-    id_ = id;
-  }
-  int id() const {
-    return id_;
-  }
+  // accessor.
+  int id() const { return id_; }
+  Features features() const { return features_; }
+  // mutator.
+  void set_id(const int &id) { id_ = id; }
+  void set_features(const Features &features) { features_ = features; }
 
  private:
-  mutable Features features_;
-  mutable int id_;
+  Features features_;
+  int id_;
 }
 
 
-class ItemInterface : public Property{
+class ItemInterface : public Property {
  public:
   // interface to calculate similarity between two items.
   virtual double Similarity(const ItemInterface &other) const = 0;
@@ -67,7 +59,7 @@ class ItemInterface : public Property{
 class ItemSetInterface : public Property {
  public:
   virtual double Similarity(const ItemSetInterface &other) const = 0;
-  virtual void Merge(const ItemSetInterface &other) const = 0;
+  virtual void Merge(const ItemSetInterface &other) = 0;
 };
 
 
@@ -81,10 +73,10 @@ class ClusterResult {
 class ClusterProcedure {
  public:
   // interface to define cluster algorithm.
-  virtual void AddItem(const AdapterInterface &adapter) const = 0;
-  virtual void Prepare() const = 0;
-  virtual void CarryOutCluster() const = 0;
-  virtual std::vector<ClusterResult> GetClusterResults() const = 0;
+  virtual void AddItem(const AdapterInterface &adapter) = 0;
+  virtual void Prepare() = 0;
+  virtual void CarryOutCluster() = 0;
+  virtual std::vector<ClusterResult> GetClusterResults() = 0;
 };
 
 

@@ -59,12 +59,12 @@ class ItemSetWithCosineDistance : public ItemSetWithCosineDistance {
  public:
   ItemSetWithCosineDistance(const ItemWithCosineDistance &item);
   double Similarity(const ItemSetInterface &other) const override;
-  void Merge(const ItemSetInterface &other) const override;
+  void Merge(const ItemSetInterface &other) override;
 
   std::vector<ItemWithCosineDistance> items() const;
 
  private:
-  void UpdateMeanFeatures() const;
+  void UpdateMeanFeatures();
   std::vector<ItemWithCosineDistance> &items_;
 };
 
