@@ -23,8 +23,10 @@
 
 
 void display(std::list<std::list<std::string> > &msg) ;
-void Spilitword(std::string tablename);
+void Spilitword(std::string tablename, std::list<Blog> &weibos);
 void count_the_user(list<Blog> &weibos);
+void FilterTables(std::set<std::string> &settable);
+void FilterOneTable(string table, list<Blog> &return_weibo_list) ;
 
 Parser parser;
 DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
@@ -37,9 +39,10 @@ DBpool insert;
  *  @return
  */
 void InitMain() {
+
   ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
-     "123456", 2);
-  insert.DBinit("use test", connpool);
+     "123456", 50);
+  insert.DBinit("use split", connpool);
   query.DBConnect();
   TextSpilt::init_ICTCAL();
 }
@@ -72,9 +75,8 @@ int main() {
   InitMain();
   cout<<"Program Initialized"<<endl;
 
-  std::list<std::string> tables;
-  query.GetTables(tables);
-  /// FilterTables(tables);
+  std::set<std::string> tables;
+  FilterTables(tables);
   /// get tables from to be processed
   for(const auto &table : tables){
     query.SetTableName(table);
@@ -86,6 +88,7 @@ int main() {
     /**
      * Perform DB Insertion Operation here
      */
+    Spilitword(table,goodweibos);
   }
 
   std::cout<<"Program has finished"<<std::endl;
@@ -207,56 +210,55 @@ void display(std::list<std::list<std::string> > &msg) {
 /**
  * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
  */
-void Spilitword(std::string tablename) {
-  std::list<std::list<std::string> > resultList;
-  query.SetTableName(tablename);
-  /// insert.SetTableName(tablename);
-  /// 建立数据库的表
-  /// insert.CreateTable();
-  long count = query.Getcount();
-  std::cout << tablename << " " << count << std::endl;
+void Spilitword(std::string tablename, std::list<Blog> &weibos) {
+	std::list<std::list<std::string> > resultList;
+	query.SetTableName(tablename);
+    insert.SetTableName(tablename);
+	/// 建立数据库的表
+	insert.CreateTable();
+	long count = 0;
+	std::cout << tablename << " " << count << std::endl;
+	std::vector<INSERT_DATA> insert_datas;
+	time_t startT, endT;
+	double total;
+	startT = time(NULL);
+	std::list<Blog>::iterator it_blog = weibos.begin();
+	std::list<Blog>::iterator end_blog = weibos.end();
+	for (; it_blog != end_blog; it_blog++) {
+		/// ICTCLAS and stopwrods parsing
+		std::vector<Word> words;
+		std::string fenci;
 
-  time_t startT, endT;
-  double total;
-  for (long pos = 0; pos < count - 1000;) {
-    startT = time(NULL);
-    query.GetText(pos, 1000, resultList);
-    std::list<std::list<std::string> >::iterator it_first =
-        resultList.begin();
-    std::list<std::list<std::string> >::iterator end_first =
-        resultList.end();
-    std::vector<INSERT_DATA> insert_datas;
-    for (; it_first != end_first; it_first++) {
-
-      std::string rawtext = (*it_first).back();
-      if (rawtext.empty())
-        continue;
-      std::string fenci;
-      std::vector<Word> words;
-      /// ICTCLAS and stopwrods parsing
-      /// parser.LexicalAnalysis(rawtext, words);
-      std::vector<Word>::iterator it_word = words.begin();
-      std::vector<Word>::iterator end_word = words.end();
-      for (; it_word != end_word; it_word++) {
-        fenci.append(it_word->word + " " + it_word->proper + " ");
-      }
-      INSERT_DATA insertdata;
-      insertdata.mid = (*it_first).front();
-      insertdata.text = (*it_first).back();
-      insertdata.spilt = fenci;
-      insert_datas.push_back(insertdata);
-    }
-    /// 
-    /// insert.DB_insertData(insert_datas);
-    pos = pos + 1000;
-    endT = time(NULL);
-    total = difftime(endT, startT);
-    std::cout << "the runing time is " << total << std::endl;
-    resultList.clear();
-    std::cout << "----------------------------------" << "finish"
-        << "------------------------------------------" << pos
-        << std::endl;
-  }
+		parser.LexicalAnalysis(it_blog->m_content.c_str(), words);
+		std::vector<Word>::iterator it_word = words.begin();
+		std::vector<Word>::iterator end_word = words.end();
+		for (; it_word != end_word; it_word++) {
+			fenci.append(it_word->word + " " + it_word->proper + " ");
+		}
+		INSERT_DATA insertdata;
+		insertdata.mid = it_blog->m_mid;
+		insertdata.text = it_blog->m_content;
+		insertdata.spilt = fenci;
+		if(insertdata.text.length()<2||insertdata.spilt.length()<2||insertdata.text.empty()||insertdata.spilt.empty()){
+			//std::cout << insertdata.text<<std::endl;
+             continue;
+		}
+		insert_datas.push_back(insertdata);
+		count++;
+		if(count%2000==0||count==weibos.size()){
+			 std::cout << " insert size" <<insert_datas.size()<<std::endl;
+		  insert.DB_insertData(insert_datas);
+		  std::cout << "end insert " <<std::endl;
+		  insert_datas.clear();
+		}
+	}
+	std::cout << "start insert " <<std::endl;
+	//insert.DB_insertData(insert_datas);
+	endT = time(NULL);
+	total = difftime(endT, startT);
+	std::cout << "the runing time is " << total << std::endl;
+	std::cout << "----------------------------------" << "finish"
+			<< "------------------------------------------" << std::endl;
 }
 
 /**

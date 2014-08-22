@@ -47,10 +47,12 @@ ConnPool*ConnPool::GetInstance() {
 
 //初始化连接池，创建最大连接数的一半连接数量
 void ConnPool::InitConnection(int iInitialSize) {
+
   Connection*conn;
-  pthread_mutex_lock(&lock);
+//  pthread_mutex_lock(&lock);
   for (int i = 0; i < iInitialSize; i++) {
     try {
+
       conn = this->CreateConnection();
       if (conn) {
         connList.push_back(conn);
@@ -68,7 +70,7 @@ void ConnPool::InitConnection(int iInitialSize) {
     }
 
   }
-  pthread_mutex_unlock(&lock);
+//  pthread_mutex_unlock(&lock);
 }
 
 //创建连接,返回一个Connection
@@ -89,7 +91,7 @@ Connection* ConnPool::CreateConnection() {
 //在连接池中获得一个连接
 Connection*ConnPool::GetConnection() {
   Connection*con;
-  pthread_mutex_lock(&lock);
+//  pthread_mutex_lock(&lock);
 
   if (connList.size() > 0) {  //连接池容器中还有连接
     con = connList.front(); //得到第一个连接
@@ -102,21 +104,21 @@ Connection*ConnPool::GetConnection() {
     if (con == NULL) {
       --curSize;
     }
-    pthread_mutex_unlock(&lock);
+//    pthread_mutex_unlock(&lock);
     return con;
   } else {
     if (curSize < maxSize) { //还可以创建新的连接
       con = this->CreateConnection();
       if (con) {
         ++curSize;
-        pthread_mutex_unlock(&lock);
+ //       pthread_mutex_unlock(&lock);
         return con;
       } else {
-        pthread_mutex_unlock(&lock);
+//        pthread_mutex_unlock(&lock);
         return NULL;
       }
     } else { //建立的连接数已经达到maxSize
-      pthread_mutex_unlock(&lock);
+//      pthread_mutex_unlock(&lock);
       return NULL;
     }
   }
@@ -125,9 +127,9 @@ Connection*ConnPool::GetConnection() {
 //回收数据库连接
 void ConnPool::ReleaseConnection(sql::Connection * conn) {
   if (conn) {
-    pthread_mutex_lock(&lock);
+//    pthread_mutex_lock(&lock);
     connList.push_back(conn);
-    pthread_mutex_unlock(&lock);
+//    pthread_mutex_unlock(&lock);
   }
 }
 
@@ -139,13 +141,13 @@ ConnPool::~ConnPool() {
 //销毁连接池,首先要先销毁连接池的中连接
 void ConnPool::DestoryConnPool() {
   list<Connection*>::iterator icon;
-  pthread_mutex_lock(&lock);
+//  pthread_mutex_lock(&lock);
   for (icon = connList.begin(); icon != connList.end(); ++icon) {
     this->DestoryConnection(*icon); //销毁连接池中的连接
   }
   curSize = 0;
   connList.clear(); //清空连接池中的连接
-  pthread_mutex_unlock(&lock);
+//  pthread_mutex_unlock(&lock);
 }
 
 //销毁一个连接
