@@ -25,6 +25,8 @@
 void display(std::list<std::list<std::string> > &msg) ;
 void Spilitword(std::string tablename, std::list<Blog> &weibos);
 void count_the_user(list<Blog> &weibos);
+void FilterTables(std::set<std::string> &settable);
+void FilterOneTable(string table, list<Blog> &return_weibo_list) ;
 
 Parser parser;
 DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
@@ -73,8 +75,7 @@ int main() {
   InitMain();
   cout<<"Program Initialized"<<endl;
 
-  std::list<std::string> tables;
-  query.GetTables(tables);
+  std::set<std::string> tables;
   FilterTables(tables);
   /// get tables from to be processed
   for(const auto &table : tables){
@@ -87,6 +88,7 @@ int main() {
     /**
      * Perform DB Insertion Operation here
      */
+    Spilitword(table,goodweibos);
   }
 
   std::cout<<"Program has finished"<<std::endl;
