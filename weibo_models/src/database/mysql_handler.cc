@@ -28,14 +28,13 @@
 #include "cppconn/resultset.h"
 #include "cppconn/statement.h"
 
-// #include <iostream>
-// using std::cout;
-// using std::endl;
-
 using std::string;
 using std::ostringstream;
 using std::vector;
+using std::unique_ptr;
 using sql::Driver;
+using sql::Statement;
+using sql::ResultSet;
 
 namespace mysql_handler {
 
@@ -94,8 +93,10 @@ vector<string> TopicHandler::topic_for_test() {
   formated_sql << "SELECT content\n"
                << "From " << table_name();
   // make query.
-  auto stmt = conn->createStatement();
-  auto res = stmt->executeQuery(formated_sql.str());
+  unique_ptr<Statement> stmt;
+  unique_ptr<ResultSet> res;
+  stmt.reset(conn->createStatement());
+  res.reset(stmt->executeQuery(formated_sql.str()));
   // fetch result.
   vector<string> results;
   while (res->next()) {
