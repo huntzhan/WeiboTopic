@@ -41,7 +41,7 @@ TEST(TestTactic, TestZombieTactic) {
       log.AddRemovedBlog(b);
       // PrintBlog(b);
     } else {
-      if(rand() % 1000 == 1){  // output with probability of %1
+      if(rand() % 100 == 1){  // output with probability of %1
         cout<<b.m_content<<endl;
         cout<<"#####"<<endl;
       }

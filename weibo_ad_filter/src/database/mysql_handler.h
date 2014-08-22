@@ -98,9 +98,8 @@ class SpamHandler : public SimpleHandler {
  public:
   SpamHandler(const std::string &db_name, const std::string &table_name)
       : SimpleHandler(db_name, table_name) {/* empty */}
-  std::vector<std::string> topic_for_test();
-  int AddSpams(std::vector<unsigned int> spams);
-  bool QuerySpamSimhash(std::vector<unsigned int> spam);
+  int AddSpams(std::vector<unsigned int> &spams);
+  bool QuerySpamSimhash(std::vector<unsigned int> &spam);
 };
 
 }  // namespace mysql_handler
