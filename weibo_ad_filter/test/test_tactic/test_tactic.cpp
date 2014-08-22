@@ -29,8 +29,7 @@ public:
 TEST(TestTactic, TestZombieTactic) {
   Preprocessor pre;
   cout<<"#####"<<"Pre initialized"<<endl;
-  Logger log("zombietactic.log");
-  cout<<"#####"<<"Logger initialized"<<endl;
+  Logger log("spam.log");
 
   while(log.HasNextBlog()){
     // test each blog
@@ -39,7 +38,11 @@ TEST(TestTactic, TestZombieTactic) {
     if(! is_good_blog){
       log.AddRemovedBlog(b);
       // PrintBlog(b);
+    } else {
+      if(rand() % 100 == 1)  // output with probability of %1
+        PrintBlog(b);
     }
+
   }
 
   log.ProduceFinalReport();
