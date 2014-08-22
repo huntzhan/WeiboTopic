@@ -23,7 +23,7 @@
 
 
 void display(std::list<std::list<std::string> > &msg) ;
-void Spilitword(std::string tablename);
+void Spilitword(std::string tablename, std::list<Blog> &weibos);
 void count_the_user(list<Blog> &weibos);
 
 Parser parser;
@@ -37,9 +37,10 @@ DBpool insert;
  *  @return
  */
 void InitMain() {
+
   ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
-     "123456", 2);
-  insert.DBinit("use test", connpool);
+     "123456", 50);
+  insert.DBinit("use split", connpool);
   query.DBConnect();
   TextSpilt::init_ICTCAL();
 }
@@ -78,14 +79,6 @@ int main() {
   InitMain();
   cout<<"Program Initialized"<<endl;
 
-  ///simhash 使用例子
-  unsigned int hashvalue1=0,hashvalue2=0,hashvalue3;
-  SimHash simhash;
-  hashvalue1=simhash.BlogHash("[威武]-恭喜您!您已获得今日的幸运用户, 请点击登陆:http://t.cn/RPTafY1 领取[礼物]   @DyaN贱贱 @软嘴唇的姝美[可爱]F1STHYj");
-//  hashvalue2=simhash.BlogHash("http://t.cn/RPlHNNV★★★★★怒赞，你是音乐人。哈哈o(≧v≦)o翔哥好棒的嘛[爱你]");
-//  cout<<hashvalue1<<"|"<<hashvalue2<<endl;
-//  cout<<simhash.Calculate_Distance(hashvalue1,hashvalue2)<<endl;
-  // hashvalue1=simhash.BlogHash("   发表了博文《邳州卵巢综合症治疗医院》　　【南京长江医院健康咨询热线：025-85262102微信号：njcjbybyyy咨询QQ：1605610800】“名医为医院技术品牌”是南京长江医院建设成功的重http://t.cn/RPj93wJ ");
 
 
   std::set<std::string> tables;
@@ -97,11 +90,8 @@ int main() {
 
 
   it_beg++;
-  it_beg++;
-  it_beg++;
-  it_beg++;
   query.SetTableName(*it_beg);
-
+  insert.SetTableName(*it_beg);
   std::cout<<"table name is "<<*it_beg<<std::endl;
   Preprocessor pre;
   const int ROW_EACH_TIME = query.Getcount();
@@ -115,20 +105,19 @@ int main() {
     int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
     query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
     number_left_rows -= ROW_EACH_TIME;
-    std::cout<<"start static"<<std::endl;
     for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
       ib != ie;
       ib++){
-      bool is_good_blog = pre.PerformTactic(*ib);
-      if(is_good_blog){
+    //  bool is_good_blog = pre.PerformTactic(*ib);
+    //  if(is_good_blog){
     	 goodweibos.push_back(*ib);
          // PrintBlog(*ib);
-      }
+   //   }
     }
   }
   std::cout<<"start good weibos  "<<goodweibos.size()<<std::endl;
-  count_the_user(goodweibos);
-
+//  count_the_user(goodweibos);
+  Spilitword(*it_beg,goodweibos);
 
 
   std::cout<<"finish the program"<<goodweibos.size()<<std::endl;
@@ -250,56 +239,55 @@ void display(std::list<std::list<std::string> > &msg) {
 /**
  * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
  */
-void Spilitword(std::string tablename) {
-  std::list<std::list<std::string> > resultList;
-  query.SetTableName(tablename);
-  /// insert.SetTableName(tablename);
-  /// 建立数据库的表
-  /// insert.CreateTable();
-  long count = query.Getcount();
-  std::cout << tablename << " " << count << std::endl;
+void Spilitword(std::string tablename, std::list<Blog> &weibos) {
+	std::list<std::list<std::string> > resultList;
+	query.SetTableName(tablename);
+    insert.SetTableName(tablename);
+	/// 建立数据库的表
+	insert.CreateTable();
+	long count = 0;
+	std::cout << tablename << " " << count << std::endl;
+	std::vector<INSERT_DATA> insert_datas;
+	time_t startT, endT;
+	double total;
+	startT = time(NULL);
+	std::list<Blog>::iterator it_blog = weibos.begin();
+	std::list<Blog>::iterator end_blog = weibos.end();
+	for (; it_blog != end_blog; it_blog++) {
+		/// ICTCLAS and stopwrods parsing
+		std::vector<Word> words;
+		std::string fenci;
 
-  time_t startT, endT;
-  double total;
-  for (long pos = 0; pos < count - 1000;) {
-    startT = time(NULL);
-    query.GetText(pos, 1000, resultList);
-    std::list<std::list<std::string> >::iterator it_first =
-        resultList.begin();
-    std::list<std::list<std::string> >::iterator end_first =
-        resultList.end();
-    std::vector<INSERT_DATA> insert_datas;
-    for (; it_first != end_first; it_first++) {
-
-      std::string rawtext = (*it_first).back();
-      if (rawtext.empty())
-        continue;
-      std::string fenci;
-      std::vector<Word> words;
-      /// ICTCLAS and stopwrods parsing
-      /// parser.LexicalAnalysis(rawtext, words);
-      std::vector<Word>::iterator it_word = words.begin();
-      std::vector<Word>::iterator end_word = words.end();
-      for (; it_word != end_word; it_word++) {
-        fenci.append(it_word->word + " " + it_word->proper + " ");
-      }
-      INSERT_DATA insertdata;
-      insertdata.mid = (*it_first).front();
-      insertdata.text = (*it_first).back();
-      insertdata.spilt = fenci;
-      insert_datas.push_back(insertdata);
-    }
-    /// 
-    /// insert.DB_insertData(insert_datas);
-    pos = pos + 1000;
-    endT = time(NULL);
-    total = difftime(endT, startT);
-    std::cout << "the runing time is " << total << std::endl;
-    resultList.clear();
-    std::cout << "----------------------------------" << "finish"
-        << "------------------------------------------" << pos
-        << std::endl;
-  }
+		parser.LexicalAnalysis(it_blog->m_content.c_str(), words);
+		std::vector<Word>::iterator it_word = words.begin();
+		std::vector<Word>::iterator end_word = words.end();
+		for (; it_word != end_word; it_word++) {
+			fenci.append(it_word->word + " " + it_word->proper + " ");
+		}
+		INSERT_DATA insertdata;
+		insertdata.mid = it_blog->m_mid;
+		insertdata.text = it_blog->m_content;
+		insertdata.spilt = fenci;
+		if(insertdata.text.length()<2||insertdata.spilt.length()<2||insertdata.text.empty()||insertdata.spilt.empty()){
+			//std::cout << insertdata.text<<std::endl;
+             continue;
+		}
+		insert_datas.push_back(insertdata);
+		count++;
+		if(count%2000==0||count==weibos.size()){
+			 std::cout << " insert size" <<insert_datas.size()<<std::endl;
+		  insert.DB_insertData(insert_datas);
+		  std::cout << "end insert " <<std::endl;
+		  insert_datas.clear();
+		}
+	}
+	std::cout << "start insert " <<std::endl;
+	//insert.DB_insertData(insert_datas);
+	endT = time(NULL);
+	total = difftime(endT, startT);
+	std::cout << "the runing time is " << total << std::endl;
+	std::cout << "----------------------------------" << "finish"
+			<< "------------------------------------------" << std::endl;
 }
 
 

@@ -11,7 +11,8 @@ void DBpool::DBinit(std::string database, ConnPool *connpool) {
   ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "", 50);
   con = m_connpool->GetConnection();
   state = con->createStatement();
-  state->execute(database);
+  state->execute(database);\
+  std::cout<<"--------"<<std::endl;
 
 }
 void DBpool::DBclose() {
@@ -120,18 +121,20 @@ void DBpool::GetTables(std::list<std::string> &tables) {
 }
 
 bool DBpool::DB_insertData(std::vector<INSERT_DATA> &insert_data) {
-  char goodtext[1024];
+
   try {
     con->setAutoCommit(false);
     char sql_query[1024];
     std::vector<INSERT_DATA>::iterator it_insert = insert_data.begin();
     std::vector<INSERT_DATA>::iterator end_insert = insert_data.end();
     for (; it_insert != end_insert; it_insert++) {
+      char goodtext[1024];
       const char *row = it_insert->text.c_str();
-      mysql_escape_string(goodtext, row, strlen(row));
+     mysql_escape_string(goodtext, row, strlen(it_insert->text.c_str()));
       sprintf(sql_query, "insert into %s values('%s','%s','%s')",
-          table_name.c_str(), it_insert->mid.c_str(), goodtext,
+          table_name.c_str(), it_insert->mid.c_str(),goodtext,
           it_insert->spilt.c_str());
+
       state->executeUpdate(sql_query);
     }
     con->commit();

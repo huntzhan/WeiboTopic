@@ -19,7 +19,7 @@ bool Preprocessor::PerformTactic(const Blog& b){
     return false;
   }
   else if (IsBlogInFingerprints(b, 1)){  /// valid user, test it's blog
-    cout<<"#####"<<endl<<b.m_content<<endl;
+  //  cout<<"#####"<<endl<<b.m_content<<endl;
     return false;
   }
   else return true;
