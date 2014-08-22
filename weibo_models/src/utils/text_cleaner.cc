@@ -31,7 +31,7 @@ namespace utils {
 string TextCleaner::Clean(string text) {
   vector<string> rules = {
     "http://.+?/\\w+",
-    "#|:"};
+    "[#|:]"};
 
   for (const string &rule : rules) {
     regex pattern(rule);
