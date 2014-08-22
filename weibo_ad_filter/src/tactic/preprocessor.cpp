@@ -19,15 +19,14 @@ bool Preprocessor::PerformTactic(const Blog& b){
     return false;
   }
   else if (IsBlogInFingerprints(b, 1)){  /// valid user, test it's blog
-    cout<<"#####"<<endl<<b.m_content<<endl;
+    /// cout<<"#####"<<endl<<b.m_content<<endl;
     return false;
   }
+  else if (t_user.IsSpam(b))  // manually selected user black list
+    return false;
   else return true;
   // if (t_topic.IsSpam(b))
   //   return false;
-  // if (t_user.IsSpam(b))
-  //   return false;
-  return true;
 }
 
 /**
