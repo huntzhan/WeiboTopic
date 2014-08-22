@@ -19,20 +19,31 @@ using std::endl;
 
 TEST(TestSimhash, TestHammingDist) {
   SimHash sim;
+  unsigned int value1 = 0u;
+  unsigned int value2 = 0;
+  EXPECT_EQ(sim.Calculate_Distance(value1, value2), 0);
+  EXPECT_EQ(sim.Calculate_Distance(value1, 2), 1);
+}
+
+TEST(TestSimhash, TestHammingWithinDist) {
+  SimHash sim;
   unsigned int value = 0;
   cout<<"###Hamming Dist: "<< endl;
   cout<<"###Origin: "<< value<< endl;
   cout<<"###Dist 1: " << endl;
   vector<unsigned int> values;
   sim.HammingValuesWithinDistance(value, 1, values);
+  EXPECT_EQ(32+1, values.size());
   for(const auto &v : values){
     cout<<v<<endl;
+    EXPECT_LE(sim.Calculate_Distance(value, v), 1);
   }
   values.clear();
   cout<<"###Dist 2: " << endl;
   sim.HammingValuesWithinDistance(value, 2, values);
+  EXPECT_EQ(32*31/2+32+1, values.size());
   for(const auto &v : values){
-    cout<<v<<endl;
+    EXPECT_LE(sim.Calculate_Distance(value, v), 2);
   }
 }
 
