@@ -14,13 +14,11 @@
 //   Organization:  
 //
 // ============================================================================
-#ifndef DATA_MINING_INTERFACE_H_
-#define DATA_MINING_INTERFACE_H_
-
 #include <vector>
 #include <utility>
 
-
+#ifndef DATA_MINING_INTERFACE_H_
+#define DATA_MINING_INTERFACE_H_
 namespace data_mining {
 
 
@@ -36,7 +34,7 @@ class AdapterInterface {
 };
 
 
-class ItemInterface {
+class Property {
  public:
   // features accessor and mutator.
   void set_features(const Features features) const {
@@ -53,16 +51,20 @@ class ItemInterface {
     return id_;
   }
 
-  // interface to calculate similarity between two items.
-  virtual double Similarity(const ItemInterface &other) const = 0;
- 
  private:
   mutable Features features_;
   mutable int id_;
+}
+
+
+class ItemInterface : public Property{
+ public:
+  // interface to calculate similarity between two items.
+  virtual double Similarity(const ItemInterface &other) const = 0;
 };
 
 
-class ItemSetInterface {
+class ItemSetInterface : public Property {
  public:
   virtual double Similarity(const ItemSetInterface &other) const = 0;
   virtual void Merge(const ItemSetInterface &other) const = 0;
