@@ -19,6 +19,7 @@ set(MYSQL_LINK_PATH /usr/lib64/mysql)
 # set(LIB_ROOT ${weibo_ad_filter_SOURCE_DIR}/lib)
 set(LIB_ROOT ./lib)
 set(ICTCLAS50_LIB_PATH ${LIB_ROOT}/ICTCLAS50)
+# set(MYSQL_CONNECT_PATH ${LIB_ROOT}/mysql-connector-c++)
 
 #################
 # Build runtime #
@@ -60,7 +61,7 @@ file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/userdict.txt
 	DESTINATION ${weibo_ad_filter_BINARY_DIR}/test/test_simhash/)
 add_executable(run src/process.cpp)
-target_link_libraries(run model parser tactic connection_pool db_pool simhash db_operation -lpthread)
+target_link_libraries(run model parser tactic connection_pool db_pool simhash db_operation preprocessor -lpthread)
 # add_subdirectory(src/tactic)
 # target_link_libraries(run simple_calculator)
 

@@ -34,7 +34,7 @@ Logger::Logger(string path) {
 }
 
 void Logger::AddRemovedBlog(const Blog &b) {
-  if(rand() % 1000 == 1)  // output with probability of %1
+  if(rand() % 100 == 1)  // output with probability of %1
     out<<b.m_content<<endl<<"#####"<<endl;
   this->number_removed_rows++;
   // std::vector<Word> words;

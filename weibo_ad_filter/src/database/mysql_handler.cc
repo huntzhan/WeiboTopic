@@ -87,7 +87,10 @@ string SimpleHandler::table_name() const {
   return table_name_;
 }
 
-int SpamHandler::AddSpams(vector<unsigned int> spams) {
+int SpamHandler::AddSpams(vector<unsigned int> &spams) {
+  /// timer
+  time_t t_start = time(NULL);
+
   auto conn = current_conn();
   // create sql.
   ostringstream formated_sql;
@@ -100,15 +103,20 @@ int SpamHandler::AddSpams(vector<unsigned int> spams) {
     else
       formated_sql<< "(" << *ib << "),\n";
   }
-  cout<<"###SQL INSERT: \n"<< formated_sql.str()<<endl;
   // make query.
   unique_ptr<Statement> stmt;
   stmt.reset(conn->createStatement());
   int update_count = stmt->executeUpdate(formated_sql.str());
+  /// timer
+  time_t t_end = time(NULL);
+  cout<<"###MYSQL adding "<< update_count << " spams takes time " << (t_end - t_start) << " seconds" <<endl;
   return update_count;
 }
 
-bool SpamHandler::QuerySpamSimhash(vector<unsigned int> spam) {
+bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
+  /// timer
+  time_t t_start = time(NULL);
+
   auto conn = current_conn();
   // create sql.
   ostringstream formated_sql;
@@ -119,7 +127,6 @@ bool SpamHandler::QuerySpamSimhash(vector<unsigned int> spam) {
     formated_sql<< "fingerprint = " << v << "\nOR ";
   }
   formated_sql<<"0)";  /// make up for ended OR
-  cout<<"###SQL QUERY: \n"<<formated_sql.str()<<endl;
   // make query.
   unique_ptr<Statement> stmt;
   unique_ptr<ResultSet> res;
@@ -129,6 +136,10 @@ bool SpamHandler::QuerySpamSimhash(vector<unsigned int> spam) {
   int exist = -1;
   if (res->next())
     exist = res->getInt(1);  /// first column
+
+  /// timer
+  time_t t_end = time(NULL);
+  /// cout<<"###MYSQL querying "<< spam.size() << " simhash values takes time " << (t_end - t_start) << " seconds" <<endl;
   return exist;
 }
 
