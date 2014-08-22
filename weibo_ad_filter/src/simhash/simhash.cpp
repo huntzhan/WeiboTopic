@@ -61,3 +61,27 @@ int SimHash::Calculate_Distance(unsigned int hashvalue1,
   }
   return same;
 }
+
+/**
+ *  @brief HammingValuesWithinDistance return all values whose distance with v is less or equal to dist
+ *
+ *  @param
+ *  @return
+ */
+void SimHash::HammingValuesWithinDistance(unsigned int value, int dist, vector<unsigned int> &res) {
+  _HammingValuesWithinDistance(value, 0, dist, res);
+  res.push_back(value);
+}
+
+void SimHash::_HammingValuesWithinDistance(unsigned int value, 
+                                           int after,
+                                           int dist,
+                                           vector<unsigned int> &res) {
+  if(dist == 0)
+    return;
+  for(int i = after; i<SimHash::BITS; i++){
+    unsigned int v = value ^ xor_arr[i];
+    res.push_back(v);
+    _HammingValuesWithinDistance(v, i+1, dist-1, res);
+  }
+}

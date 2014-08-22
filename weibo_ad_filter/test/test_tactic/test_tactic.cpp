@@ -11,6 +11,7 @@
 #include "logger/logger.h"
 #include "tactic/preprocessor.h"
 #include "db/model.h"
+#include "simhash/simhash.h"
 using std::cout;
 using std::endl;
 using std::string;
@@ -27,6 +28,7 @@ public:
 };
 
 TEST(TestTactic, TestZombieTactic) {
+  SimHash sim;
   Preprocessor pre;
   cout<<"#####"<<"Pre initialized"<<endl;
   Logger log("spam.log");
@@ -39,8 +41,10 @@ TEST(TestTactic, TestZombieTactic) {
       log.AddRemovedBlog(b);
       // PrintBlog(b);
     } else {
-      if(rand() % 100 == 1)  // output with probability of %1
-        PrintBlog(b);
+      if(rand() % 1000 == 1){  // output with probability of %1
+        cout<<b.m_content<<endl;
+        cout<<"#####"<<endl;
+      }
     }
 
   }

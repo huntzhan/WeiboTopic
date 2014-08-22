@@ -10,8 +10,11 @@
 
 #ifndef tactic_INC
 #define tactic_INC
+#include <set>
 #include "split/parser.h"
 #include "db/model.h"
+#include "simhash/simhash.h"
+using std::set;
 /**
  *  @brief Tactic Base class for different tactic performed on every single message
  */
@@ -41,6 +44,14 @@ class ZombieTactic : public Tactic {
     virtual bool IsSpam(const Blog &b);
 
   private:
+    bool IsBlogInFingerprints(const Blog &b, int dist);
+    bool IsSimhashValuesInDB(vector<unsigned int> v){return false;}
+    void FlushCachedFingerprint(int dist);
+    void AddFingerPrint(const Blog &b, int dist);
+    void Flush(vector<unsigned int> &v){}  /*  Flush the simhash value in set into db */
+    set<unsigned int> fingerprint;
+    SimHash sim;
+    const size_t FLUSH_DB_THRED = 10000;
 
     // DISALLOW_COPY_AND_ASSIGN
     ZombieTactic(const ZombieTactic&);

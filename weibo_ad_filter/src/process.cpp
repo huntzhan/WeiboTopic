@@ -81,7 +81,8 @@ int main() {
   ///simhash 使用例子
   unsigned int hashvalue1=0,hashvalue2=0,hashvalue3;
   SimHash simhash;
-  hashvalue1=simhash.BlogHash("   发表了博文《邳州卵巢综合症治疗医院》　　【南京长江医院健康咨询热线：025-85262102微信号：njcjbybyyy咨询QQ：1605610800】“名医为医院技术品牌”是南京长江医院建设成功的重http://t.cn/RPj93wJ ");
+  // hashvalue1=simhash.BlogHash("   发表了博文《邳州卵巢综合症治疗医院》　　【南京长江医院健康咨询热线：025-85262102微信号：njcjbybyyy咨询QQ：1605610800】“名医为医院技术品牌”是南京长江医院建设成功的重http://t.cn/RPj93wJ ");
+  hashvalue1=simhash.BlogHash("[话筒]-恭喜您!您已获得今日的幸运用户, 请点击登陆:http://t.cn/RPTafY1领取[礼物]    @163网一 @潮流女学百搭[怒骂]Y5JB9M");
   hashvalue2=simhash.BlogHash("http://t.cn/RPlHNNV★★★★★怒赞，你是音乐人。哈哈o(≧v≦)o翔哥好棒的嘛[爱你]");
   cout<<hashvalue1<<"|"<<hashvalue2<<endl;
   cout<<simhash.Calculate_Distance(hashvalue1,hashvalue2)<<endl;
@@ -113,7 +114,7 @@ int main() {
       ib != ie;
       ib++){
     	 hashvalue2=simhash.BlogHash(ib->m_content.c_str());
-    	if(simhash.Calculate_Distance(hashvalue1,hashvalue2)<7){
+    	if(simhash.Calculate_Distance(hashvalue1,hashvalue2) < 3){
                 std::cout<<ib->m_content<<std::endl;
     	}
 //       bool is_good_blog = pre.PerformTactic(*ib);

@@ -53,6 +53,12 @@ file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/user.lic
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/userdict.txt
 	DESTINATION ${weibo_ad_filter_BINARY_DIR}/test/test_parser/)
+file(COPY
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/Configure.xml
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/stopwords.txt
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/user.lic
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/userdict.txt
+	DESTINATION ${weibo_ad_filter_BINARY_DIR}/test/test_simhash/)
 add_executable(run src/process.cpp)
 target_link_libraries(run model parser tactic connection_pool db_pool simhash db_operation -lpthread)
 # add_subdirectory(src/tactic)
@@ -81,3 +87,4 @@ endfunction()
 add_subdirectory(test/test_db)
 add_subdirectory(test/test_parser)
 add_subdirectory(test/test_tactic)
+add_subdirectory(test/test_simhash)
