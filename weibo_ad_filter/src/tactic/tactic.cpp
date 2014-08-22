@@ -113,8 +113,10 @@ void UserTactic::GetBadUser(std::set<std::string> &input){
      std::cout<<"can not find baduser.txt "<<std::endl;
      return ;
   }
+  std::cout<<"open baduser.txt "<<std::endl;
   while(!infile.eof()){
     infile>>result;
+
     input.insert(result);
   }
 }
@@ -126,8 +128,10 @@ UserTactic::UserTactic(){
 
 
 bool UserTactic::IsSpam(const Blog &b){
-  if(baduser.count(b.u_uid))
+  if(baduser.count(b.u_uid)){
 	  return true;
+  }
+
   return false;
 }
 

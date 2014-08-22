@@ -28,7 +28,7 @@ void count_the_user(list<Blog> &weibos);
 
 Parser parser;
 DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
-//DBpool insert;
+DBpool insert;
 
 /**
  *  @brief Init_Main
@@ -37,9 +37,9 @@ DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
  *  @return
  */
 void InitMain() {
-//  ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
-//     "123456", 2);
-//  insert.DBinit("use test", connpool);
+  ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
+     "123456", 2);
+  insert.DBinit("use test", connpool);
   query.DBConnect();
   TextSpilt::init_ICTCAL();
 }
@@ -56,7 +56,7 @@ void InitMain() {
   query.GetTables(tables);
   /// get tables that have already been processed
   std::list<std::string> inserttables;
-//  insert.GetTables(inserttables);
+  insert.GetTables(inserttables);
 
   /// remove the duplicated tables
   std::list<std::string>::iterator it_table = tables.begin();
@@ -80,11 +80,11 @@ int main() {
 
   ///simhash 使用例子
   unsigned int hashvalue1=0,hashvalue2=0,hashvalue3;
-  SimHash simhash
-  hashvalue1=simhash.BlogHash("   发表了博文《邳州卵巢综合症治疗医院》　　【南京长江医院健康咨询热线：025-85262102微信号：njcjbybyyy咨询QQ：1605610800】“名医为医院技术品牌”是南京长江医院建设成功的重http://t.cn/RPj93wJ ");
-  hashvalue2=simhash.BlogHash("http://t.cn/RPlHNNV★★★★★怒赞，你是音乐人。哈哈o(≧v≦)o翔哥好棒的嘛[爱你]");
-  cout<<hashvalue1<<"|"<<hashvalue2<<endl;
-  cout<<simhash.Calculate_Distance(hashvalue1,hashvalue2)<<endl;
+  SimHash simhash;
+  hashvalue1=simhash.BlogHash("[威武]-恭喜您!您已获得今日的幸运用户, 请点击登陆:http://t.cn/RPTafY1 领取[礼物]   @DyaN贱贱 @软嘴唇的姝美[可爱]F1STHYj");
+//  hashvalue2=simhash.BlogHash("http://t.cn/RPlHNNV★★★★★怒赞，你是音乐人。哈哈o(≧v≦)o翔哥好棒的嘛[爱你]");
+//  cout<<hashvalue1<<"|"<<hashvalue2<<endl;
+//  cout<<simhash.Calculate_Distance(hashvalue1,hashvalue2)<<endl;
 
 
   std::set<std::string> tables;
@@ -95,35 +95,39 @@ int main() {
 
 
 
-
+  it_beg++;
+  it_beg++;
+  it_beg++;
+  it_beg++;
   query.SetTableName(*it_beg);
+
+  std::cout<<"table name is "<<*it_beg<<std::endl;
   Preprocessor pre;
   const int ROW_EACH_TIME = query.Getcount();
   int number_all_rows =query.Getcount();
   int number_left_rows = number_all_rows;
-  std::cout<<"ok!!!!!!!!"<<std::endl;
+  std::cout<<"table count is"<<number_all_rows<<std::endl;
+
+  list<Blog> goodweibos;
   while(number_left_rows > 0){
     std::list<Blog> weibos;
     int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
-
     query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
     number_left_rows -= ROW_EACH_TIME;
-//    count_the_user(weibos);
+    std::cout<<"start static"<<std::endl;
     for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
       ib != ie;
       ib++){
-    	 hashvalue2=simhash.BlogHash(ib->m_content.c_str());
-    	if(simhash.Calculate_Distance(hashvalue1,hashvalue2)<7){
-                std::cout<<ib->m_content<<std::endl;
-    	}
-//       bool is_good_blog = pre.PerformTactic(*ib);
-//      if(! is_good_blog){
-//       PrintBlog(*ib);
 
-   }
-
+      bool is_good_blog = pre.PerformTactic(*ib);
+      if(is_good_blog){
+    	 goodweibos.push_back(*ib);
+         // PrintBlog(*ib);
+      }
+    }
   }
-
+  std::cout<<"start good weibos  "<<goodweibos.size()<<std::endl;
+  count_the_user(goodweibos);
 //  for (; it_beg != it_end; it_beg++) {
 //	  std::cout<<*it_beg<<std::endl;
 //  //  Spilitword(*it_beg);
@@ -131,7 +135,7 @@ int main() {
 
 
 
-  std::cout<<"finish the program"<<std::endl;
+  std::cout<<"finish the program"<<goodweibos.size()<<std::endl;
   return 1;
 }
 
@@ -144,40 +148,89 @@ bool SortCmp(const std::pair<string,int> &key1 ,const std::pair<string ,int> &ke
  *计算1个小时内重复发微博的数目
  *
  */
-void count_the_user(list<Blog> &weibos){
-  std::map<string,int> users;
-  std::cout<<weibos.size()<<endl;
-  for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
-	 ib != ie;
-	 ib++){
-	  std::list<string> m_list;
-	  std::pair<std::map<std::string,int>::iterator,bool > ret=users.insert(std::make_pair((*ib).u_uid,1));
-      if(!ret.second){
-    	  ++ret.first->second;
-      }
+void count_the_user(list<Blog> &weibos) {
+	list<string> badweibolist;
+	SimHash simhash;
+	std::map<string, int> users;
+	std::cout << weibos.size() << endl;
+	for (std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
+			ib != ie; ib++) {
+		std::list<string> m_list;
+		std::pair<std::map<std::string, int>::iterator, bool> ret =
+				users.insert(std::make_pair((*ib).u_uid, 1));
+		if (!ret.second) {
+			++ret.first->second;
+		}
 
-  }
-  std::map<string,int>::iterator it_map=users.begin();
-  std::map<string,int>::iterator end_map=users.end();
-  std::vector<std::pair<string,int> > vector_sort;
-  for(;it_map!=end_map;it_map++){
-    vector_sort.push_back(make_pair(it_map->first,it_map->second));
-  }
-  sort(vector_sort.begin(),vector_sort.end(),SortCmp);
-  std::vector<std::pair<string,int>  >::iterator it_vector=vector_sort.begin();
-  std::vector<std::pair<string,int>  >::iterator end_vector=vector_sort.end();
-  ///获得前100的用户重复
-  for(int i=0;i<100;i++){
-	  std::cout<<"uid----"<<vector_sort[i].first<<"----num---"<<vector_sort[i].second<<std::endl;
-	  for(std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
-		 ib != ie;
-		 ib++){
-		      if((*ib).u_uid==vector_sort[i].first)
-		    	std::cout<<ib->m_content<<std::endl;
-	      }
-	  std::cout<<"################################################"<<std::endl;
-  }
+	}
+	std::map<string, int>::iterator it_map = users.begin();
+	std::map<string, int>::iterator end_map = users.end();
+	std::vector<std::pair<string, int> > vector_sort;
+	for (; it_map != end_map; it_map++) {
+		vector_sort.push_back(make_pair(it_map->first, it_map->second));
+	}
+    sort(vector_sort.begin(),vector_sort.end(),SortCmp);
+	///获得前100的用户重复
+	std::string badUID = " ";
+	unsigned countsum=vector_sort.size()>1000?1000:vector_sort.size();
+	std::cout<<countsum<<std::endl;
+	for (int i_count = 0; i_count < countsum;i_count++) {
+         if(vector_sort[i_count].second<3){
+        	 break;
+         }
+		std::cout << "uid----" << vector_sort[i_count].first << "----num---"
+				<< vector_sort[i_count].second << std::endl;
+		vector<pair<unsigned int, std::string>> hashvector;
+		vector<std::string> mids;
+		for (std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
+				ib != ie; ib++) {
+			if ((*ib).u_uid == vector_sort[i_count].first) {
+				hashvector.push_back(
+						make_pair(simhash.BlogHash(ib->m_content.c_str()),ib->m_content));
+				        mids.push_back(ib->m_mid);
+				// std::cout<<ib->u_fans<<"  "<<ib->u_followees<<ib->m_content<<std::endl;
+			}
+			if ((*ib).u_uid == badUID) {
+				///删除坏的用户的微博
+				std::cout<<badUID<<std::endl;
+				std::cout<<ib->m_content<<std::endl;
+				ib=weibos.erase(ib);
+			}
 
+		}
+		badUID = vector_sort[i_count].first;
+		vector<int> hashresult;
+		int count = 0;
+		//计算用户在一个小时内所发的微博的两两hash值
+		for (unsigned int i_first = 0; i_first < hashvector.size(); i_first++) {
+			for (unsigned int j_second = i_first; j_second < hashvector.size(); j_second++) {
+				hashresult.push_back(
+						simhash.Calculate_Distance(hashvector[i_first].first,
+								hashvector[j_second].first));
+				count++;
+			}
+		}
+		int sum = 0;
+		for (unsigned int i = 0; i < hashresult.size(); i++) {
+			sum += hashresult[i];
+		}
+		///如果hash的平均值小于3，就是说这个小时内所发的微博内容几乎一样
+		if (count != 0) {
+			if (double((double) sum / count) < 3) {
+				for (unsigned int i = 0; i < hashvector.size(); i++) {
+					std::cout << hashvector[i].second << std::endl;
+					badweibolist.push_back(mids[i]);
+					///把改ID记录下来 下次循环的时候就删除该用户所发的微博
+				}
+			}
+			else{
+				badUID=" ";
+			}
+		}
+	    std::cout << "-------------------" << double((double) sum / count)<< "---------------------------" << std::endl;
+//		std::cout << "################################################"
+//				<< std::endl;
+	}
 
 }
 

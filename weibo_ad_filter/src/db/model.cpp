@@ -26,8 +26,8 @@ void PrintBlog(const Blog &b) {
   cout<<"Blog: "
     <<b.m_mid
     <<" "<<b.m_created_time
-    <<" "<<b.m_content
-    <<" "<<b.m_source
+    <<"||| "<<b.m_content
+    <<" ||| "<<b.m_source
     <<" "<<b.m_favorites
     <<" "<<b.m_comments
     <<" "<<b.m_forwards;

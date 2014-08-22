@@ -38,10 +38,10 @@ class Preprocessor {
     bool PerformTactic(const Blog& b){
       if (t_zombie.IsSpam(b))
         return false;
-     if (t_topic.IsSpam(b))
-  	  return false;
-      if (t_user.IsSpam(b))
-          	  return false;
+   //  if (t_topic.IsSpam(b))
+  //	  return false;
+     if (t_user.IsSpam(b))
+         	  return false;
       return true;
     }
 
