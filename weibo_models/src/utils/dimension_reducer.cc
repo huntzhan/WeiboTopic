@@ -19,16 +19,20 @@
 
 #include "KeywordExtractor.hpp"
 
+#include "utils/text_cleaner.h"
+
 
 namespace utils {
 
 
 template <int T>
 void TFIDFDimensionReducer<T>::Process(const VecStr &messages) {
+  utils::TextCleaner cleaner;
+  
   std::ostringstream all_messages;
   for (const std::string &message : messages) {
     // read all mes
-    all_messages << message;
+    all_messages << cleaner.Clean(message);
   }
 
   // load dataset. Make sure the path is relative to top-level build directory.
