@@ -12,5 +12,9 @@ target_link_libraries(test_dimension_reducer mysql_handler)
 add_executable(test_text_cleaner test_text_cleaner.cc)
 target_link_libraries(test_text_cleaner text_cleaner)
 
+add_executable(test_math test_math.cc)
+target_link_libraries(test_math calculator)
+
 add_gtest(test_dimension_reducer)
 add_gtest(test_text_cleaner)
+add_gtest(test_math)
