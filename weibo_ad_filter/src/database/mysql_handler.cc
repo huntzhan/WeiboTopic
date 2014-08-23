@@ -114,13 +114,15 @@ int SpamHandler::AddSpams(vector<unsigned int> &spams) {
     return update_count;
   } catch(sql::SQLException &ex) {
     cout<<"SQL Error: " << ex.what() << endl;
-    cout<<"SQL Statement: " << ex.getSQLState() << endl;
+    cout<<"SQL Syntax: " << formated_sql.str() << endl;
     abort();
   }
   return -1;
 }
 
 bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
+  if (spam.empty())
+    return false;
   /// timer
   time_t t_start = time(NULL);
 
@@ -150,7 +152,7 @@ bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
     return exist;
   } catch (sql::SQLException &ex) {
     cout<< "SQL Error: " << ex.what() << endl;
-    cout<<"SQL Statement: " << ex.getSQLState() << endl;
+    cout<<"SQL Syntax: " << formated_sql.str() << endl;
     abort();
   }
 }

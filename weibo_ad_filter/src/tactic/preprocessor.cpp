@@ -79,8 +79,10 @@ void Preprocessor::FlushCachedFingerprint(int dist) {
       continue;
     value_to_insert.push_back(i);
   }
-  Flush(value_to_insert);
-  value_to_insert.clear();
+  /// empty cache checking
+  if (! value_to_insert.empty())
+    Flush(value_to_insert);
+  fingerprint.clear();
 }
 
 /**

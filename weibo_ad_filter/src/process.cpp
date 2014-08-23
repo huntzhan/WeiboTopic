@@ -112,7 +112,8 @@ int main() {
     /**
      * Perform DB Insertion Operation here
      */
-    InsertDataToTable(table, insert_datas);
+    string insert_tablename = "Filtered" + table;
+    InsertDataToTable(insert_tablename, insert_datas);
   }
 
   std::cout<<"Program has finished"<<std::endl;
