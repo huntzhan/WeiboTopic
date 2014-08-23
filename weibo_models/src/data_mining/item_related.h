@@ -15,6 +15,7 @@
 // ============================================================================
 
 #include <vector>
+#include <cstddef>
 
 #include "data_mining/interface.h"
 #include "utils/dimension_reducer.h"
@@ -27,7 +28,7 @@ namespace data_mining {
 
 class AdapterForBitset : public AdapterInterface {
  public:
-  template <int dimension>
+  template <std::size_t dimension>
   AdapterForBitset(
       const utils::BitsetFeatures<dimension> &message, const int &id);
   // interface.
@@ -67,13 +68,13 @@ class ItemSetWithCosineDistance : public ItemSetInterface {
 namespace data_mining {
 
 
-template <int dimension>
+template <std::size_t dimension>
 AdapterForBitset::AdapterForBitset(
     const utils::BitsetFeatures<dimension> &message, const int &id) {
   id_ = id;
   // 1.0 represents that the item holds the feature, while 0.0 not.
-  for (const auto &flag : message) {
-    if (flag) {
+  for (std::size_t index = 0; index != message.size(); ++index) {
+    if (message[index]) {
       features_.push_back(1.0);
     } else {
       features_.push_back(0.0);
