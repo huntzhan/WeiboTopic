@@ -21,7 +21,7 @@
 
 
 using utils::BitsetFeatures;
-using utils::ItemWithCosineDistance;
+using data_mining::ItemWithCosineDistance;
 using data_mining::AdapterForBitset;
 
 
@@ -46,7 +46,7 @@ TEST(test_dm, test_adapter) {
 }
 
 
-test(test_dm, test_item_similarity_1) {
+TEST(test_dm, test_item_similarity_1) {
   ItemWithCosineDistance item_a, item_b;
   item_a.set_features({0.5, 0.4});
   item_b.set_features({0.5, 0.4});
@@ -54,7 +54,7 @@ test(test_dm, test_item_similarity_1) {
 }
 
 
-test(test_dm, test_item_similarity_2) {
+TEST(test_dm, test_item_similarity_2) {
   ItemWithCosineDistance item_a, item_b;
   item_a.set_features({0.0, 1.0});
   item_b.set_features({1.0, 0.0});
@@ -62,7 +62,7 @@ test(test_dm, test_item_similarity_2) {
 }
 
 
-test(test_dm, test_item_similarity_3) {
+TEST(test_dm, test_item_similarity_3) {
   ItemWithCosineDistance item_a, item_b;
   item_a.set_features({0.5, 0.4});
   item_b.set_features({0.0, 0.3});
