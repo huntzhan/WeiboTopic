@@ -72,13 +72,14 @@ void TFIDFDimensionReducer<dimension>::Process(const VecStr &messages) {
 
 
 template <int dimension>
-VecStr TFIDFDimensionReducer<T>::GetKeywords() const {
+VecStr TFIDFDimensionReducer<dimension>::GetKeywords() const {
   return keywords_;
 }
 
 
 template <int dimension>
-VecBitset<T> TFIDFDimensionReducer<T>::GetVectorizedMessages() const {
+VecBitset<dimension>
+TFIDFDimensionReducer<dimension>::GetVectorizedMessages() const {
   return vectorized_messages_;
 }
 
