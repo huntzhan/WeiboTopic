@@ -25,38 +25,38 @@ namespace utils {
 // auxiliary types.
 using VecStr = std::vector<std::string>;
 
-template <int feature_size>
-using BitsetFeatures = std::bitset<feature_size>;
+template <int dimension>
+using BitsetFeatures = std::bitset<dimension>;
 
-template <int feature_size>
-using VecBitset = std::vector<BitsetFeatures<feature_size>>;
+template <int dimension>
+using VecBitset = std::vector<BitsetFeatures<dimension>>;
 
 
 // @brief: Extract keywords of a set of messages and vectorize messages.
-template <int T>
+template <int dimension>
 class DimensionReducerInterface {
  public:
   // interfaces.
   virtual void Process(const VecStr &messages) = 0;
-  virtual VecStr GetKeywords() = 0;
-  virtual VecBitset<T> GetVectorizedMessages() = 0;
+  virtual VecStr GetKeywords() const = 0;
+  virtual VecBitset<dimension> GetVectorizedMessages() const = 0;
 };
 
 
-template <int T>
-class TFIDFDimensionReducer : public DimensionReducerInterface<T> {
+template <int dimension>
+class TFIDFDimensionReducer : public DimensionReducerInterface<dimension> {
  public:
   void Process(const VecStr &messages) override;
-  VecStr GetKeywords() override;
-  VecBitset<T> GetVectorizedMessages() override;
+  VecStr GetKeywords() const override;
+  VecBitset<dimension> GetVectorizedMessages() const override;
  
  private:
   VecStr keywords_;
-  VecBitset<T> vectorized_messages_;
+  VecBitset<dimension> vectorized_messages_;
 };
 
 }  // namespace utils
 
-#include "utils/dimension_reducer.cc"
+#include "utils/dimension_reducer-inl.h"
 
 #endif

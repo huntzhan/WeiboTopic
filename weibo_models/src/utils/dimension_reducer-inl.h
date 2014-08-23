@@ -18,6 +18,7 @@
 #include <bitset>
 #include <sstream>
 #include <utility>
+#include <iterator>
 
 #include "KeywordExtractor.hpp"
 
@@ -27,8 +28,8 @@
 namespace utils {
 
 
-template <int T>
-void TFIDFDimensionReducer<T>::Process(const VecStr &messages) {
+template <int dimension>
+void TFIDFDimensionReducer<dimension>::Process(const VecStr &messages) {
   utils::TextCleaner cleaner;
   
   std::ostringstream all_messages;
@@ -44,20 +45,23 @@ void TFIDFDimensionReducer<T>::Process(const VecStr &messages) {
       "data/jieba/idf.utf8",
       "data/jieba/stop_words.utf8");
   VecStr keywords;
-  extractor.extract(all_messages.str(), keywords, T);
+  extractor.extract(all_messages.str(), keywords, dimension);
 
-  VecBitset<T> vectorized_messages;
+  VecBitset<dimension> vectorized_messages;
   for (const std::string &message : messages) {
-    int index = 0;
-    std::bitset<T> vectorized_message;
+    std::bitset<dimension> vectorized_message;
+
     // try to find each keyword in message.
-    for (const std::string &keyword : keywords) {
-      if (message.find(keyword) != std::string::npos) {
+    for (auto keyword_iter = keywords.cbegin();
+         keyword_iter != keywords.cend(); ++keyword_iter) {
+      // get current index.
+      auto index = std::distance(keywords.cbegin(), keyword_iter);
+      // check existence of keyword.
+      if (message.find(*keyword_iter) != std::string::npos) {
         vectorized_message[index] = true;
       } else {
         vectorized_message[index] = false;
       }
-      ++index;
     }
     vectorized_messages.push_back(vectorized_message);
   }
@@ -67,14 +71,15 @@ void TFIDFDimensionReducer<T>::Process(const VecStr &messages) {
 }
 
 
-template <int T>
-VecStr TFIDFDimensionReducer<T>::GetKeywords() {
+template <int dimension>
+VecStr TFIDFDimensionReducer<dimension>::GetKeywords() const {
   return keywords_;
 }
 
 
-template <int T>
-VecBitset<T> TFIDFDimensionReducer<T>::GetVectorizedMessages() {
+template <int dimension>
+VecBitset<dimension>
+TFIDFDimensionReducer<dimension>::GetVectorizedMessages() const {
   return vectorized_messages_;
 }
 

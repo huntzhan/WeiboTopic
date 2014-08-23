@@ -28,6 +28,6 @@ class Cosine {
 
 }  // namespace utils
 
-#include "utils/calculator.cc"
+#include "utils/calculator-inl.h"
 
 #endif
