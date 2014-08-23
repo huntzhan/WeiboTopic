@@ -20,10 +20,11 @@
 #include "data_mining/item_related.h"
 
 using utils::BitsetFeatures;
+using data_mining::AdapterForBitset;
 
 TEST(test_dm, test_adapter) {
   BitsetFeatures<10> message(~0);  // set all bits to be 1.
-  AdapterForBitset adapter(message, 3);
+  const AdapterForBitset adapter(message, 3);
 
   EXPECT_EQ(3, adapter.GetID());
   auto features = adapter.GetFeatures();

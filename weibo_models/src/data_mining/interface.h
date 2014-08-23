@@ -15,7 +15,7 @@
 //
 // ============================================================================
 #include <vector>
-
+#include <functional>
 
 #ifndef DATA_MINING_INTERFACE_H_
 #define DATA_MINING_INTERFACE_H_
@@ -26,6 +26,10 @@ namespace data_mining {
 using Features = std::vector<double>;
 using IDs = std::vector<int>;
 
+class ItemInterface;
+using VecRefItems = std::vector<
+    std::reference_wrapper<const ItemInterface>>;
+
 
 class AdapterInterface {
  public:
@@ -34,7 +38,7 @@ class AdapterInterface {
 };
 
 
-class Property {
+class ItemProperty {
  public:
   // accessor.
   int id() const { return id_; }
@@ -46,17 +50,30 @@ class Property {
  private:
   Features features_;
   int id_;
-}
+};
 
 
-class ItemInterface : public Property {
+class ItemInterface : public ItemProperty {
  public:
   // interface to calculate similarity between two items.
   virtual double Similarity(const ItemInterface &other) const = 0;
 };
 
 
-class ItemSetInterface : public Property {
+class ItemSetProperty : public ItemProperty {
+ public:
+  // accessor.
+  VecRefItems items() const { return items_; }
+  // mutator.
+  void set_items(const VecRefItems &items) { items_ = items; }
+  void add_item(const ItemInterface &item) { items_.push_back(item); }
+
+ private:
+  VecRefItems items_;
+};
+
+
+class ItemSetInterface : public ItemSetProperty {
  public:
   virtual double Similarity(const ItemSetInterface &other) const = 0;
   virtual void Merge(const ItemSetInterface &other) = 0;
