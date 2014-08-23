@@ -19,21 +19,27 @@ unsigned int SimHash::RSHash(const char *str) {
  */
 unsigned int SimHash::BlogHash(const char *m_content) {
   std::vector<std::string> word;
-  std::vector<unsigned int> hashword;
   parser.LexicalAnalysisWord(m_content, word);
-  for (std::vector<std::string>::iterator it_word = word.begin(), end_word =
-      word.end(); it_word != end_word; it_word++) {
+  return BlogHashAfterParser(word);
+}
+
+/*
+ * 计算一条分词后的微博的hash值  因为是短文本没有加权
+ *
+ */
+unsigned int SimHash::BlogHashAfterParser(const std::vector<std::string> &words) {
+  std::vector<unsigned int> hashword;
+  for(string word : words) {
     ///计算一个单词的hash值
-    unsigned int res = RSHash((*it_word).c_str());
+    unsigned int res = RSHash((word).c_str());
     hashword.push_back(res);
   }
   unsigned int hashvalue = 0;
   for (int i = 0; i < 32; i++) {
     int sum = 0;
     ///所有特征向量进行加权（1则为正，0则为负），然后累加 这里没有用到权值
-    for (std::vector<unsigned int>::iterator it_hash = hashword.begin(),
-        end_hash = hashword.end(); it_hash != end_hash; it_hash++) {
-      if (((0x00000001 << i) & (*it_hash))) {
+    for(unsigned int v : hashword) {
+      if (((0x00000001 << i) & (v))) {
         sum++;
       } else {
         sum--;
@@ -48,6 +54,7 @@ unsigned int SimHash::BlogHash(const char *m_content) {
   }
   return hashvalue;
 }
+
 /**
  * 计算海明距离
  */
