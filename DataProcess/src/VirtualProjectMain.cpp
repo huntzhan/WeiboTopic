@@ -7,6 +7,7 @@
  *      先生成一个数据库的操作类，生成特征词（特征词，主题词，关键词都是指话题生成时的词，只是在不同阶段叫法不一样）
  *      再计算特征词 的共现度，最后一趟聚类生成话题
  */
+#include"TrainModel.h"
 #include"DBoperation.h"
 #include "GetTopic.h"
 #include "Cluster.h"
@@ -33,7 +34,7 @@ int main() {
 	int BELONG_TOPIC_THROD = 3;
 
 	//提取子话题时提取的单位词的个数
-	int NUM_OF_SUB_WORD = 3;
+	int NUM_OF_SUB_WORD = 10;
 
 	//调节阈值的参数
 	int THROD_ADD = 10;
@@ -51,7 +52,7 @@ int main() {
 	DBoperation dboper;
 
 	//初始化要使用的数据库
-	dboper.DBinit("use test",connpool);
+	dboper.DBinit("use split",connpool);
 
 	//查询该数据库有多少表
 	std::list<std::string> table;
@@ -82,7 +83,7 @@ int main() {
 	topicwordmap = gettopic.GetTopicWord();
 	Cluster cluster(&dboper, topicwordmap);
 	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,
-	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM);
+	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM,NUM_OF_SUB_WORD);
 	cluster.Singlepass();
 
 
@@ -92,5 +93,7 @@ int main() {
 	ends6 = time(NULL);
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
+//  TrainModel tm;
+//  tm.TrainClassModel();
 	return 0;
 }

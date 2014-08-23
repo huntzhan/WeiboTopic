@@ -52,5 +52,6 @@ public:
 	void GenAllTopicView();
 	void SelectMainIdeaWithTopicWord(Topic &onetopic);
 	std::vector<std::string> SplitWeiboSplit(std::string &str);
+	void SortSubTopicListByWordLen(Topic &onetopic);
 };
 #endif /* POINT_H_ */

@@ -11,6 +11,18 @@ std::vector<std::string> split(std::string str){
 	result.push_back(table);
 	return result;
 }
+
+std::string DBoperation::Gentime(){
+  time_t t;
+  t = time(0);
+  char now[64];
+  struct tm *ttime;
+  //将获得的时间进行各种转换的结构体
+  ttime = localtime(&t);
+  strftime(now, 64, "%Y%m%d", ttime);
+  string strtime(now);
+  return strtime;
+}
 void DBoperation::DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIndex,std::list<std::string>table){
 	this->weibo_size=weibo_size;
 	this->OneTimeReadWeiboNum=OneTimeReadWeiboNum;
@@ -22,6 +34,7 @@ void DBoperation::DBinit(std::string  database,ConnPool *connpool){
 	con = m_connpool->GetConnection();
 	state = con->createStatement();
 	state->execute(database);
+	this->topic_table_name=this->Gentime();
 
 }
 void DBoperation::DBclose(){
@@ -73,7 +86,6 @@ void DBoperation::GetMidandText(long startline,long length,std::list<OneWeibo> &
 			i++;
 			word.proper = goodWordstemp[i];
 			originalword.words.push_back(word);
-			//		std::cout<<word.word<<"|"<<word.proper<<std::endl;
 		}
 		 result.push_back(originalword);
     }
@@ -122,7 +134,7 @@ DBoperation::~DBoperation(){
 
 void DBoperation::InsertData(Topic &onetopic, int flag) {
   char table_name[512];
-  std::string topictablename = "Topic";
+  std::string topictablename = "Topic_"+this->topic_table_name+"_";
   int newestID = 0;
 
   //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
@@ -131,6 +143,11 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
       std::string mytablename = "OneDayTopic";
       std::string topicwords;
       int weibonumbers = onetopic.topic_message_num;
+      std::string main_idea;
+      std::list<subword>::iterator mainidea_it = onetopic.GetSubWordList()->begin();
+      for(;mainidea_it!=onetopic.GetSubWordList()->end();++mainidea_it){
+        main_idea+=mainidea_it->word+" ";
+      }
 
       con->setAutoCommit(false);
       char sql_query[1024];
@@ -139,8 +156,8 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
         topicwords += it->m_sword + " ";
       }
 
-      sprintf(sql_query, "insert into %s values('','%s','','%d')",
-          mytablename.c_str(), topicwords.c_str(), weibonumbers); //(topicid,topicwords,mainidea,weibonumber)
+      sprintf(sql_query, "insert into %s values('','%s','%s','%d')",
+          mytablename.c_str(), topicwords.c_str(), main_idea.c_str(),weibonumbers); //(topicid,topicwords,mainidea,weibonumber)
 
       state->executeUpdate(sql_query);
       con->commit();
@@ -248,7 +265,7 @@ bool DBoperation::ChangeToNextTable(int & count){
 
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
-		if (this->tableIndex == 2){//this->table.size()-1
+		if (this->tableIndex == 11){//this->table.size()-1
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}

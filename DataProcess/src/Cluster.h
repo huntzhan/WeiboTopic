@@ -9,6 +9,7 @@
 
 #ifndef CLUSTER_H_
 #define CLUSTER_H_
+#include "IsPolitics.h"
 #include "TopicView.h"
 #include "CooccurrenceWord.h"
 #include "DBoperation.h"
@@ -23,6 +24,8 @@
 class Cluster{
 
 public:
+  //提取子话题时提取的单位词的个数
+  int NUM_OF_SUB_WORD;
   //话题下观点提取代表性的微博数
   int TOPICVIEW_WEIBO_NUM;
 
@@ -73,13 +76,15 @@ public:
 	}
 
 	void InitConfigure(int randsize, int BELONG_TOPIC_THROD,
-	    double THROD_ADD, int weibosize, int MIN_TOPIC_MESSAGE_NUM, int TOPICVIEW_WEIBO_NUM){
+	    double THROD_ADD, int weibosize, int MIN_TOPIC_MESSAGE_NUM,
+	     int TOPICVIEW_WEIBO_NUM, int NUM_OF_SUB_WORD){
 		this->RAND_SIZE=randsize;
 		this->weibosize=weibosize;
 		this->BELONG_TOPIC_THROD=BELONG_TOPIC_THROD;
 		this->THROD_ADD=THROD_ADD;
 		this->MIN_TOPIC_MESSAGE_NUM=MIN_TOPIC_MESSAGE_NUM;
 		this->TOPICVIEW_WEIBO_NUM=TOPICVIEW_WEIBO_NUM;
+		this->NUM_OF_SUB_WORD=NUM_OF_SUB_WORD;
 	}
 
 
@@ -98,7 +103,7 @@ public:
 	//将所有的话题信息和话题下的对应的微博插入数据库
   void InsterAllTopicToDatabase();
   //插入一个话题
-	void InsertTopicToDatabase(Topic &one_topic,TopicView &tw);
+	void InsertTopicToDatabase(Topic &one_topic,TopicView &tw, IsPolitics &ispo);
 
 	//筛选话题下对应的微博
 	void ListEveryTopicWeiboId(Topic &one_topic);

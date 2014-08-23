@@ -13,7 +13,12 @@
 #include<string>
 #include<algorithm>
 #define TOPICVIEW
-
+bool SubTopicSortByWordLength(const subword &key1, const subword &key2){
+  if(key1.word.size()>key2.word.size()){
+    return true;
+  }
+  return false;
+}
 void TopicView::GenAllTopicView() {
   std::vector<Topic>::iterator it = this->clusterList->begin();
   for (; it != this->clusterList->end(); ++it) {
@@ -25,7 +30,15 @@ void TopicView::GenAllTopicView() {
 #endif
 }
 
+void AddSplitWordToMap(std::string word,std::map<std::string, double> *zhutici_map) {
 
+  std::map<std::string, double>::iterator ztm_it = zhutici_map->find(word);
+  if (ztm_it == zhutici_map->end())
+    zhutici_map->insert(make_pair(word, 1.0));
+  else {
+    ztm_it->second += 1;
+  }
+}
 
 void TopicView::GenOneTopicView(Topic &onetopic) {
   std::list<Weibo> topic_weibo;
@@ -42,43 +55,50 @@ void TopicView::GenOneTopicView(Topic &onetopic) {
     std::string split = oneweibo.spilt;
     std::vector<std::string>splittext=SplitWeiboSplit(split);
     std::vector<std::string>::iterator v_it = splittext.begin();
+    std::string oneword,twoword,threeword,fourword,fiveword;
 
-    std::string twoword;
-    std::string threeword;
     std::map<std::string, double>*zhutici_map = onetopic.GetMainIdea();
-    std::map<std::string, double>::iterator ztm_it;
+//    std::map<std::string, double>::iterator ztm_it;
 
     for (; v_it != splittext.end(); ++v_it) {
-
-      if (v_it >= splittext.end() - 2)
+//      //一单位词
+      if (v_it >= splittext.end() -1)
         break;
-      twoword = *v_it + *(v_it + 1)+*(v_it + 2);
-      ztm_it = zhutici_map->find(twoword);
-      if (ztm_it == zhutici_map->end())
-        zhutici_map->insert(make_pair(twoword, 1.0));
-      else {
-        ztm_it->second += 1;
-      }
+      oneword = *v_it ;
+//      AddSplitWordToMap(oneword, zhutici_map);
 
+      //二单位词
+      if (v_it >= splittext.end() - 2)
+        continue;
+      twoword = oneword + *(v_it + 1);
+//      AddSplitWordToMap(twoword, zhutici_map);
 
+      //三单位词
       if (v_it >= splittext.end() - 3)
         continue;
-      threeword = twoword+*(v_it + 3);
-//      std::cout<<"three word : "<<threeword<<std::endl;
-      ztm_it = zhutici_map->find(threeword);
-      if (ztm_it == zhutici_map->end())
-        zhutici_map->insert(make_pair(threeword, 1.0));
-      else {
-        ztm_it->second += 1;
-      }
-    }
+      threeword = twoword +  *(v_it + 2);
+      AddSplitWordToMap(threeword, zhutici_map);
 
+
+      //四单位词
+      if (v_it >= splittext.end() - 4)
+        continue;
+      fourword = threeword + *(v_it + 3);
+      AddSplitWordToMap(fourword, zhutici_map);
+
+      //五单位词
+      if (v_it >= splittext.end() - 5)
+        continue;
+      fiveword = fourword + *(v_it + 4);
+      AddSplitWordToMap(fiveword, zhutici_map);
+    }
   }
   this->SortSubTopicMap(onetopic);
   this->SelectMainIdeaWithTopicWord(onetopic);
   printTopicView(onetopic);
   onetopic.GetMainIdea()->clear();
 }
+
 /*
  * @description：
  *  在提取出单位关键词按词频排序后，再将查询前10个词中是否有出现话题关键词，如果有的话，就将其权值加大
@@ -117,6 +137,7 @@ void TopicView::SelectMainIdeaWithTopicWord(Topic &onetopic){
   }
 
   this->SortSubTopicMap(onetopic);
+  this->SortSubTopicListByWordLen(onetopic);
 }
 
 void TopicView::SortSubTopicMap(Topic &onetopic) {
@@ -128,7 +149,7 @@ void TopicView::SortSubTopicMap(Topic &onetopic) {
     vec_sort.push_back(make_pair(it->first, it->second));
   }
   int count = 0;
-  int num_of_sub_word = NUM_OF_SUB_WORD;
+  int num_of_sub_word = this->NUM_OF_SUB_WORD;
   if (num_of_sub_word < zhutici_map->size()) {
     num_of_sub_word = zhutici_map->size();
   }
@@ -144,7 +165,21 @@ void TopicView::SortSubTopicMap(Topic &onetopic) {
     onetopic.GetSubWordList()->push_back(sw);
   }
 }
+void TopicView::SortSubTopicListByWordLen(Topic &onetopic){
+  std::vector<subword > vec_sort;
+  int wordnum=0;
+  std::list<subword>::iterator it =  onetopic.GetSubWordList()->begin();
+  for(;it!= onetopic.GetSubWordList()->end();++it){
+    if(wordnum++>3)break;
+    vec_sort.push_back(*it);
+  }
+  std::sort(vec_sort.begin(),vec_sort.end(),SubTopicSortByWordLength);
+  onetopic.GetSubWordList()->clear();
+  for(int i=0;i<vec_sort.size();++i){
+    onetopic.GetSubWordList()->push_back(vec_sort[i]);
+  }
 
+}
 
 
 bool SubTopicSort(const PAIRS & key1, const PAIRS & key2) {

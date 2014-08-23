@@ -26,6 +26,8 @@ public:
 	Connection *con;
 	Statement *state;
 
+	std::string topic_table_name;
+
 	void DB_query(char * sql_query, std::list<std::list<std::string> > &result);
 
 	std::string table_name;
@@ -56,6 +58,7 @@ public:
 	std::vector<std::string> stringSplitToVector(std::string  &str,int splitLen);
 
 	std::vector<std::string> BoostMatchWord(std::string str);
+	std::string Gentime();
 	~DBoperation();
 };
 
