@@ -15,6 +15,7 @@
 // ============================================================================
 
 #include <vector>
+#include <cstddef>
 
 #include "data_mining/interface.h"
 #include "utils/dimension_reducer.h"
@@ -27,7 +28,7 @@ namespace data_mining {
 
 class AdapterForBitset : public AdapterInterface {
  public:
-  template <int dimension>
+  template <std::size_t dimension>
   AdapterForBitset(
       const utils::BitsetFeatures<dimension> &message, const int &id);
   // interface.
@@ -47,18 +48,16 @@ class ItemWithCosineDistance : public ItemInterface {
 };
 
 
-class ItemSetWithCosineDistance : public ItemSetWithCosineDistance {
+class ItemSetWithCosineDistance : public ItemSetInterface {
  public:
   ItemSetWithCosineDistance(const ItemWithCosineDistance &item);
   // interface.
   double Similarity(const ItemSetInterface &other) const override;
   void Merge(const ItemSetInterface &other) override;
   // accessor.
-  std::vector<ItemWithCosineDistance> items() const;
 
  private:
   void UpdateMeanFeatures();
-  std::vector<ItemWithCosineDistance> &items_;
 };
 
 
@@ -69,13 +68,13 @@ class ItemSetWithCosineDistance : public ItemSetWithCosineDistance {
 namespace data_mining {
 
 
-template <int dimension>
+template <std::size_t dimension>
 AdapterForBitset::AdapterForBitset(
     const utils::BitsetFeatures<dimension> &message, const int &id) {
   id_ = id;
   // 1.0 represents that the item holds the feature, while 0.0 not.
-  for (const auto &flag : message) {
-    if (flag) {
+  for (std::size_t index = 0; index != message.size(); ++index) {
+    if (message[index]) {
       features_.push_back(1.0);
     } else {
       features_.push_back(0.0);

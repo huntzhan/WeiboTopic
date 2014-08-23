@@ -19,16 +19,18 @@
 #include <string>
 #include <vector>
 #include <bitset>
+#include <cstddef>
+
 
 namespace utils {
 
 // auxiliary types.
 using VecStr = std::vector<std::string>;
 
-template <int dimension>
+template <std::size_t dimension>
 using BitsetFeatures = std::bitset<dimension>;
 
-template <int dimension>
+template <std::size_t dimension>
 using VecBitset = std::vector<BitsetFeatures<dimension>>;
 
 

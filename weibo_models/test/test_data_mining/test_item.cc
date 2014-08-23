@@ -16,13 +16,13 @@
 
 #include "gtest/gtest.h"
 
-#include "utils/dimension_reducer.h"
 #include "data_mining/item_related.h"
+#include "utils/dimension_reducer.h"
 
 
 using utils::BitsetFeatures;
 using utils::ItemWithCosineDistance;
-
+using data_mining::AdapterForBitset;
 
 TEST(test_dm, test_adapter) {
   BitsetFeatures<10> all_one_message(~0);  // set all bits to be 1.
