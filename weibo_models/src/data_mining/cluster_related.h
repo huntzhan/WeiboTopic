@@ -19,7 +19,7 @@
 #include <functional>
 
 #include "data_mining/interface.h"
-#include "data_mining/cluster_related.h"
+#include "data_mining/item_related.h"
 
 
 #ifndef DATA_MINING_CLUSTER_RELATED_H_

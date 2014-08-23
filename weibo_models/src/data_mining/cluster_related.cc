@@ -33,9 +33,9 @@ ItemSetRefPair AuxiliaryFunc::MakeItemSetRefPair(
   auto id_a = item_a.id();
   auto id_b = item_b.id();
   if (id_a > id_b) { 
-    return ItemSetInterface(item_b, item_a);
+    return ItemSetRefPair(item_b, item_a);
   } else {
-    return ItemSetInterface(item_1, item_b);
+    return ItemSetRefPair(item_a, item_b);
   }
 }
 
