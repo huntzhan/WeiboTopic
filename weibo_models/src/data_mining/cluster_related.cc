@@ -51,6 +51,12 @@ AuxiliaryFunc::BinarySearchListRefItemSets(
 }
 
 
+void AuxiliaryFunc::RemoveItemSetRefFromListRefItemSets(
+      ListRefItemSets *item_sets, const ListRefItemSets::iterator &iter) {
+  item_sets->erase(iter);
+}
+
+
 void AuxiliaryFunc::InsertItemSetToListRefItemSets(
     ListRefItemSets *item_sets, const ItemSetRef &item_set) {
   // find insert point.

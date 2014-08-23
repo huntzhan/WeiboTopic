@@ -43,6 +43,9 @@ class AuxiliaryFunc {
   static ListRefItemSets::iterator BinarySearchListRefItemSets(
       ListRefItemSets *item_sets, const ItemSetRef &item_set);
 
+  static void RemoveItemSetRefFromListRefItemSets(
+      ListRefItemSets *item_sets, const ListRefItemSets::iterator &iter);
+
   static void InsertItemSetToListRefItemSets(
       ListRefItemSets *item_sets, const ItemSetRef &item_set);
 };
