@@ -26,28 +26,25 @@
 #define DATA_MINING_CLUSTER_RELITEM_H_
 namespace data_mining {
 
-
-using ItemSetRefPair = std::pair<
-  std::reference_wrapper<const ItemSetInterface>,
-  std::reference_wrapper<const ItemSetInterface>>;
+using ItemSetRefPair = std::pair<ItemSetRef, ItemSetRef>;
 
 // compare function for ItemSetInterface.
-auto item_set_compare = [](const ItemSetInterface &a,
-                           const ItemSetInterface &b) {
-  return a.id() < b.id();
-}
+auto item_set_compare = [](const ItemSetRef &a,
+                           const ItemSetRef &b) {
+  return a.get().id() < b.get().id();
+};
 
 
 class AuxiliaryFunc {
  public:
   static ItemSetRefPair MakeItemSetRefPair(
-      const ItemInterface &item_a, const ItemInterface &item_a);
+      const ItemSetRef &item_a, const ItemSetRef &item_b);
 
   static ListRefItemSets::iterator BinarySearchListRefItemSets(
-      ListRefItemSets *item_sets, const ItemSetInterface &item_set);
+      ListRefItemSets *item_sets, const ItemSetRef &item_set);
 
   static void InsertItemSetToListRefItemSets(
-      ListRefItemSets *item_sets, const ItemSetInterface &item_set);
+      ListRefItemSets *item_sets, const ItemSetRef &item_set);
 };
 
 

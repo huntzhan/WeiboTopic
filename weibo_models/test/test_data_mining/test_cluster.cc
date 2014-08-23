@@ -18,6 +18,11 @@
 
 #include "data_mining/interface.h"
 #include "data_mining/item_related.h"
+#include "data_mining/cluster_related.h"
+
+#include <iostream>
+using std::cout;
+using std::endl;
 
 using data_mining::ItemWithCosineDistance;
 using data_mining::ItemSetWithCosineDistance;
@@ -30,11 +35,12 @@ using data_mining::AuxiliaryFunc;
 TEST(test_cluster, test_makeitemsetrefpair) {
   ItemWithCosineDistance item_0;
   ItemWithCosineDistance item_1;
-  item_0.set_id(0);
-  item_1.set_id(1);
 
   ItemSetWithCosineDistance item_set_0(item_0);
   ItemSetWithCosineDistance item_set_1(item_1);
+
+  item_set_0.set_id(0);
+  item_set_1.set_id(1);
 
   auto ref_pair = AuxiliaryFunc::MakeItemSetRefPair(
       item_set_1, item_set_0);

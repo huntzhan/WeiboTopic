@@ -32,8 +32,9 @@ class ItemSetInterface;
 
 using VecRefItems = std::vector<
     std::reference_wrapper<const ItemInterface>>;
-using ListRefItemSets = std::list<
-    std::reference_wrapper<const ItemSetInterface>>;
+
+using ItemSetRef = std::reference_wrapper<const ItemSetInterface>;
+using ListRefItemSets = std::list<ItemSetRef>;
 
 
 class AdapterInterface {

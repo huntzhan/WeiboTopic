@@ -14,24 +14,26 @@
 //
 // ============================================================================
 
+#include <vector>
 #include <utility>
 #include <algorithm>
 
 #include "data_mining/cluster_related.h"
 
 
+using std::vector;
 using std::swap;
 using std::upper_bound;
-using std::binary_search;
+using std::lower_bound;
 
 
 namespace data_mining {
 
 
 ItemSetRefPair AuxiliaryFunc::MakeItemSetRefPair(
-    const ItemInterface &item_a, const ItemInterface &item_a) {
-  auto id_a = item_a.id();
-  auto id_b = item_b.id();
+    const ItemSetRef &item_a, const ItemSetRef &item_b) {
+  auto id_a = item_a.get().id();
+  auto id_b = item_b.get().id();
   if (id_a > id_b) { 
     return ItemSetRefPair(item_b, item_a);
   } else {
@@ -43,25 +45,25 @@ ItemSetRefPair AuxiliaryFunc::MakeItemSetRefPair(
 
 ListRefItemSets::iterator
 AuxiliaryFunc::BinarySearchListRefItemSets(
-    ListRefItemSets *item_sets, const ItemSetInterface &item_set) {
-  return binary_search(item_sets_->begin(), item_sets_->end(),
-                       item_set, item_set_compare);
+    ListRefItemSets *item_sets, const ItemSetRef &item_set) {
+  return lower_bound(item_sets->begin(), item_sets->end(),
+                     item_set, item_set_compare);
 }
 
 
 void AuxiliaryFunc::InsertItemSetToListRefItemSets(
-    ListRefItemSets *item_sets, const ItemSetInterface &item_set) {
+    ListRefItemSets *item_sets, const ItemSetRef &item_set) {
   // find insert point.
   auto insert_point =
-      std::upper_bound(item_sets_->begin(), item_sets_->end(),
-                       item_set_compare);
-  item_sets_.insert(insert_point, item_set);
+      std::upper_bound(item_sets->begin(), item_sets->end(),
+                       item_set, item_set_compare);
+  item_sets->insert(insert_point, item_set);
 }
 
 
 void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
-  auto id = adapter.id();
-  auto features = adapter.features();
+  auto id = adapter.GetID();
+  auto features = adapter.GetFeatures();
   // init item.
   ItemWithCosineDistance item;
   item.set_features(features);
@@ -70,6 +72,21 @@ void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
   ItemSetWithCosineDistance item_set(item);
   // keep it.
   AuxiliaryFunc::InsertItemSetToListRefItemSets(&item_sets_, item_set);
+}
+
+
+void HierarchyClustering::Prepare() {
+
+}
+
+
+void HierarchyClustering::CarryOutCluster() {
+
+}
+
+
+vector<ClusterResult> HierarchyClustering::GetClusterResults() {
+  return {};
 }
 
 
