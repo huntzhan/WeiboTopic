@@ -38,6 +38,7 @@ include_directories(src)
 add_subdirectory(src/example)
 add_subdirectory(src/database)
 add_subdirectory(src/utils)
+add_subdirectory(src/data_mining)
 
 
 ################
@@ -73,5 +74,4 @@ endif(test_example)
 
 add_subdirectory(test/test_mysql_conn)
 add_subdirectory(test/test_utils)
-# debug.
-# add_subdirectory(test/test_cppjieba)
+add_subdirectory(test/test_data_mining)

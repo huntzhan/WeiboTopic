@@ -41,52 +41,45 @@ int AdapterForBitset::GetID() const {
 
 double ItemWithCosineDistance::Similarity(
     const ItemInterface &other) const {
-  auto other_features = other.GetFeatures();
-  return Cosine::Evaluate(features_, other_features);
-}
-
-
-Features ItemSetWithCosineDistance::mean_features() const {
-  return mean_features_;
+  auto other_features = other.features();
+  return Cosine::Evaluate(features(), other_features);
 }
 
 
 ItemSetWithCosineDistance::ItemSetWithCosineDistance(
     const ItemWithCosineDistance &item) {
-  set_features(item.GetFeatures());
-  items_.push_back(item);
+  set_features(item.features());
+  add_item(item);
 }
 
 
 double ItemSetWithCosineDistance::Similarity(
-    const ItemSetInterface &other) {
+    const ItemSetInterface &other) const {
   auto other_features = other.features();
   auto this_features = features();
   return Cosine::Evaluate(this_features, other_features);
 }
 
 
-std::vector<ItemWithCosineDistance>
-ItemSetWithCosineDistance::items() const {
-  return items_;
-}
-
-
 void ItemSetWithCosineDistance::UpdateMeanFeatures() {
-  auto set_of_features = features();
-  auto dimension = set_of_features[0].size();
+  auto contained_items = items();
+  auto dimension = features().size();
 
   Features sum_of_features(dimension, 0.0);
   // sum up.
-  for (const auto &features: set_of_features) {
-    for (auto iter = features.cbegin(); iter != features.cend(); ++iter) {
-      auto index = distance(features.cbegin(), iter);
+  for (const ItemInterface &item : contained_items) {
+    // get feature of item.
+    auto item_features = item.features();
+    // sum up features.
+    for (auto iter = item_features.cbegin();
+         iter != item_features.cend(); ++iter) {
+      auto index = distance(item_features.cbegin(), iter);
       sum_of_features[index] += *iter;
     }
   }
   // calculate mean.
   for (auto &feature_value : sum_of_features) {
-    feature_value /= set_of_features.size();
+    feature_value /= contained_items.size();
   }
   set_features(sum_of_features);
 }
@@ -96,8 +89,8 @@ void ItemSetWithCosineDistance::Merge(
     const ItemSetInterface &other) {
   // merge itmes.
   auto other_items = other.items();
-  for (const auto &item : other_items) {
-    items_.push_back(item);
+  for (const ItemInterface &item : other_items) {
+    add_item(item);
   }
   // update mean features;
   UpdateMeanFeatures();
