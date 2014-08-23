@@ -13,6 +13,8 @@
 //   Organization:  
 //
 // ============================================================================
+#include "data_mining/item_related.h"
+
 #include <cstddef>
 #include <iterator>
 
