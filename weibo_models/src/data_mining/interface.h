@@ -15,6 +15,7 @@
 //
 // ============================================================================
 #include <vector>
+#include <list>
 #include <functional>
 
 #ifndef DATA_MINING_INTERFACE_H_
@@ -27,8 +28,12 @@ using Features = std::vector<double>;
 using IDs = std::vector<int>;
 
 class ItemInterface;
+class ItemSetInterface;
+
 using VecRefItems = std::vector<
     std::reference_wrapper<const ItemInterface>>;
+using ListRefItemSets = std::list<
+    std::reference_wrapper<const ItemSetInterface>>;
 
 
 class AdapterInterface {

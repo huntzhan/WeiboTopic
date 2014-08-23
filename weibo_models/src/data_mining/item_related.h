@@ -21,8 +21,8 @@
 #include "utils/dimension_reducer.h"
 
 
-#ifndef DATA_MINING_ITEM_H_
-#define DATA_MINING_ITEM_H_
+#ifndef DATA_MINING_ITEM_RELATED_H_
+#define DATA_MINING_ITEM_RELATED_H_
 namespace data_mining {
 
 
