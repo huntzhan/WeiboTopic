@@ -32,6 +32,9 @@ class Topic {
 
 
 public:
+  //话题是否属于政治类的,1是政治类的，0不是政治类的
+  int isPolitic;
+
   //话题下的特征词
 	list<TopicWord> m_stopic;
 
@@ -68,6 +71,7 @@ public:
 	//生成一个簇（话题）时，先将该话题的第一个点加入簇中
 	void TopicInit(TopicWord firstWord) {
 		this->m_stopic.push_back(firstWord);
+		this->isPolitic=0;
 	}
 	list<TopicWord> *GetsTopic() {
 		return &this->m_stopic;
