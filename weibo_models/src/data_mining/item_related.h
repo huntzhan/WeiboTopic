@@ -27,9 +27,9 @@ namespace data_mining {
 
 class AdapterForBitset : public AdapterInterface {
  public:
-  template <int T>
-  AdapterForBitset(const utils::BitsetFeatures<T> &message, const int &id);
-
+  template <int dimension>
+  AdapterForBitset(
+      const utils::BitsetFeatures<dimension> &message, const int &id);
   // interface.
   Features GetFeatures() const override;
   int GetID() const override;
@@ -42,6 +42,7 @@ class AdapterForBitset : public AdapterInterface {
 
 class ItemWithCosineDistance : public ItemInterface {
  public:
+  // interface.
   double Similarity(const ItemInterface &other) const override;
 };
 
@@ -49,10 +50,10 @@ class ItemWithCosineDistance : public ItemInterface {
 class ItemSetWithCosineDistance : public ItemSetWithCosineDistance {
  public:
   ItemSetWithCosineDistance(const ItemWithCosineDistance &item);
-
+  // interface.
   double Similarity(const ItemSetInterface &other) const override;
   void Merge(const ItemSetInterface &other) override;
-
+  // accessor.
   std::vector<ItemWithCosineDistance> items() const;
 
  private:
@@ -64,13 +65,13 @@ class ItemSetWithCosineDistance : public ItemSetWithCosineDistance {
 }  // namespace data_mining
 
 
-// implementation.
+// inline template.
 namespace data_mining {
 
 
-template <int T>
+template <int dimension>
 AdapterForBitset::AdapterForBitset(
-    const utils::BitsetFeatures<T> &message, const int &id) {
+    const utils::BitsetFeatures<dimension> &message, const int &id) {
   id_ = id;
   // 1.0 represents that the item holds the feature, while 0.0 not.
   for (const auto &flag : message) {
