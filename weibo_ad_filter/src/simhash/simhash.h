@@ -2,12 +2,15 @@
 #define _SIMHASH_H
 
 #include <vector>
+#include <string>
 #include "split/parser.h"
 using std::vector;
+using std::string;
 
 class SimHash {
   public:
     unsigned int BlogHash(const char *m_content);
+    unsigned int BlogHashAfterParser(const std::vector<std::string> &words);
     int Calculate_Distance(unsigned int hashvalue1, unsigned int hashvalue2);
     void HammingValuesWithinDistance(unsigned int value, int dist, vector<unsigned int> &res);
 

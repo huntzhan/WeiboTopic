@@ -23,10 +23,11 @@
 
 
 void display(std::list<std::list<std::string> > &msg) ;
-void Spilitword(std::string tablename, std::list<Blog> &weibos);
 void count_the_user(list<Blog> &weibos);
 void FilterTables(std::set<std::string> &settable);
-void FilterOneTable(string table, list<Blog> &return_weibo_list) ;
+INSERT_DATA PackInsertData(const Blog &b, const vector<Word> &words);
+void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas);
+void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_datas);
 
 Parser parser;
 DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
@@ -47,7 +48,19 @@ void InitMain() {
   TextSpilt::init_ICTCAL();
 }
 
-void FilterOneTable(string table, list<Blog> &return_weibo_list) {
+INSERT_DATA PackInsertData(const Blog &b, const vector<Word> &words) {
+  string fenci;
+  for (Word w : words){
+    fenci.append(w.word + " " + w.proper + " ");
+  }
+  INSERT_DATA insertdata;
+  insertdata.mid = b.m_mid;
+  insertdata.text = b.m_content;
+  insertdata.spilt = fenci;
+  return insertdata;
+}
+
+void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas) {
   query.SetTableName(table);
   int number_all_rows = query.Getcount();
   int number_left_rows = number_all_rows;
@@ -62,9 +75,20 @@ void FilterOneTable(string table, list<Blog> &return_weibo_list) {
     number_left_rows -= ROW_EACH_TIME;
     /// start blogs filtering
     for(auto &blog : weibos) {
-      bool is_good_blog = pre.PerformTactic(blog);
-      if(is_good_blog){
-        return_weibo_list.push_back(blog);
+      bool is_good_blog = pre.PerformTacticOnBlog(blog);
+      /// Lexcal Analysis by ICTCLAS50
+      std::vector<Word> words;
+      parser.LexicalAnalysis(blog.m_content.c_str(), words);
+      bool is_good_parsed_blog = pre.PerformTacticOnParsedBlog(words);
+      if(is_good_blog && is_good_parsed_blog){
+        /// change parsed blog into insert_data
+        INSERT_DATA data = PackInsertData(blog, words);
+        if(data.text.length()<2 || data.spilt.length()<2 || data.text.empty() || data.spilt.empty()){
+          //std::cout << insertdata.text<<std::endl;
+          ;
+        }
+        else
+          insert_datas.push_back(data);
         // PrintBlog(*ib);
       }
     }
@@ -78,17 +102,17 @@ int main() {
   std::set<std::string> tables;
   FilterTables(tables);
   /// get tables from to be processed
-  for(const auto &table : tables){
+  for(const string &table : tables){
     query.SetTableName(table);
     int number_all_rows = query.Getcount();
     cout<<"###Start Filtering One Table: " << number_all_rows << endl;
-    list<Blog> goodweibos;
-    FilterOneTable(table, goodweibos);
-    cout<<"###Blogs in One Table After Filtering: " << goodweibos.size() << "/" << number_all_rows <<endl;
+    vector<INSERT_DATA> insert_datas;
+    FilterOneTable(table, insert_datas);
+    cout<<"###Blogs in One Table After Filtering: " << insert_datas.size() << "/" << number_all_rows <<endl;
     /**
      * Perform DB Insertion Operation here
      */
-    Spilitword(table,goodweibos);
+    InsertDataToTable(table, insert_datas);
   }
 
   std::cout<<"Program has finished"<<std::endl;
@@ -96,97 +120,97 @@ int main() {
 }
 
 bool SortCmp(const std::pair<string,int> &key1 ,const std::pair<string ,int> &key2 ){
-	if (key1.second > key2.second)
-		return true;
-	return false;
+  if (key1.second > key2.second)
+    return true;
+  return false;
 }
 /*
  *计算1个小时内重复发微博的数目
  *
  */
 void count_the_user(list<Blog> &weibos) {
-	list<string> badweibolist;
-	SimHash simhash;
-	std::map<string, int> users;
-	std::cout << weibos.size() << endl;
-	for (std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
-			ib != ie; ib++) {
-		std::list<string> m_list;
-		std::pair<std::map<std::string, int>::iterator, bool> ret =
-				users.insert(std::make_pair((*ib).u_uid, 1));
-		if (!ret.second) {
-			++ret.first->second;  /// inc the user count
-		}
+  list<string> badweibolist;
+  SimHash simhash;
+  std::map<string, int> users;
+  std::cout << weibos.size() << endl;
+  for (std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
+      ib != ie; ib++) {
+    std::list<string> m_list;
+    std::pair<std::map<std::string, int>::iterator, bool> ret =
+        users.insert(std::make_pair((*ib).u_uid, 1));
+    if (!ret.second) {
+      ++ret.first->second;  /// inc the user count
+    }
 
-	}
-	std::map<string, int>::iterator it_map = users.begin();
-	std::map<string, int>::iterator end_map = users.end();
-	std::vector<std::pair<string, int> > vector_sort;
-	for (; it_map != end_map; it_map++) {
-		vector_sort.push_back(make_pair(it_map->first, it_map->second));
-	}
+  }
+  std::map<string, int>::iterator it_map = users.begin();
+  std::map<string, int>::iterator end_map = users.end();
+  std::vector<std::pair<string, int> > vector_sort;
+  for (; it_map != end_map; it_map++) {
+    vector_sort.push_back(make_pair(it_map->first, it_map->second));
+  }
     sort(vector_sort.begin(),vector_sort.end(),SortCmp);
-	///获得前100的用户重复
-	std::string badUID = " ";
-	unsigned countsum=vector_sort.size()>1000?1000:vector_sort.size();
-	std::cout<<countsum<<std::endl;
-	for (int i_count = 0; i_count < countsum;i_count++) {
+  ///获得前100的用户重复
+  std::string badUID = " ";
+  unsigned countsum=vector_sort.size()>1000?1000:vector_sort.size();
+  std::cout<<countsum<<std::endl;
+  for (int i_count = 0; i_count < countsum;i_count++) {
          if(vector_sort[i_count].second<3){
-        	 break;
+           break;
          }
-		std::cout << "uid----" << vector_sort[i_count].first << "----num---"
-				<< vector_sort[i_count].second << std::endl;
-		vector<pair<unsigned int, std::string>> hashvector;
-		vector<std::string> mids;
-		for (std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
-				ib != ie; ib++) {
-			if ((*ib).u_uid == vector_sort[i_count].first) {
-				hashvector.push_back(
-						make_pair(simhash.BlogHash(ib->m_content.c_str()),ib->m_content));
-				        mids.push_back(ib->m_mid);
-				// std::cout<<ib->u_fans<<"  "<<ib->u_followees<<ib->m_content<<std::endl;
-			}
-			if ((*ib).u_uid == badUID) {
-				///删除坏的用户的微博
-				std::cout<<badUID<<std::endl;
-				std::cout<<ib->m_content<<std::endl;
-				ib=weibos.erase(ib);
-			}
+    std::cout << "uid----" << vector_sort[i_count].first << "----num---"
+        << vector_sort[i_count].second << std::endl;
+    vector<pair<unsigned int, std::string>> hashvector;
+    vector<std::string> mids;
+    for (std::list<Blog>::iterator ib = weibos.begin(), ie = weibos.end();
+        ib != ie; ib++) {
+      if ((*ib).u_uid == vector_sort[i_count].first) {
+        hashvector.push_back(
+            make_pair(simhash.BlogHash(ib->m_content.c_str()),ib->m_content));
+                mids.push_back(ib->m_mid);
+        // std::cout<<ib->u_fans<<"  "<<ib->u_followees<<ib->m_content<<std::endl;
+      }
+      if ((*ib).u_uid == badUID) {
+        ///删除坏的用户的微博
+        std::cout<<badUID<<std::endl;
+        std::cout<<ib->m_content<<std::endl;
+        ib=weibos.erase(ib);
+      }
 
-		}
-		badUID = vector_sort[i_count].first;
-		vector<int> hashresult;
-		int count = 0;
-		//计算用户在一个小时内所发的微博的两两hash值
-		for (unsigned int i_first = 0; i_first < hashvector.size(); i_first++) {
-			for (unsigned int j_second = i_first; j_second < hashvector.size(); j_second++) {
-				hashresult.push_back(
-						simhash.Calculate_Distance(hashvector[i_first].first,
-								hashvector[j_second].first));
-				count++;
-			}
-		}
-		int sum = 0;
-		for (unsigned int i = 0; i < hashresult.size(); i++) {
-			sum += hashresult[i];
-		}
-		///如果hash的平均值小于3，就是说这个小时内所发的微博内容几乎一样
-		if (count != 0) {
-			if (double((double) sum / count) < 3) {
-				for (unsigned int i = 0; i < hashvector.size(); i++) {
-					std::cout << hashvector[i].second << std::endl;
-					badweibolist.push_back(mids[i]);
-					///把改ID记录下来 下次循环的时候就删除该用户所发的微博
-				}
-			}
-			else{
-				badUID=" ";
-			}
-		}
-	    std::cout << "-------------------" << double((double) sum / count)<< "---------------------------" << std::endl;
-//		std::cout << "################################################"
-//				<< std::endl;
-	}
+    }
+    badUID = vector_sort[i_count].first;
+    vector<int> hashresult;
+    int count = 0;
+    //计算用户在一个小时内所发的微博的两两hash值
+    for (unsigned int i_first = 0; i_first < hashvector.size(); i_first++) {
+      for (unsigned int j_second = i_first; j_second < hashvector.size(); j_second++) {
+        hashresult.push_back(
+            simhash.Calculate_Distance(hashvector[i_first].first,
+                hashvector[j_second].first));
+        count++;
+      }
+    }
+    int sum = 0;
+    for (unsigned int i = 0; i < hashresult.size(); i++) {
+      sum += hashresult[i];
+    }
+    ///如果hash的平均值小于3，就是说这个小时内所发的微博内容几乎一样
+    if (count != 0) {
+      if (double((double) sum / count) < 3) {
+        for (unsigned int i = 0; i < hashvector.size(); i++) {
+          std::cout << hashvector[i].second << std::endl;
+          badweibolist.push_back(mids[i]);
+          ///把改ID记录下来 下次循环的时候就删除该用户所发的微博
+        }
+      }
+      else{
+        badUID=" ";
+      }
+    }
+      std::cout << "-------------------" << double((double) sum / count)<< "---------------------------" << std::endl;
+//    std::cout << "################################################"
+//        << std::endl;
+  }
 
 }
 
@@ -210,55 +234,18 @@ void display(std::list<std::list<std::string> > &msg) {
 /**
  * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
  */
-void Spilitword(std::string tablename, std::list<Blog> &weibos) {
-	std::list<std::list<std::string> > resultList;
-	query.SetTableName(tablename);
-    insert.SetTableName(tablename);
-	/// 建立数据库的表
-	insert.CreateTable();
-	long count = 0;
-	std::cout << tablename << " " << count << std::endl;
-	std::vector<INSERT_DATA> insert_datas;
-	time_t startT, endT;
-	double total;
-	startT = time(NULL);
-	std::list<Blog>::iterator it_blog = weibos.begin();
-	std::list<Blog>::iterator end_blog = weibos.end();
-	for (; it_blog != end_blog; it_blog++) {
-		/// ICTCLAS and stopwrods parsing
-		std::vector<Word> words;
-		std::string fenci;
-
-		parser.LexicalAnalysis(it_blog->m_content.c_str(), words);
-		std::vector<Word>::iterator it_word = words.begin();
-		std::vector<Word>::iterator end_word = words.end();
-		for (; it_word != end_word; it_word++) {
-			fenci.append(it_word->word + " " + it_word->proper + " ");
-		}
-		INSERT_DATA insertdata;
-		insertdata.mid = it_blog->m_mid;
-		insertdata.text = it_blog->m_content;
-		insertdata.spilt = fenci;
-		if(insertdata.text.length()<2||insertdata.spilt.length()<2||insertdata.text.empty()||insertdata.spilt.empty()){
-			//std::cout << insertdata.text<<std::endl;
-             continue;
-		}
-		insert_datas.push_back(insertdata);
-		count++;
-		if(count%2000==0||count==weibos.size()){
-			 std::cout << " insert size" <<insert_datas.size()<<std::endl;
-		  insert.DB_insertData(insert_datas);
-		  std::cout << "end insert " <<std::endl;
-		  insert_datas.clear();
-		}
-	}
-	std::cout << "start insert " <<std::endl;
-	//insert.DB_insertData(insert_datas);
-	endT = time(NULL);
-	total = difftime(endT, startT);
-	std::cout << "the runing time is " << total << std::endl;
-	std::cout << "----------------------------------" << "finish"
-			<< "------------------------------------------" << std::endl;
+void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_datas) {
+  insert.SetTableName(tablename);
+  /// 建立数据库的表
+  insert.CreateTable();
+  time_t startT, endT;
+  double total;
+  startT = time(NULL);
+  /// Perform DB Insertion
+  insert.DB_insertData(insert_datas);
+  endT = time(NULL);
+  total = difftime(endT, startT);
+  std::cout << "###Insertion of " << tablename << " ends, taken time: " << total << std::endl;
 }
 
 /**

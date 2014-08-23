@@ -104,13 +104,20 @@ int SpamHandler::AddSpams(vector<unsigned int> &spams) {
       formated_sql<< "(" << *ib << "),\n";
   }
   // make query.
-  unique_ptr<Statement> stmt;
-  stmt.reset(conn->createStatement());
-  int update_count = stmt->executeUpdate(formated_sql.str());
-  /// timer
-  time_t t_end = time(NULL);
-  cout<<"###MYSQL adding "<< update_count << " spams takes time " << (t_end - t_start) << " seconds" <<endl;
-  return update_count;
+  try {
+    unique_ptr<Statement> stmt;
+    stmt.reset(conn->createStatement());
+    int update_count = stmt->executeUpdate(formated_sql.str());
+    /// timer
+    time_t t_end = time(NULL);
+    /// cout<<"###MYSQL adding "<< update_count << " spams takes time " << (t_end - t_start) << " seconds" <<endl;
+    return update_count;
+  } catch(sql::SQLException &ex) {
+    cout<<"SQL Error: " << ex.what() << endl;
+    cout<<"SQL Statement: " << ex.getSQLState() << endl;
+    abort();
+  }
+  return -1;
 }
 
 bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
@@ -128,19 +135,24 @@ bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
   }
   formated_sql<<"0)";  /// make up for ended OR
   // make query.
-  unique_ptr<Statement> stmt;
-  unique_ptr<ResultSet> res;
-  stmt.reset(conn->createStatement());
-  res.reset(stmt->executeQuery(formated_sql.str()));
-  // fetch result.
-  int exist = -1;
-  if (res->next())
-    exist = res->getInt(1);  /// first column
-
-  /// timer
-  time_t t_end = time(NULL);
-  /// cout<<"###MYSQL querying "<< spam.size() << " simhash values takes time " << (t_end - t_start) << " seconds" <<endl;
-  return exist;
+  try {
+    unique_ptr<Statement> stmt;
+    unique_ptr<ResultSet> res;
+    stmt.reset(conn->createStatement());
+    res.reset(stmt->executeQuery(formated_sql.str()));
+    // fetch result.
+    int exist = -1;
+    if (res->next())
+      exist = res->getInt(1);  /// first column
+    /// timer
+    time_t t_end = time(NULL);
+    /// cout<<"###MYSQL querying "<< spam.size() << " simhash values takes time " << (t_end - t_start) << " seconds" <<endl;
+    return exist;
+  } catch (sql::SQLException &ex) {
+    cout<< "SQL Error: " << ex.what() << endl;
+    cout<<"SQL Statement: " << ex.getSQLState() << endl;
+    abort();
+  }
 }
 
 }  // namespace mysql_handler

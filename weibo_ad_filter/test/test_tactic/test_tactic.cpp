@@ -36,7 +36,7 @@ TEST(TestTactic, TestZombieTactic) {
   while(log.HasNextBlog()){
     // test each blog
     Blog b = log.NextBlog();
-    bool is_good_blog = pre.PerformTactic(b);
+    bool is_good_blog = pre.PerformTacticOnBlog(b);
     if(! is_good_blog){
       log.AddRemovedBlog(b);
       // PrintBlog(b);

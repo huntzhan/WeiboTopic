@@ -29,7 +29,7 @@ unsigned int SimHash::BlogHash(const char *m_content) {
  */
 unsigned int SimHash::BlogHashAfterParser(const std::vector<std::string> &words) {
   std::vector<unsigned int> hashword;
-  for(string word : words) {
+  for(const string &word : words) {
     ///计算一个单词的hash值
     unsigned int res = RSHash((word).c_str());
     hashword.push_back(res);

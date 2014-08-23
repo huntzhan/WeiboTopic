@@ -23,6 +23,7 @@
 #include "tactic.h"
 #include "simhash/simhash.h"
 #include "database/mysql_handler.h"
+#include "split/Textspilt.h"
 
 using std::cout;
 using std::cin;
@@ -43,25 +44,27 @@ class Preprocessor {
     }
     ~Preprocessor() {
       if(! fingerprint.empty())
-        FlushCachedFingerprint(1);
+        FlushCachedFingerprint(HAMMING_DISTANCE);
     }
-    bool PerformTactic(const Blog& b);
+    bool PerformTacticOnBlog(const Blog& b);
+    bool PerformTacticOnParsedBlog(const vector<Word> &words);
 
   private:
     ZombieTactic t_zombie;
     /// TopicTcatic t_topic;
     UserTactic t_user;
 
-    bool IsBlogInFingerprints(const Blog &b, int dist);
+    bool IsParsedBlogInFingerprints(const vector<string> &words, const int dist);
     bool IsSimhashValuesInDB(vector<unsigned int> v);
-    void FlushCachedFingerprint(int dist);
-    void AddFingerPrint(const Blog &b, int dist);
+    void FlushCachedFingerprint(const int dist);
+    void AddFingerPrint(const Blog &b, const int dist);
     void Flush(vector<unsigned int> &v);
     /// mysql_handler::SpamHandler handler("simhash", "spam");
     std::shared_ptr<mysql_handler::SpamHandler> handler;
     set<unsigned int> fingerprint;
     SimHash sim;
     const size_t FLUSH_DB_THRED = 10000;
+    const int HAMMING_DISTANCE = 1;
 
     // DISALLOW_COPY_AND_ASSIGN
     Preprocessor(const Preprocessor&);

@@ -9,17 +9,13 @@
 
 #include "preprocessor.h"
 /**
- *  @brief PerformTactic return true if the blog is ok
+ *  @brief PerformTacticOnBlog return true if the blog is ok
  *  @param
  *  @return
  */
-bool Preprocessor::PerformTactic(const Blog& b){
+bool Preprocessor::PerformTacticOnBlog(const Blog& b){
   if (t_zombie.IsSpam(b)){
-    AddFingerPrint(b, 1);
-    return false;
-  }
-  else if (IsBlogInFingerprints(b, 1)){  /// valid user, test it's blog
-  //  cout<<"#####"<<endl<<b.m_content<<endl;
+    AddFingerPrint(b, HAMMING_DISTANCE);
     return false;
   }
   else if (t_user.IsSpam(b))  // manually selected user black list
@@ -27,6 +23,21 @@ bool Preprocessor::PerformTactic(const Blog& b){
   else return true;
   // if (t_topic.IsSpam(b))
   //   return false;
+}
+
+/**
+ *  @brief PerformTacticOnParsedBlog return true if the parsed blog is ok
+ *  @param
+ *  @return
+ */
+bool Preprocessor::PerformTacticOnParsedBlog(const vector<Word> &words){
+  vector<string> str_words;
+  for(Word w : words)
+    str_words.push_back(w.word);
+  if (IsParsedBlogInFingerprints(str_words, HAMMING_DISTANCE)){  /// valid user, test it's blog
+    return false;
+  }
+  else return true;
 }
 
 /**
@@ -77,8 +88,8 @@ void Preprocessor::FlushCachedFingerprint(int dist) {
  *  @param
  *  @return true if simhash has been recorded
  */
-bool Preprocessor::IsBlogInFingerprints(const Blog &b, int dist) {
-	unsigned int v = sim.BlogHash(b.m_content.c_str());
+bool Preprocessor::IsParsedBlogInFingerprints(const vector<string> &words, int dist) {
+	unsigned int v = sim.BlogHashAfterParser(words);
     vector<unsigned int> all_value;
     sim.HammingValuesWithinDistance(v, dist, all_value);
     /// test whether in cache
