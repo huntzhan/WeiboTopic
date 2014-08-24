@@ -103,12 +103,56 @@ void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
 
 
 void HierarchyClustering::Prepare() {
+  // set up similarity_of_item_sets_;
+  for (auto left_iter = item_sets_.cbegin();
+       left_iter != item_sets_.cend(); ++left_iter) {
 
+    auto right_iter = left_iter;
+    ++right_iter;
+    for (; right_iter != item_sets_.cend(); ++right_iter) {
+      auto item_set_pair = AuxiliaryFunc::MakeItemSetPair(
+          *left_iter, *right_iter);
+      similarity_of_item_sets_[item_set_pair] =
+        (*left_iter)->Similarity(*right_iter);
+    }
+  }
 }
 
 
 void HierarchyClustering::CarryOutCluster() {
+  while (item_sets_.size() > 1) {
+    auto max_pair = AuxiliaryFunc::FindMaxSimilarity(&similarity_of_item_sets_);
+    auto left_set = max_pair.first;
+    auto right_set = max_pair.second;
 
+    // merge right_set to left_set;
+    left_set->Merge(right_set);
+
+    // remove right_set from item_sets_;
+    auto pos = AuxiliaryFunc::SearchItemSet(&item_sets_, right_set);
+    AuxiliaryFunc::RemoveItemSet(&item_sets_, pos);
+
+    // remove (right_set, *) pair from similarity_of_item_sets_.
+    for (const auto &item_set : item_sets_) {
+      if (item_set->id() == right_set->id()) {
+        continue;
+      }
+      auto right_set_related_pair = AuxiliaryFunc::MakeItemSetPair(
+          item_set, right_set);
+      similarity_of_item_sets_.erase(right_set_related_pair);
+    }
+
+    // update (left_set, *) pair of similarity_of_item_sets_;
+    for (const auto &item_set : item_sets_) {
+      if (item_set->id() == left_set->id()) {
+        continue;
+      }
+      auto left_set_related_pair = AuxiliaryFunc::MakeItemSetPair(
+          item_set, left_set);
+      similarity_of_item_sets_[left_set_related_pair] =
+          left_set->Similarity(item_set);
+    }
+  }
 }
 
 
