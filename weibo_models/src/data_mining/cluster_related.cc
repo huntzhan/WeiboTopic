@@ -23,9 +23,11 @@
 
 
 using std::vector;
+using std::pair;
 using std::swap;
 using std::upper_bound;
 using std::lower_bound;
+using std::max_element;
 
 
 namespace data_mining {
@@ -59,14 +61,26 @@ void AuxiliaryFunc::RemoveItemSet(
 }
 
 
-void AuxiliaryFunc::InsertItemSet(
-    ListSharedPtrItemSet *item_sets,
-    const SharedPtrItemSet &item_set) {
+void AuxiliaryFunc::InsertItemSet(ListSharedPtrItemSet *item_sets,
+                                  const SharedPtrItemSet &item_set) {
   // find insert point.
   auto insert_point =
       std::upper_bound(item_sets->begin(), item_sets->end(),
                        item_set, item_set_compare);
   item_sets->insert(insert_point, item_set);
+}
+
+
+SharedPtrItemSetPair FindMaxSimilarity(SimilarityMap *similarity_map) {
+  using IterType = pair<SharedPtrItemSetPair, double>;
+  auto compare_value = [](const IterType &x, const IterType &y) {
+    return x.second < y.second;
+  };
+
+  auto max_similarity_iter = max_element(
+      similarity_map->cbegin(), similarity_map->cend(),
+      compare_value);
+  return max_similarity_iter->first;
 }
 
 
@@ -77,8 +91,11 @@ void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
   SharedPtrItem item(new ItemWithCosineDistance);
   item->set_id(id);
   item->set_features(features);
+
   // init item_set which contains only the current item.
   SharedPtrItemSet item_set(new ItemSetWithCosineDistance(item));
+  // id of item_set must be configured.
+  item_set->set_id(item_sets_.size());
   // keep it.
   AuxiliaryFunc::InsertItemSet(&item_sets_, item_set);
 }

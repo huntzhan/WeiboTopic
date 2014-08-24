@@ -25,6 +25,7 @@
 
 using std::vector;
 using data_mining::AuxiliaryFunc;
+using data_mining::SimilarityMap;
 
 
 TEST_F(TestItemSet, TestMakeItemSetRefPair) {
@@ -65,4 +66,23 @@ TEST_F(TestItemSet, TestInsertAndSearchAndDelete) {
                                                pre_item_set);
   ++pre_iter;
   EXPECT_EQ(4, (*pre_iter)->id());
+}
+
+
+TEST_F(TestItemSet, TestFindMaxSimilarity) {
+  auto item_set_0 = GetItemSet(0, {0.1, 0.2});
+  auto item_set_1 = GetItemSet(1, {0.1, 0.2});
+  auto item_set_2 = GetItemSet(2, {0.1, 0.2});
+  // construct SimilarityMap;
+  SimilarityMap similarity;
+  auto pair_0 = AuxiliaryFunc::MakeItemSetPair(item_set_0, item_set_1);
+  auto pair_1 = AuxiliaryFunc::MakeItemSetPair(item_set_0, item_set_2);
+  auto pair_2 = AuxiliaryFunc::MakeItemSetPair(item_set_1, item_set_2);
+  similarity[pair_1] = 0.2;
+  similarity[pair_2] = 0.3;
+  similarity[pair_0] = 0.1;
+  // test max.
+  auto max_pair = AuxiliaryFunc::FindMaxSimilarity(&similarity);
+  EXPECT_EQ(1, max_pair.first->id());
+  EXPECT_EQ(2, max_pair.second->id());
 }

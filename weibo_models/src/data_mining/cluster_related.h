@@ -27,6 +27,7 @@
 namespace data_mining {
 
 using SharedPtrItemSetPair = std::pair<SharedPtrItemSet, SharedPtrItemSet>;
+using SimilarityMap = std::map<SharedPtrItemSetPair, double>;
 
 // compare function for ItemSetInterface.
 auto item_set_compare = [](const SharedPtrItemSet &a,
@@ -38,7 +39,8 @@ auto item_set_compare = [](const SharedPtrItemSet &a,
 class AuxiliaryFunc {
  public:
   static SharedPtrItemSetPair MakeItemSetPair(
-      const SharedPtrItemSet &set_a, const SharedPtrItemSet &set_b);
+      const SharedPtrItemSet &set_a,
+      const SharedPtrItemSet &set_b);
 
   static ListSharedPtrItemSet::iterator SearchItemSet(
       ListSharedPtrItemSet *item_sets,
@@ -51,6 +53,9 @@ class AuxiliaryFunc {
   static void InsertItemSet(
       ListSharedPtrItemSet *item_sets,
       const SharedPtrItemSet &item_set);
+
+  static SharedPtrItemSetPair FindMaxSimilarity(
+      SimilarityMap *similarity_map);
 };
 
 
@@ -64,7 +69,7 @@ class HierarchyClustering : public ClusterProcedure {
 
  private:
   ListSharedPtrItemSet item_sets_;
-  std::map<SharedPtrItemSetPair, double> similarity_of_item_sets_;
+  SimilarityMap similarity_of_item_sets_;
 };
 
 
