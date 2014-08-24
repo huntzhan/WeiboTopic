@@ -88,7 +88,7 @@ string SimpleHandler::table_name() const {
 }
 
 
-vector<string> TopicHandler::topic_for_test() {
+vector<string> TopicHandler::GetMessages() {
 
   auto conn = current_conn();
   // create sql.

@@ -98,7 +98,7 @@ class TopicHandler : public SimpleHandler {
  public:
   TopicHandler(const std::string &db_name, const std::string &table_name)
       : SimpleHandler(db_name, table_name) {/* empty */}
-  std::vector<std::string> topic_for_test();
+  std::vector<std::string> GetMessages();
 };
 
 }  // namespace mysql_handler

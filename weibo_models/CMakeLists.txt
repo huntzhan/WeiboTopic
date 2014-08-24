@@ -36,7 +36,6 @@ include_directories(src)
 include_directories(test)
 
 # Normal build process should be place here.
-add_subdirectory(src/example)
 add_subdirectory(src/database)
 add_subdirectory(src/utils)
 add_subdirectory(src/data_mining)
@@ -46,7 +45,10 @@ add_subdirectory(src/data_mining)
 # Intergration #
 ################
 add_executable(run src/main.cc)
-target_link_libraries(run simple_calculator)
+target_link_libraries(run mysql_handler)
+target_link_libraries(run dimension_reducer)
+target_link_libraries(run item_related)
+target_link_libraries(run cluster_related)
 
 
 ####################

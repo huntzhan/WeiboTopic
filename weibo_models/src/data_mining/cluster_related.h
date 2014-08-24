@@ -29,12 +29,6 @@ namespace data_mining {
 using SharedPtrItemSetPair = std::pair<SharedPtrItemSet, SharedPtrItemSet>;
 using SimilarityMap = std::map<SharedPtrItemSetPair, double>;
 
-// compare function for ItemSetInterface.
-auto item_set_compare = [](const SharedPtrItemSet &a,
-                           const SharedPtrItemSet &b) {
-  return a->id() < b->id();
-};
-
 
 class AuxiliaryFunc {
  public:

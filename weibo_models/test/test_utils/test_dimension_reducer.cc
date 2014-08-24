@@ -28,7 +28,7 @@ using std::find;
 TEST(test_utils, test_tfidfdimensionreducer) {
   mysql_handler::TopicHandler handler("testcase", "SingleTopic");
   handler.Init();
-  auto results = handler.topic_for_test();
+  auto results = handler.GetMessages();
 
   TFIDFDimensionReducer<20> reducer;
   reducer.Process(results);

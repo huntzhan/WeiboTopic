@@ -21,6 +21,10 @@
 
 #include "data_mining/cluster_related.h"
 
+// debug.
+#include <iostream>
+using std::cout;
+using std::cout;
 
 using std::vector;
 using std::pair;
@@ -31,6 +35,13 @@ using std::max_element;
 
 
 namespace data_mining {
+
+
+// compare function for ItemSetInterface.
+auto item_set_compare = [](const SharedPtrItemSet &a,
+                           const SharedPtrItemSet &b) {
+  return a->id() < b->id();
+};
 
 
 SharedPtrItemSetPair AuxiliaryFunc::MakeItemSetPair(
@@ -121,7 +132,8 @@ void HierarchyClustering::Prepare() {
 
 void HierarchyClustering::CarryOutCluster() {
   while (item_sets_.size() > 1) {
-    auto max_pair = AuxiliaryFunc::FindMaxSimilarity(&similarity_of_item_sets_);
+    auto max_pair =
+        AuxiliaryFunc::FindMaxSimilarity(&similarity_of_item_sets_);
     auto left_set = max_pair.first;
     auto right_set = max_pair.second;
 
@@ -151,6 +163,19 @@ void HierarchyClustering::CarryOutCluster() {
           item_set, left_set);
       similarity_of_item_sets_[left_set_related_pair] =
           left_set->Similarity(item_set);
+    }
+    // debug
+    cout << "========================================" << endl;
+    cout << "Size: " << item_sets_.size() << endl;
+
+    for (const auto &item_set : item_sets_) {
+      cout << "ID: " << item_set->id() << endl;
+      cout << "Features: ";
+      for (const auto &feature : item_set->features()) {
+        cout << feature << " ";
+      }
+      cout << endl;
+      cout << endl;
     }
   }
 }

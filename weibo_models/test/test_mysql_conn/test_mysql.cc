@@ -41,6 +41,6 @@ TEST(test_mysql_connector, test_topic_Handler) {
   mysql_handler::TopicHandler handler("testcase", "SingleTopic");
   handler.Init();
 
-  auto results = handler.topic_for_test();
+  auto results = handler.GetMessages();
   EXPECT_GT(results.size(), 10);
 }
