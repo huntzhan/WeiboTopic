@@ -60,10 +60,6 @@ class TestItemSet : public ::testing::Test {
       auto new_item_set = GetItemSet(index, {});
       AuxiliaryFunc::InsertItemSet(&item_sets, new_item_set);
     }
-    // for (const ItemSetInterface &item_set : item_sets) {
-    //   cout << item_set->id() << " ";
-    // }
-    // cout << endl;
     return item_sets;
   }
 };
@@ -72,11 +68,11 @@ TEST_F(TestItemSet, TestMakeItemSetRefPair) {
 
   auto item_set_0 = GetItemSet(0, {});
   auto item_set_1 = GetItemSet(1, {});
-  auto item_set_pair = AuxiliaryFunc::MakeItemSetRefPair(
+  auto item_set_pair = AuxiliaryFunc::MakeItemSetPair(
       item_set_1, item_set_0);
   
-  EXPECT_EQ(0, ref_pair.first->id());
-  EXPECT_EQ(1, ref_pair.second->id());
+  EXPECT_EQ(0, item_set_pair.first->id());
+  EXPECT_EQ(1, item_set_pair.second->id());
 }
 
 
@@ -88,8 +84,8 @@ TEST_F(TestItemSet, TestInsertAndSearchAndDelete) {
 
   // should be sorted.
   vector<int> run_result;
-  for (const ItemSetInterface &item_set : test_item_sets) {
-    run_result.push_back(item_set.id());
+  for (const auto &item_set : test_item_sets) {
+    run_result.push_back(item_set->id());
   }
   EXPECT_EQ(expect_result, run_result);
 
@@ -105,5 +101,5 @@ TEST_F(TestItemSet, TestInsertAndSearchAndDelete) {
   auto pre_iter = AuxiliaryFunc::SearchItemSet(&test_item_sets,
                                                pre_item_set);
   ++pre_iter;
-  EXPECT_EQ(4, (*pre_iter)->get().id());
+  EXPECT_EQ(4, (*pre_iter)->id());
 }
