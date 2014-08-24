@@ -40,24 +40,23 @@ int AdapterForBitset::GetID() const {
 
 
 double ItemWithCosineDistance::Similarity(
-    const ItemInterface &other) const {
-  auto other_features = other.features();
+    const SharedPtrItem &other) const {
+  auto other_features = other->features();
   return Cosine::Evaluate(features(), other_features);
 }
 
 
 ItemSetWithCosineDistance::ItemSetWithCosineDistance(
-    const ItemWithCosineDistance &item) {
-  set_features(item.features());
+    const SharedPtrItem &item) {
+  set_features(item->features());
   add_item(item);
 }
 
 
 double ItemSetWithCosineDistance::Similarity(
-    const ItemSetInterface &other) const {
-  auto other_features = other.features();
-  auto this_features = features();
-  return Cosine::Evaluate(this_features, other_features);
+    const SharedPtrItemSet &other) const {
+  auto other_features = other->features();
+  return Cosine::Evaluate(features(), other_features);
 }
 
 
@@ -67,9 +66,9 @@ void ItemSetWithCosineDistance::UpdateMeanFeatures() {
 
   Features sum_of_features(dimension, 0.0);
   // sum up.
-  for (const ItemInterface &item : contained_items) {
+  for (const SharedPtrItem &item : contained_items) {
     // get feature of item.
-    auto item_features = item.features();
+    auto item_features = item->features();
     // sum up features.
     for (auto iter = item_features.cbegin();
          iter != item_features.cend(); ++iter) {
@@ -86,10 +85,10 @@ void ItemSetWithCosineDistance::UpdateMeanFeatures() {
 
 
 void ItemSetWithCosineDistance::Merge(
-    const ItemSetInterface &other) {
+    const SharedPtrItemSet &other) {
   // merge itmes.
-  auto other_items = other.items();
-  for (const ItemInterface &item : other_items) {
+  auto other_items = other->items();
+  for (const SharedPtrItem &item : other_items) {
     add_item(item);
   }
   // update mean features;

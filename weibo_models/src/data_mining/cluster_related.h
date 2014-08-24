@@ -26,28 +26,31 @@
 #define DATA_MINING_CLUSTER_RELITEM_H_
 namespace data_mining {
 
-using ItemSetRefPair = std::pair<ItemSetRef, ItemSetRef>;
+using SharedPtrItemSetPair = std::pair<SharedPtrItemSet, SharedPtrItemSet>;
 
 // compare function for ItemSetInterface.
-auto item_set_compare = [](const ItemSetRef &a,
-                           const ItemSetRef &b) {
-  return a.get().id() < b.get().id();
+auto item_set_compare = [](const SharedPtrItemSet &a,
+                           const SharedPtrItemSet &b) {
+  return a->id() < b->id();
 };
 
 
 class AuxiliaryFunc {
  public:
-  static ItemSetRefPair MakeItemSetRefPair(
-      const ItemSetRef &item_a, const ItemSetRef &item_b);
+  static SharedPtrItemSetPair MakeItemSetPair(
+      const SharedPtrItemSet &item_a, const SharedPtrItemSet &item_b);
 
-  static ListRefItemSets::iterator BinarySearchListRefItemSets(
-      ListRefItemSets *item_sets, const ItemSetRef &item_set);
+  static ListSharedPtrItemSet::iterator SearchItemSet(
+      ListSharedPtrItemSet *item_sets,
+      const SharedPtrItemSet &item_set);
 
-  static void RemoveItemSetRefFromListRefItemSets(
-      ListRefItemSets *item_sets, const ListRefItemSets::iterator &iter);
+  static void RemoveItemSet(
+      ListSharedPtrItemSet *item_sets,
+      const ListSharedPtrItemSet::iterator &iter);
 
-  static void InsertItemSetToListRefItemSets(
-      ListRefItemSets *item_sets, const ItemSetRef &item_set);
+  static void InsertItemSet(
+      ListSharedPtrItemSet *item_sets,
+      const SharedPtrItemSet &item_set);
 };
 
 
@@ -60,8 +63,8 @@ class HierarchyClustering : public ClusterProcedure {
   std::vector<ClusterResult> GetClusterResults() override;
 
  private:
-  ListRefItemSets item_sets_;
-  std::map<ItemSetRefPair, double> similarity_of_item_sets_;
+  ListSharedPtrItemSet item_sets_;
+  std::map<SharedPtrItemSetPair, double> similarity_of_item_sets_;
 };
 
 

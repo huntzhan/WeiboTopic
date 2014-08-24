@@ -16,7 +16,7 @@
 // ============================================================================
 #include <vector>
 #include <list>
-#include <functional>
+#include <memory>
 
 #ifndef DATA_MINING_INTERFACE_H_
 #define DATA_MINING_INTERFACE_H_
@@ -30,11 +30,11 @@ using IDs = std::vector<int>;
 class ItemInterface;
 class ItemSetInterface;
 
-using VecRefItems = std::vector<
-    std::reference_wrapper<const ItemInterface>>;
+using SharedPtrItem = std::shared_ptr<ItemInterface>;
+using VecSharedPtrItem = std::vector<SharedPtrItem>;
 
-using ItemSetRef = std::reference_wrapper<const ItemSetInterface>;
-using ListRefItemSets = std::list<ItemSetRef>;
+using SharedPtrItemSet = std::shared_ptr<ItemSetInterface>;
+using ListSharedPtrItemSet = std::list<SharedPtrItemSet>;
 
 
 class AdapterInterface {
@@ -62,27 +62,27 @@ class ItemProperty {
 class ItemInterface : public ItemProperty {
  public:
   // interface to calculate similarity between two items.
-  virtual double Similarity(const ItemInterface &other) const = 0;
+  virtual double Similarity(const SharedPtrItem &other) const = 0;
 };
 
 
 class ItemSetProperty : public ItemProperty {
  public:
   // accessor.
-  VecRefItems items() const { return items_; }
+  VecSharedPtrItem items() const { return items_; }
   // mutator.
-  void set_items(const VecRefItems &items) { items_ = items; }
-  void add_item(const ItemInterface &item) { items_.push_back(item); }
+  void set_items(const VecSharedPtrItem &items) { items_ = items; }
+  void add_item(const SharedPtrItem &item) { items_.push_back(item); }
 
  private:
-  VecRefItems items_;
+  VecSharedPtrItem items_;
 };
 
 
 class ItemSetInterface : public ItemSetProperty {
  public:
-  virtual double Similarity(const ItemSetInterface &other) const = 0;
-  virtual void Merge(const ItemSetInterface &other) = 0;
+  virtual double Similarity(const SharedPtrItemSet &other) const = 0;
+  virtual void Merge(const SharedPtrItemSet &other) = 0;
 };
 
 

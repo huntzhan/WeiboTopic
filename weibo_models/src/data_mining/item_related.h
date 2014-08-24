@@ -44,16 +44,16 @@ class AdapterForBitset : public AdapterInterface {
 class ItemWithCosineDistance : public ItemInterface {
  public:
   // interface.
-  double Similarity(const ItemInterface &other) const override;
+  double Similarity(const SharedPtrItem &other) const override;
 };
 
 
 class ItemSetWithCosineDistance : public ItemSetInterface {
  public:
-  ItemSetWithCosineDistance(const ItemWithCosineDistance &item);
+  ItemSetWithCosineDistance(const SharedPtrItem &item);
   // interface.
-  double Similarity(const ItemSetInterface &other) const override;
-  void Merge(const ItemSetInterface &other) override;
+  double Similarity(const SharedPtrItemSet &other) const override;
+  void Merge(const SharedPtrItemSet &other) override;
   // accessor.
 
  private:

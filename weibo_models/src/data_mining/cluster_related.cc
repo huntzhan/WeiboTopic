@@ -17,9 +17,9 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <memory>
 
 #include "data_mining/cluster_related.h"
-
 
 using std::vector;
 using std::swap;
@@ -30,35 +30,37 @@ using std::lower_bound;
 namespace data_mining {
 
 
-ItemSetRefPair AuxiliaryFunc::MakeItemSetRefPair(
-    const ItemSetRef &item_a, const ItemSetRef &item_b) {
-  auto id_a = item_a.get().id();
-  auto id_b = item_b.get().id();
+SharedPtrItemSetPair AuxiliaryFunc::MakeItemSetPair(
+    const SharedPtrItemSet &item_a, const SharedPtrItemSet &item_b) {
+  auto id_a = item_a->id();
+  auto id_b = item_b->id();
   if (id_a > id_b) { 
-    return ItemSetRefPair(item_b, item_a);
+    return SharedPtrItemSetPair(item_b, item_a);
   } else {
-    return ItemSetRefPair(item_a, item_b);
+    return SharedPtrItemSetPair(item_a, item_b);
   }
 }
 
 
 
-ListRefItemSets::iterator
-AuxiliaryFunc::BinarySearchListRefItemSets(
-    ListRefItemSets *item_sets, const ItemSetRef &item_set) {
+ListSharedPtrItemSet::iterator
+AuxiliaryFunc::SearchItemSet(ListSharedPtrItemSet *item_sets,
+                             const SharedPtrItemSet &item_set) {
   return lower_bound(item_sets->begin(), item_sets->end(),
                      item_set, item_set_compare);
 }
 
 
-void AuxiliaryFunc::RemoveItemSetRefFromListRefItemSets(
-      ListRefItemSets *item_sets, const ListRefItemSets::iterator &iter) {
+void AuxiliaryFunc::RemoveItemSet(
+    ListSharedPtrItemSet *item_sets,
+    const ListSharedPtrItemSet::iterator &iter) {
   item_sets->erase(iter);
 }
 
 
-void AuxiliaryFunc::InsertItemSetToListRefItemSets(
-    ListRefItemSets *item_sets, const ItemSetRef &item_set) {
+void AuxiliaryFunc::InsertItemSet(
+    ListSharedPtrItemSet *item_sets,
+    const SharedPtrItemSet &item_set) {
   // find insert point.
   auto insert_point =
       std::upper_bound(item_sets->begin(), item_sets->end(),
@@ -71,11 +73,11 @@ void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
   auto id = adapter.GetID();
   auto features = adapter.GetFeatures();
   // init item.
-  ItemWithCosineDistance item;
-  item.set_features(features);
-  item.set_id(id);
+  SharedPtrItem item(new ItemWithCosineDistance);
+  item->set_id(id);
+  item->set_features(features);
   // init item_set which contains only the current item.
-  ItemSetWithCosineDistance item_set(item);
+  SharedPtrItemSet item_set(new ItemSetWithCosineDistance(item));
   // keep it.
   AuxiliaryFunc::InsertItemSetToListRefItemSets(&item_sets_, item_set);
 }
