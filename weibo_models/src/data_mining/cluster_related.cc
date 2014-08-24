@@ -21,6 +21,7 @@
 
 #include "data_mining/cluster_related.h"
 
+
 using std::vector;
 using std::swap;
 using std::upper_bound;
@@ -31,13 +32,13 @@ namespace data_mining {
 
 
 SharedPtrItemSetPair AuxiliaryFunc::MakeItemSetPair(
-    const SharedPtrItemSet &item_a, const SharedPtrItemSet &item_b) {
-  auto id_a = item_a->id();
-  auto id_b = item_b->id();
+    const SharedPtrItemSet &set_a, const SharedPtrItemSet &set_b) {
+  auto id_a = set_a->id();
+  auto id_b = set_b->id();
   if (id_a > id_b) { 
-    return SharedPtrItemSetPair(item_b, item_a);
+    return SharedPtrItemSetPair(set_b, set_a);
   } else {
-    return SharedPtrItemSetPair(item_a, item_b);
+    return SharedPtrItemSetPair(set_a, set_b);
   }
 }
 
@@ -79,7 +80,7 @@ void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
   // init item_set which contains only the current item.
   SharedPtrItemSet item_set(new ItemSetWithCosineDistance(item));
   // keep it.
-  AuxiliaryFunc::InsertItemSetToListRefItemSets(&item_sets_, item_set);
+  AuxiliaryFunc::InsertItemSet(&item_sets_, item_set);
 }
 
 

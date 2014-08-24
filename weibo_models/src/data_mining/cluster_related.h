@@ -38,7 +38,7 @@ auto item_set_compare = [](const SharedPtrItemSet &a,
 class AuxiliaryFunc {
  public:
   static SharedPtrItemSetPair MakeItemSetPair(
-      const SharedPtrItemSet &item_a, const SharedPtrItemSet &item_b);
+      const SharedPtrItemSet &set_a, const SharedPtrItemSet &set_b);
 
   static ListSharedPtrItemSet::iterator SearchItemSet(
       ListSharedPtrItemSet *item_sets,
