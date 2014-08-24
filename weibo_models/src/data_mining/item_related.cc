@@ -24,6 +24,7 @@
 using std::size_t;
 using std::distance;
 using utils::Cosine;
+using utils::MeanFeatures;
 
 
 namespace data_mining {
@@ -64,22 +65,7 @@ void ItemSetWithCosineDistance::UpdateMeanFeatures() {
   auto contained_items = items();
   auto dimension = features().size();
 
-  Features sum_of_features(dimension, 0.0);
-  // sum up.
-  for (const SharedPtrItem &item : contained_items) {
-    // get feature of item.
-    auto item_features = item->features();
-    // sum up features.
-    for (auto iter = item_features.cbegin();
-         iter != item_features.cend(); ++iter) {
-      auto index = distance(item_features.cbegin(), iter);
-      sum_of_features[index] += *iter;
-    }
-  }
-  // calculate mean.
-  for (auto &feature_value : sum_of_features) {
-    feature_value /= contained_items.size();
-  }
+  auto sum_of_features = MeanFeatures::Calculate(contained_items, dimension);
   set_features(sum_of_features);
 }
 

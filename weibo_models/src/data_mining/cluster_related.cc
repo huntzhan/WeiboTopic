@@ -14,27 +14,28 @@
 //
 // ============================================================================
 
-#include <vector>
 #include <utility>
 #include <algorithm>
 #include <memory>
+#include <iterator>
 
 #include "data_mining/cluster_related.h"
+#include "utils/calculator.h"
 
 // debug.
 #include <iostream>
-using std::distance;
-#include <iterator>
 using std::cout;
 using std::endl;
 // end debug.
 
-using std::vector;
+using std::distance;
 using std::pair;
 using std::swap;
 using std::upper_bound;
 using std::lower_bound;
 using std::max_element;
+
+using utils::MeanFeatures;
 
 
 namespace data_mining {
@@ -99,6 +100,56 @@ AuxiliaryFunc::FindMaxSimilarity(SimilarityMap *similarity_map) {
 }
 
 
+FeaturesAndMessageIDs::FeaturesAndMessageIDs(
+    const Features &features, const IDs &ids)
+    : features_(features), ids_(ids) {/* empty */}
+
+
+Features FeaturesAndMessageIDs GetFeatures() const {
+  return features_;
+}
+
+
+IDs FeaturesAndMessageIDs::GetIDs() const {
+  return ids_;
+}
+
+
+void StateKeeper::Init(const ListSharedPtrItemSet &item_sets) {
+  // setup cu_evaluator_.
+  int dimension = item_sets.front()->features().size();
+  auto mean_features = MeanFeatures::Calculate(item_sets, dimension);
+  auto sum_of_squares = cu_evaluator_.CalculateSumOfSquares(mean_features);
+  cu_evaluator_.Init(item_sets.size(), sum_of_squares);
+}
+
+
+void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
+  double current_cu_value = cu_evaluator_.Evaluate(item_sets);
+  if (current_cu_value < max_cu_values_) {
+    continue;
+  }
+  // update max cu value.
+  max_cu_values_ = current_cu_value;
+  // update result.
+  result_container_.clear();
+  for (const auto &item_set : item_sets) {
+    auto features = item_set.features();
+    IDs = ids;
+    for (const auto &item : item_set.items()) {
+      ids.push_back(item.id());
+    }
+    SharedPtrClusterResult result(new FeaturesAndMessageIDs(features, ids));
+    result_container_.push_back(result);
+  }
+}
+
+
+VecSharedPtrClusterResult StateKeeper::result_container() const {
+  return result_container_;
+}
+
+
 void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
   auto id = adapter.GetID();
   auto features = adapter.GetFeatures();
@@ -129,47 +180,54 @@ void HierarchyClustering::Prepare() {
         (*left_iter)->Similarity(*right_iter);
     }
   }
+  // init state_keeper_.
+  state_keeper_.Init(item_sets_);
+}
+
+
+void HierarchyClustering::SingleStepOfClustering() {
+  auto max_pair =
+      AuxiliaryFunc::FindMaxSimilarity(&similarity_of_item_sets_);
+  auto left_set = max_pair.first;
+  auto right_set = max_pair.second;
+
+  // merge right_set to left_set;
+  left_set->Merge(right_set);
+
+  // remove right_set from item_sets_;
+  auto pos = AuxiliaryFunc::SearchItemSet(&item_sets_, right_set);
+  AuxiliaryFunc::RemoveItemSet(&item_sets_, pos);
+
+  // remove (right_set, *) pair from similarity_of_item_sets_.
+  for (const auto &item_set : item_sets_) {
+    if (item_set->id() == right_set->id()) {
+      continue;
+    }
+    auto right_set_related_pair = AuxiliaryFunc::MakeItemSetPair(
+        item_set, right_set);
+    similarity_of_item_sets_.erase(right_set_related_pair);
+  }
+
+  // update (left_set, *) pair of similarity_of_item_sets_;
+  for (const auto &item_set : item_sets_) {
+    if (item_set->id() == left_set->id()) {
+      continue;
+    }
+    auto left_set_related_pair = AuxiliaryFunc::MakeItemSetPair(
+        item_set, left_set);
+    similarity_of_item_sets_[left_set_related_pair] =
+        left_set->Similarity(item_set);
+  }
 }
 
 
 void HierarchyClustering::CarryOutCluster() {
   while (item_sets_.size() > 1) {
-    auto max_pair =
-        AuxiliaryFunc::FindMaxSimilarity(&similarity_of_item_sets_);
-    auto left_set = max_pair.first;
-    auto right_set = max_pair.second;
-
-    // merge right_set to left_set;
-    left_set->Merge(right_set);
-
-    // remove right_set from item_sets_;
-    auto pos = AuxiliaryFunc::SearchItemSet(&item_sets_, right_set);
-    AuxiliaryFunc::RemoveItemSet(&item_sets_, pos);
-
-    // remove (right_set, *) pair from similarity_of_item_sets_.
-    for (const auto &item_set : item_sets_) {
-      if (item_set->id() == right_set->id()) {
-        continue;
-      }
-      auto right_set_related_pair = AuxiliaryFunc::MakeItemSetPair(
-          item_set, right_set);
-      similarity_of_item_sets_.erase(right_set_related_pair);
-    }
-
-    // update (left_set, *) pair of similarity_of_item_sets_;
-    for (const auto &item_set : item_sets_) {
-      if (item_set->id() == left_set->id()) {
-        continue;
-      }
-      auto left_set_related_pair = AuxiliaryFunc::MakeItemSetPair(
-          item_set, left_set);
-      similarity_of_item_sets_[left_set_related_pair] =
-          left_set->Similarity(item_set);
-    }
+    SingleStepOfClustering();
     // debug.
     cout << "========================================" << endl;
     cout << "Size: " << item_sets_.size() << endl;
-    if (item_sets_.size() > 10 ) continue;
+    if (item_sets_.size() > 20 ) continue;
 
     for (const auto &item_set : item_sets_) {
       cout << "ID: " << item_set->id() << endl;
@@ -182,12 +240,13 @@ void HierarchyClustering::CarryOutCluster() {
       cout << endl;
     }
     // end debug.
+    state_keeper_.Update(item_sets_);
   }
 }
 
 
-vector<ClusterResult> HierarchyClustering::GetClusterResults() {
-  return {};
+VecSharedPtrClusterResult HierarchyClustering::GetClusterResults() {
+  return state_keeper_.result_container();
 }
 
 

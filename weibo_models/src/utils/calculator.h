@@ -21,6 +21,15 @@
 namespace utils {
 
 
+class MeanFeatures {
+ public:
+  template <typename Iterable>
+  static data_mining::Features Calculate(
+      const Iterable &set_with_features_interface,
+      const int &dimension);
+};
+
+
 class Cosine {
  public:
   template <typename Iterable>

@@ -29,12 +29,15 @@ using IDs = std::vector<int>;
 
 class ItemInterface;
 class ItemSetInterface;
+class ClusterResult;
 
 using SharedPtrItem = std::shared_ptr<ItemInterface>;
-using VecSharedPtrItem = std::vector<SharedPtrItem>;
-
 using SharedPtrItemSet = std::shared_ptr<ItemSetInterface>;
+using SharedPtrClusterResult = std::shared_ptr<ClusterResult>;
+
+using VecSharedPtrItem = std::vector<SharedPtrItem>;
 using ListSharedPtrItemSet = std::list<SharedPtrItemSet>;
+using VecSharedPtrClusterResult = std::vector<SharedPtrClusterResult>;
 
 
 class AdapterInterface {
@@ -99,7 +102,7 @@ class ClusterProcedure {
   virtual void AddItem(const AdapterInterface &adapter) = 0;
   virtual void Prepare() = 0;
   virtual void CarryOutCluster() = 0;
-  virtual std::vector<ClusterResult> GetClusterResults() = 0;
+  virtual VecSharedPtrClusterResult GetClusterResults() = 0;
 };
 
 

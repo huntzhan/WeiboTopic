@@ -20,11 +20,13 @@
 
 #include "data_mining/interface.h"
 #include "data_mining/item_related.h"
+#include "utils/calculator.h"
 
 
 #ifndef DATA_MINING_CLUSTER_RELATED_H_
 #define DATA_MINING_CLUSTER_RELATED_H_
 namespace data_mining {
+
 
 using SharedPtrItemSetPair = std::pair<SharedPtrItemSet, SharedPtrItemSet>;
 using SimilarityMap = std::map<SharedPtrItemSetPair, double>;
@@ -53,17 +55,44 @@ class AuxiliaryFunc {
 };
 
 
+class FeaturesAndMessageIDs : public ClusterResult {
+ public:
+  FeaturesAndMessageIDs(const Features &features, const IDs &ids);
+  Features GetFeatures() const override;
+  IDs GetIDs() const override;
+
+ private:
+  const Features features_;
+  const IDs ids_;
+};
+
+
+class StateKeeper {
+ public:
+  void Init(const ListSharedPtrItemSet &item_sets);
+  void Update(const ListSharedPtrItemSet &item_sets);
+  VecSharedPtrClusterResult result_container() const;
+
+ private:
+  utils::CatergoryUtilityEvaluator cu_evaluator_;
+  double max_cu_values_ = -1.0;
+  VecSharedPtrClusterResult result_container_;
+};
+
+
 class HierarchyClustering : public ClusterProcedure {
  public:
   // interfaces.
   void AddItem(const AdapterInterface &adapter) override;
   void Prepare() override;
   void CarryOutCluster() override;
-  std::vector<ClusterResult> GetClusterResults() override;
+  VecSharedPtrClusterResult GetClusterResults() override;
 
  private:
+  void SingleStepOfClustering();
   ListSharedPtrItemSet item_sets_;
   SimilarityMap similarity_of_item_sets_;
+  StateKeeper state_keeper_;
 };
 
 
