@@ -99,10 +99,20 @@ int main() {
   InitMain();
   cout<<"Program Initialized"<<endl;
 
-  std::set<std::string> tables;
-  FilterTables(tables);
+  std::list<std::string> tables;
+  query.GetTables(tables);
+  // FilterTables(tables);
+  std::set<std::string> done_tables;
+  ifstream in("done.log");
+  string done_table;
+  while (in>>done_table) {
+    string t = done_table.substr(8);
+    done_tables.insert(t);
+  }
   /// get tables from to be processed
   for(const string &table : tables){
+    if(done_tables.find(table) != done_tables.end())
+      continue;
     query.SetTableName(table);
     int number_all_rows = query.Getcount();
     cout<<"###Start Filtering One Table: " << number_all_rows << endl;
