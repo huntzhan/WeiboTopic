@@ -71,7 +71,8 @@ void AuxiliaryFunc::InsertItemSet(ListSharedPtrItemSet *item_sets,
 }
 
 
-SharedPtrItemSetPair FindMaxSimilarity(SimilarityMap *similarity_map) {
+SharedPtrItemSetPair
+AuxiliaryFunc::FindMaxSimilarity(SimilarityMap *similarity_map) {
   using IterType = pair<SharedPtrItemSetPair, double>;
   auto compare_value = [](const IterType &x, const IterType &y) {
     return x.second < y.second;

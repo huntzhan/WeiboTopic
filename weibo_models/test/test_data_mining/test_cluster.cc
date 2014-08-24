@@ -77,7 +77,7 @@ TEST_F(TestItemSet, TestFindMaxSimilarity) {
   SimilarityMap similarity;
   auto pair_0 = AuxiliaryFunc::MakeItemSetPair(item_set_0, item_set_1);
   auto pair_1 = AuxiliaryFunc::MakeItemSetPair(item_set_0, item_set_2);
-  auto pair_2 = AuxiliaryFunc::MakeItemSetPair(item_set_1, item_set_2);
+  auto pair_2 = AuxiliaryFunc::MakeItemSetPair(item_set_2, item_set_1);
   similarity[pair_1] = 0.2;
   similarity[pair_2] = 0.3;
   similarity[pair_0] = 0.1;
