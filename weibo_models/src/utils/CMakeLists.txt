@@ -1,7 +1,7 @@
 
 set(DIMENSION_REDUCER dimension_reducer.h)
 set(TEXT_CLEANER text_cleaner.h text_cleaner.cc)
-set(CALCULATOR calculator.h)
+set(CALCULATOR calculator.h calculator.cc)
 
 add_library(text_cleaner ${TEXT_CLEANER})
 find_library(BOOST_REGEX
@@ -16,6 +16,6 @@ set_target_properties(dimension_reducer
 target_link_libraries(dimension_reducer text_cleaner)
 
 add_library(calculator ${CALCULATOR})
-set_target_properties(calculator
-                      PROPERTIES
-                      LINKER_LANGUAGE CXX)
+# set_target_properties(calculator
+#                       PROPERTIES
+#                       LINKER_LANGUAGE CXX)
