@@ -17,31 +17,12 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "test_data_mining/test_fixture.h"
 
 #include "data_mining/item_related.h"
 
 
 using std::vector;
-
-using data_mining::SharedPtrItem;
-using data_mining::SharedPtrItemSet;
-using data_mining::ItemWithCosineDistance;
-using data_mining::ItemSetWithCosineDistance;
-
-
-class TestItemSet : public ::testing::Test {
- public:
-  SharedPtrItemSet GetItemSet(const int &id,
-                              vector<double> features) {
-    SharedPtrItem item(new ItemWithCosineDistance);
-    item->set_id(id);
-    item->set_features(features);
-
-    SharedPtrItemSet item_set(new ItemSetWithCosineDistance(item));
-    item_set->set_id(id);
-    return item_set;
-  }
-};
 
 
 TEST_F(TestItemSet, TestItemsetSetup) {

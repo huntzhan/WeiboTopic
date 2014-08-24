@@ -23,7 +23,7 @@
 
 
 #ifndef DATA_MINING_CLUSTER_RELATED_H_
-#define DATA_MINING_CLUSTER_RELITEM_H_
+#define DATA_MINING_CLUSTER_RELATED_H_
 namespace data_mining {
 
 using SharedPtrItemSetPair = std::pair<SharedPtrItemSet, SharedPtrItemSet>;

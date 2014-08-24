@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "test_data_mining/test_fixture.h"
 
 #include "data_mining/item_related.h"
 #include "utils/dimension_reducer.h"
@@ -25,9 +26,6 @@
 using std::vector;
 
 using utils::BitsetFeatures;
-using data_mining::Features;
-using data_mining::SharedPtrItem;
-using data_mining::ItemWithCosineDistance;
 using data_mining::AdapterForBitset;
 
 
@@ -50,16 +48,6 @@ TEST(test_dm, test_adapter) {
     EXPECT_EQ(0.0, value);
   }
 }
-
-
-class TestItem : public ::testing::Test {
- public:
-  SharedPtrItem GetItem(Features features) {
-    SharedPtrItem item(new ItemWithCosineDistance);
-    item->set_features(features);
-    return item;
-  }
-};
 
 
 TEST_F(TestItem, TestSimilarity1) {
