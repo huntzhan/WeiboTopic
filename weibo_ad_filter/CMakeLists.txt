@@ -37,10 +37,17 @@ link_directories(${MYSQL_LINK_PATH})
 ################
 add_subdirectory(src)
 file(COPY
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/drop_undone_table.sh
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/calculate_average_spam_rate.sh
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/start.sh
+	DESTINATION 
+	${weibo_ad_filter_BINARY_DIR}/)
+file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/Configure.xml
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/stopwords.txt
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/user.lic
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/userdict.txt
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/baduser.txt
 	DESTINATION ${weibo_ad_filter_BINARY_DIR}/)
 file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/Configure.xml
