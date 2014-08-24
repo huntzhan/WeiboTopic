@@ -72,7 +72,7 @@ endfunction()
 option(test_example "an example." ON)
 
 if(test_example)
-  add_subdirectory(test/test_example)
+  # add_subdirectory(test/test_example)
 endif(test_example)
 
 add_subdirectory(test/test_mysql_conn)

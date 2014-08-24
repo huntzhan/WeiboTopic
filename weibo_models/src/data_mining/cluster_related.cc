@@ -23,8 +23,11 @@
 
 // debug.
 #include <iostream>
+using std::distance;
+#include <iterator>
 using std::cout;
-using std::cout;
+using std::endl;
+// end debug.
 
 using std::vector;
 using std::pair;
@@ -117,7 +120,6 @@ void HierarchyClustering::Prepare() {
   // set up similarity_of_item_sets_;
   for (auto left_iter = item_sets_.cbegin();
        left_iter != item_sets_.cend(); ++left_iter) {
-
     auto right_iter = left_iter;
     ++right_iter;
     for (; right_iter != item_sets_.cend(); ++right_iter) {
@@ -164,19 +166,22 @@ void HierarchyClustering::CarryOutCluster() {
       similarity_of_item_sets_[left_set_related_pair] =
           left_set->Similarity(item_set);
     }
-    // debug
+    // debug.
     cout << "========================================" << endl;
     cout << "Size: " << item_sets_.size() << endl;
+    if (item_sets_.size() > 10 ) continue;
 
     for (const auto &item_set : item_sets_) {
       cout << "ID: " << item_set->id() << endl;
       cout << "Features: ";
+      int index = 0;
       for (const auto &feature : item_set->features()) {
-        cout << feature << " ";
+        cout << index++ << ":" << feature << ", ";
       }
       cout << endl;
       cout << endl;
     }
+    // end debug.
   }
 }
 
