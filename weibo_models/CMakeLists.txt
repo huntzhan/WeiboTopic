@@ -33,6 +33,7 @@ file(INSTALL ${CPPJIEBA}/dict/jieba.dict.utf8
 # Build runtime #
 #################
 include_directories(src)
+include_directories(test)
 
 # Normal build process should be place here.
 add_subdirectory(src/example)

@@ -14,14 +14,18 @@
 //
 // ============================================================================
 
+#include <vector>
+
 #include "gtest/gtest.h"
+#include "test_data_mining/test_fixture.h"
 
 #include "data_mining/item_related.h"
 #include "utils/dimension_reducer.h"
 
 
+using std::vector;
+
 using utils::BitsetFeatures;
-using data_mining::ItemWithCosineDistance;
 using data_mining::AdapterForBitset;
 
 
@@ -46,26 +50,23 @@ TEST(test_dm, test_adapter) {
 }
 
 
-TEST(test_dm, test_item_similarity_1) {
-  ItemWithCosineDistance item_a, item_b;
-  item_a.set_features({0.5, 0.4});
-  item_b.set_features({0.5, 0.4});
-  EXPECT_EQ(1.0, item_a.Similarity(item_b));
+TEST_F(TestItem, TestSimilarity1) {
+  auto item_a = GetItem({0.5, 0.4});
+  auto item_b = GetItem({0.5, 0.4});
+  EXPECT_EQ(1.0, item_a->Similarity(item_b));
 }
 
 
-TEST(test_dm, test_item_similarity_2) {
-  ItemWithCosineDistance item_a, item_b;
-  item_a.set_features({0.0, 1.0});
-  item_b.set_features({1.0, 0.0});
-  EXPECT_EQ(0.0, item_a.Similarity(item_b));
+TEST_F(TestItem, TestSimilarity2) {
+  auto item_a = GetItem({0.0, 1.0});
+  auto item_b = GetItem({1.0, 0.0});
+  EXPECT_EQ(0.0, item_a->Similarity(item_b));
 }
 
 
-TEST(test_dm, test_item_similarity_3) {
-  ItemWithCosineDistance item_a, item_b;
-  item_a.set_features({0.5, 0.4});
-  item_b.set_features({0.0, 0.3});
-  EXPECT_LT(0.624, item_a.Similarity(item_b));
-  EXPECT_GT(0.625, item_a.Similarity(item_b));
+TEST_F(TestItem, TestSimilarity3) {
+  auto item_a = GetItem({0.5, 0.4});
+  auto item_b = GetItem({0.0, 0.3});
+  EXPECT_LT(0.624, item_a->Similarity(item_b));
+  EXPECT_GT(0.625, item_a->Similarity(item_b));
 }

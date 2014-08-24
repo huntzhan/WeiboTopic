@@ -17,46 +17,36 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "test_data_mining/test_fixture.h"
 
 #include "data_mining/item_related.h"
 
 
-using data_mining::ItemWithCosineDistance;
-using data_mining::ItemSetWithCosineDistance;
+using std::vector;
 
 
-TEST(test_dm, test_itemset_setup) {
-  ItemWithCosineDistance item;
-  item.set_features({0.5, 0.4});
-
-  ItemSetWithCosineDistance itemset(item);
-  std::vector<double> result = {0.5, 0.4};
-  EXPECT_EQ(result, itemset.features());
+TEST_F(TestItemSet, TestItemsetSetup) {
+  vector<double> expected = {0.5, 0.4};
+  auto item_set = GetItemSet(0, expected);
+  EXPECT_EQ(0, item_set->id());
+  EXPECT_EQ(expected, item_set->features());
 }
 
 
-TEST(test_dm, test_itemset_merge) {
-  ItemWithCosineDistance item_a, item_b;
-  item_a.set_features({1.0, 0.0});
-  item_b.set_features({0.0, 1.0});
+TEST_F(TestItemSet, TestItemsetMerge) {
+  auto item_set_a = GetItemSet(0, {1.0, 0.0});
+  auto item_set_b = GetItemSet(1, {0.0, 1.0});
+  item_set_a->Merge(item_set_b);
 
-  ItemSetWithCosineDistance itemset_a(item_a);
-  ItemSetWithCosineDistance itemset_b(item_b);
-  itemset_a.Merge(itemset_b);
-
-  std::vector<double> result = {0.5, 0.5};
-  EXPECT_EQ(result, itemset_a.features());
+  vector<double> expected = {0.5, 0.5};
+  EXPECT_EQ(expected, item_set_a->features());
 }
 
 
-TEST(test_dm, test_itemset_similarity) {
-  ItemWithCosineDistance item_a, item_b;
-  item_a.set_features({0.5, 0.4});
-  item_b.set_features({0.0, 0.3});
+TEST_F(TestItemSet, TestItemsetSimilarity) {
+  auto item_set_a = GetItemSet(0, {0.5, 0.4});
+  auto item_set_b = GetItemSet(1, {0.0, 0.3});
 
-  ItemSetWithCosineDistance itemset_a(item_a);
-  ItemSetWithCosineDistance itemset_b(item_b);
-
-  EXPECT_LT(0.624, itemset_a.Similarity(itemset_b));
-  EXPECT_GT(0.625, itemset_a.Similarity(itemset_b));
+  EXPECT_LT(0.624, item_set_a->Similarity(item_set_b));
+  EXPECT_GT(0.625, item_set_a->Similarity(item_set_b));
 }
