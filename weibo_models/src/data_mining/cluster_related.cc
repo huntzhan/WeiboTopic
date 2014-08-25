@@ -158,6 +158,11 @@ void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
 }
 
 
+VecSharedPtrClusterResult StateKeeper::GetClusterResults() const {
+  return cached_item_sets_;
+}
+
+
 void HierarchyClustering::AddItem(const AdapterInterface &adapter) {
   auto id = adapter.GetID();
   auto features = adapter.GetFeatures();
@@ -232,20 +237,20 @@ void HierarchyClustering::SingleStepOfClustering() {
 void HierarchyClustering::CarryOutCluster() {
   while (item_sets_.size() > 1) {
     SingleStepOfClustering();
-    if (item_sets_.size() > 20) {
-      continue;
-    }
     // debug.
     cout << "========================================" << endl;
     cout << "Size: " << item_sets_.size() << endl;
     // end debug.
+    if (item_sets_.size() > 20) {
+      continue;
+    }
     state_keeper_.Update(item_sets_);
   }
 }
 
 
 VecSharedPtrClusterResult HierarchyClustering::GetClusterResults() {
-  return state_keeper_.cached_item_sets_;
+  return state_keeper_.GetClusterResults();
 }
 
 

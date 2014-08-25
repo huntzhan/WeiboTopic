@@ -71,9 +71,28 @@ int main() {
   cout << "Prepared up" << endl;
   clustering_handler.CarryOutCluster();
 
+  cout << "========================================" << endl;
+  cout << "Cluster Result" << endl;
+  auto results = clustering_handler.GetClusterResults();
+  // debug.
+  for (const auto &result : results) {
+    auto item_set = result->GetItemSet();
+    cout << "ID: " << item_set->id()
+         <<  " Messages: " << item_set->items().size() << endl;
+    cout << "Features: ";
+    int index = 0;
+    for (const auto &feature : item_set->features()) {
+      cout << index++ << ":" << feature << ", ";
+    }
+    cout << endl;
+  }
+  cout << "========================================" << endl;
+  // end debug.
+
   int index = 0;
   for (const auto &word : keywords) {
     cout << index++ << ":" << word << " ";
   }
   cout << endl;
+
 }

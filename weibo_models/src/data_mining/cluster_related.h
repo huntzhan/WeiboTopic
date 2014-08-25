@@ -59,6 +59,8 @@ class ClusterCached : public ClusterResult {
  public:
   ClusterCached(const SharedPtrItemSet &item_set);
   SharedPtrItemSet GetItemSet() const;
+
+ private:
   SharedPtrItemSet cached_item_set_ = nullptr;
 };
 
@@ -67,6 +69,7 @@ class StateKeeper {
  public:
   void Init(const ListSharedPtrItemSet &item_sets);
   void Update(const ListSharedPtrItemSet &item_sets);
+  VecSharedPtrClusterResult GetClusterResults() const;
 
  private:
   utils::CatergoryUtilityEvaluator cu_evaluator_;
