@@ -10,18 +10,24 @@
 
 #ifndef TRAINMODEL_H_
 #define TRAINMODEL_H_
+#include"WeiboWord.h"
 #include"ClassificationInfo.h"
 #include "ICTCLAS50.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include<iostream>
 #include<string>
+#include<vector>
+#include<algorithm>
 #include<list>
 #include<map>
 #include<fstream>
+typedef std::pair<std::string, WeiboWord > PAIR3;
 class TrainModel{
 
 public:
+  //停词表
+  std::set<std::string> stopwords;
   ClassificationInfo other_classification;
 
 
@@ -35,11 +41,14 @@ public:
       return &this->politic_classification;
   }
   void TrainClassModel();
+  void Readstopwordset();
+  void AddWordToMap(std::list<std::string> &articlelist, ClassificationInfo &classinfo);
   void ReadArticle(std::list < std::string > &articlelist,
       std::list < std::string > &politic_article_list);
 
   void SplitWord(std::list < std::string > &articlelist,
       std::list < std::string > &politic_article_list);
+
 };
 
 

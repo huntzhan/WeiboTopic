@@ -53,6 +53,7 @@ void ConnPool::InitConnection(int iInitialSize) {
 	for (int i = 0; i < iInitialSize; i++) {
 		conn = this->CreateConnection();
 		if (conn) {
+		  std::cout<<"创建了一个链接"<<std::endl;
 			connList.push_back(conn);
 			++(this->curSize);
 		} else {

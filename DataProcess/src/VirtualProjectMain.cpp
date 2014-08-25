@@ -7,6 +7,7 @@
  *      先生成一个数据库的操作类，生成特征词（特征词，主题词，关键词都是指话题生成时的词，只是在不同阶段叫法不一样）
  *      再计算特征词 的共现度，最后一趟聚类生成话题
  */
+#include"TopicViewAndPolitics.h"
 #include"TrainModel.h"
 #include"DBoperation.h"
 #include "GetTopic.h"
@@ -85,6 +86,14 @@ int main() {
 	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,
 	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM,NUM_OF_SUB_WORD);
 	cluster.Singlepass();
+
+
+	//生成话题主要观点模块、话题插入数据库模块、判断话题是否为政治类话题模块
+	TopicViewAndPolitics view_and_politics;
+	view_and_politics.InitTopicViewAndPolitics(&dboper,&cluster.clusterList,NUM_OF_SUB_WORD,
+      MIN_TOPIC_MESSAGE_NUM, TOPICVIEW_WEIBO_NUM);
+	view_and_politics.InsterAllTopicToDatabase();
+
 
 
 

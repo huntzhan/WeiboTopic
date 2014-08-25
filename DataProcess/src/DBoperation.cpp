@@ -30,11 +30,21 @@ void DBoperation::DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIn
 	std::copy(table.begin(), table.end(), std::back_inserter(this->table));
 }
 void DBoperation::DBinit(std::string  database,ConnPool *connpool){
-	m_connpool=connpool;ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
+	m_connpool=connpool;
+//	ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
 	con = m_connpool->GetConnection();
 	state = con->createStatement();
 	state->execute(database);
 	this->topic_table_name=this->Gentime();
+
+}
+/*@description：
+ *  参照上面的方法建立新的连接，同时创建执行sql语句的句柄。
+ *@input:
+ *  需要查询的话题段
+ */
+
+void QueryTopicWeibo(int start,int end, std::vector<Topic> &topiclist){
 
 }
 void DBoperation::DBclose(){
@@ -140,6 +150,11 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
   //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
   try {
     if (flag == 0) {
+      //为进程加锁
+//      pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
+//      pthread_mutex_init(&job_queue_mutex, NULL);
+//      pthread_mutex_lock (&job_queue_mutex);
+
       std::string mytablename = "OneDayTopic";
       std::string topicwords;
       int weibonumbers = onetopic.topic_message_num;
@@ -148,25 +163,25 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
       for(;mainidea_it!=onetopic.GetSubWordList()->end();++mainidea_it){
         main_idea+=mainidea_it->word+" ";
       }
-
-      con->setAutoCommit(false);
+//      con->setAutoCommit(false);
       char sql_query[1024];
       list<TopicWord>::iterator it = onetopic.m_stopic.begin();
       for (; it != onetopic.m_stopic.end(); ++it) {
         topicwords += it->m_sword + " ";
       }
-
       sprintf(sql_query, "insert into %s values('','%s','%s','%d')",
           mytablename.c_str(), topicwords.c_str(), main_idea.c_str(),weibonumbers); //(topicid,topicwords,mainidea,weibonumber)
 
       state->executeUpdate(sql_query);
       con->commit();
-      con->setAutoCommit(true);
+//      con->setAutoCommit(true);
       newestID = GetNewserID();
 
       sprintf(table_name, "%s%d", topictablename.c_str(), newestID);
 
       CreateTable(table_name);
+      //解锁
+//      pthread_mutex_unlock (&job_queue_mutex);
     }
 
     //第二次插入只要查询Topic的ID，然后插入数据
@@ -265,7 +280,7 @@ bool DBoperation::ChangeToNextTable(int & count){
 
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
-		if (this->tableIndex == 11){//this->table.size()-1
+		if (this->tableIndex == 2){//this->table.size()-1
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}

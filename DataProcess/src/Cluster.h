@@ -17,6 +17,8 @@
 #include "OneWeibo.h"
 #include "Topic.h"
 #include "TopicWord.h"
+#include<pthread.h>
+#include<unistd.h>
 #include <iostream>
 #include <map>
 #include <string>
@@ -61,7 +63,6 @@ public:
 	//指向GetTopic生成的主题词
 	std::map<std::string,TopicWord> *topicword;
 
-
 	std::map<std::string,CooccurrenceWord> * GetCooccurrence(){
 		return & co_ccur_matrix;
 	}
@@ -103,7 +104,7 @@ public:
 	//将所有的话题信息和话题下的对应的微博插入数据库
   void InsterAllTopicToDatabase();
   //插入一个话题
-	void InsertTopicToDatabase(Topic &one_topic,TopicView &tw, IsPolitics &ispo);
+	void InsertTopicToDatabase(Topic &one_topic);
 
 	//筛选话题下对应的微博
 	void ListEveryTopicWeiboId(Topic &one_topic);
