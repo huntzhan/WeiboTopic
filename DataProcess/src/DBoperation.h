@@ -1,7 +1,10 @@
 #ifndef _DB_OPERATION_H_
 #define _DB_OPERATION_H_
+#include "OneWeibo.h"
+#include "connection_pool.h"
 #include"Weibo.h"
 #include"Topic.h"
+#include<pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -10,8 +13,7 @@
 #include <mysql/mysql.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-#include "OneWeibo.h"
-#include "connection_pool.h"
+
 
 typedef struct _insert_data {
 	std::string mid;

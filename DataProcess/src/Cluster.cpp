@@ -20,22 +20,7 @@ using namespace std;
 //#define COUNT
 
 typedef std::map<std::string, TopicWord> MAP;
-/*
- * @description：
- *  切分mid和微博表字符串
- * @input
- *  str：带切分的mid+belongTable格式字符串
- * @output：
- *  vector<string> result : result[0]为mid，result[1]为tablename
- */
-std::vector<std::string> split2(std::string str){
-	std::vector<std::string>result;
-	std::string mid=str.substr(0,16);
-	std::string table=str.substr(16,str.size());
-	result.push_back(mid);
-	result.push_back(table);
-	return result;
-}
+
 
 /*
  * @description：
@@ -245,7 +230,7 @@ void Cluster::Singlepass() {
 
 
 	this->SortTopic();
-	this->InsterAllTopicToDatabase();
+//	this->InsterAllTopicToDatabase();
 
 
 #ifdef PRINTTOPICA
@@ -404,85 +389,6 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic) {
 	}
 	//将得出的结果存进数据库
 }
-
-
-void Cluster::InsterAllTopicToDatabase(){
-  TopicView tw;
-  tw.InitTopicView(this->dboper,&this->clusterList,this->NUM_OF_SUB_WORD,4);
-  std::cout<<this->NUM_OF_SUB_WORD<<std::endl;
-  IsPolitics ispo;
-//  ispo.InitIsPolitics();
-//  IsPo.IsTopicPolitics();
-	std::vector<Topic>::iterator it = clusterList.begin();
-	for(;it!=clusterList.end();++it){
-//	  std::cout<<"该话题下的微博有："<<it->topic_message_num<<" 条"<<std::endl;
-		if(it->topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)continue;
-		this->InsertTopicToDatabase(*it,tw,ispo);
-	}
-}
-
-/*
- * @description：
- *  将一个话题插入数据库，先将话题的主要信息（包括话题微博数，话题主要观点，话题关键词）插入OneDayTopic表，获取插入时的ID
- *  再将话题下的微博查询出来，插入数据库，由于最大的话题下的微博数会超过10万，一次读入再插入数据库会占用太多内存，所以分批（达到1000）
- *  就插入一次
- */
-void Cluster::InsertTopicToDatabase(Topic &one_topic,TopicView &tw, IsPolitics &ispo) {
-	std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
-	std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
-	if(one_topic.topic_message_num>10900)return;
-	list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
-	for(;topicword_it!=one_topic.GetsTopic()->end();++topicword_it){
-		std::cout<<topicword_it->m_sword<<"	";
-	}
-	std::cout<<std::endl;
-	std::vector<subword>::iterator weibo_id_list_it =one_topic.GetWeiboIdList()->begin();
-
-	double weiboid_num = 0.0;
-	std::string mid;
-	std::string table_name;
-	std::string weiboidandtable;
-	std::vector<std::string>result;
-	Weibo oneweibo;
-	int readnum=0;
-	int flagnum=0;
-	int flag=0;
-	for (; weibo_id_list_it != one_topic.GetWeiboIdList()->end(); ++weibo_id_list_it) {
-		weiboidandtable=weibo_id_list_it->word;
-		result=split2(weiboidandtable);
-		weiboid_num = weibo_id_list_it->fre;
-		mid=result[0];
-		table_name=result[1];
-		oneweibo.belongtable=table_name;
-		//这里是最耗时的
-		this->dboper->GetOneWeiBo(table_name,mid,oneweibo);
-		one_topic.topic_weibo.push_back(oneweibo);//这里是一个话题完之后再插入
-		readnum++;
-		if(readnum==this->TOPICVIEW_WEIBO_NUM||readnum == one_topic.topic_message_num){
-		  tw.GenOneTopicView(one_topic);
-
-		  //这里可以用两种方案
-//		  ispo.IsTopicPoliticsByBaye(one_topic);
-//		  std::cout<<"Is politics? : "<<one_topic.isPolitic<<std::endl;
-//		  break;
-		  //test here
-		}
-		flagnum++;
-		if(flagnum==1000){
-		  this->dboper->InsertData(one_topic,flag);
-		  flagnum=0;
-		  std::cout<<"插入数据库一次，插入了 "<<readnum<<" 条微博"<<std::endl;
-		  flag=1;
-		  std::cout<<"size: "<<one_topic.weibo_id_list.size()<<std::endl;
-		}
-	}
-	this->dboper->InsertData(one_topic,flag);
-	one_topic.topic_weibo.clear();
-	//释放内存
-	one_topic.weibo_id_list.clear();
-	std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
-}
-
 
 
 void Cluster::SortTopic() {

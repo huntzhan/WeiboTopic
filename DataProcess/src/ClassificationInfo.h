@@ -7,13 +7,14 @@
 
 #ifndef ARTICLESINFO_H_
 #define ARTICLESINFO_H_
+#include"WeiboWord.h"
 #include<iostream>
 #include<string>
 #include<map>
 class ClassificationInfo{
   public:
   //该类别下的词频统计
-  std::map<std::string,double>word_fre;
+  std::map<std::string,WeiboWord>word_fre;
 
   //该类别下的文章总数
   int article_num;
@@ -22,7 +23,7 @@ class ClassificationInfo{
   int word_num;
 
 
-  std::map<std::string,double> *GetWrodFre(){
+  std::map<std::string,WeiboWord> *GetWrodFre(){
     return &this->word_fre;
   }
 };

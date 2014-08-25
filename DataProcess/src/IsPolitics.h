@@ -19,6 +19,7 @@
 #include<iostream>
 #include<string>
 #include<fstream>
+#include<math.h>
 
 class IsPolitics{
   //所有的话题下的词
@@ -57,7 +58,7 @@ public:
     return &this->politic_classification;
   }
 
-  void ReadBayeModel(ClassificationInfo classification, std::string filename);
+  void ReadBayeModel(ClassificationInfo &classification, std::string filename);
 };
 
 #endif /* ISPOLITIC_H_ */
