@@ -43,6 +43,12 @@ class CatergoryUtilityEvaluator {
 };
 
 
+class MaxSimilarityItemInItemSet {
+ public:
+  static SharedPtrItem Find(const SharedPtrItemSet &item_set);
+};
+
+
 }  // namespace data_mining
 
 

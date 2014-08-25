@@ -44,4 +44,23 @@ double CatergoryUtilityEvaluator::Evaluate(
 }
 
 
+SharedPtrItem MaxSimilarityItemInItemSet::Find(
+    const SharedPtrItemSet &item_set) {
+  auto features_of_set = item_set->features();
+
+  double max_similarity = 0.0;
+  SharedPtrItem target_item;
+  for (const SharedPtrItem &item : item_set->items()) {
+    auto features_of_item = item->features();
+    double current_similarity = utils::Cosine::Evaluate(
+        features_of_set, features_of_item);
+    if (current_similarity > max_similarity) {
+      max_similarity = current_similarity;
+      target_item = item;
+    }
+  }
+  return target_item;
+}
+
+
 }  // namespace data_mining

@@ -30,7 +30,7 @@ namespace utils {
 
 string TextCleaner::Clean(string text) {
   vector<string> rules = {
-    "http://.+?/\\w+",
+    "http://.+?/\\w+",  // remove url.
     "[#|:]"};
 
   for (const string &rule : rules) {

@@ -49,6 +49,7 @@ target_link_libraries(run mysql_handler)
 target_link_libraries(run dimension_reducer)
 target_link_libraries(run item_related)
 target_link_libraries(run cluster_related)
+target_link_libraries(run dm_utils)
 
 
 ####################

@@ -13,6 +13,9 @@
 //   Organization:  
 //
 // ============================================================================
+#include "utils/calculator.h"
+
+
 namespace data_mining {
 
 

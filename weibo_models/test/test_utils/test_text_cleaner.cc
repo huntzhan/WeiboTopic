@@ -24,7 +24,8 @@ using utils::TextCleaner;
 
 TEST(test_utils, test_text_cleaner) {
   TextCleaner cleaner;
-  string text = "#产妇丧命医护失踪# 事件一波三折，你怎么http://t.cn/RPWBXri看？ "
+  string text = "#产妇丧命医护失踪# 事件一波三折，"
+                "你怎么http://t.cn/RPWBXri看？ "
                 "相信医护人员，责任在家属 详情:http://t.cn/RPWBXri";
   string result = cleaner.Clean(text);
   EXPECT_EQ("产妇丧命医护失踪 事件一波三折，你怎么看？ "
