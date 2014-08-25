@@ -50,6 +50,7 @@ class ItemWithCosineDistance : public ItemInterface {
 
 class ItemSetWithCosineDistance : public ItemSetInterface {
  public:
+  ItemSetWithCosineDistance() = default;
   ItemSetWithCosineDistance(const SharedPtrItem &item);
   // interface.
   double Similarity(const SharedPtrItemSet &other) const override;

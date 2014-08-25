@@ -91,8 +91,7 @@ class ItemSetInterface : public ItemSetProperty {
 
 class ClusterResult {
  public:
-  virtual Features GetFeatures() const = 0;
-  virtual IDs GetIDs() const = 0;
+  virtual SharedPtrItemSet GetItemSet() const = 0;
 };
 
 

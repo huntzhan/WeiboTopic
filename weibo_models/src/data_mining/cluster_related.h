@@ -55,15 +55,11 @@ class AuxiliaryFunc {
 };
 
 
-class FeaturesAndMessageIDs : public ClusterResult {
+class ClusterCached : public ClusterResult {
  public:
-  FeaturesAndMessageIDs(const Features &features, const IDs &ids);
-  Features GetFeatures() const override;
-  IDs GetIDs() const override;
-
- private:
-  const Features features_;
-  const IDs ids_;
+  ClusterCached(const SharedPtrItemSet &item_set);
+  SharedPtrItemSet GetItemSet() const;
+  SharedPtrItemSet cached_item_set_ = nullptr;
 };
 
 
@@ -71,12 +67,11 @@ class StateKeeper {
  public:
   void Init(const ListSharedPtrItemSet &item_sets);
   void Update(const ListSharedPtrItemSet &item_sets);
-  VecSharedPtrClusterResult result_container() const;
 
  private:
   utils::CatergoryUtilityEvaluator cu_evaluator_;
   double max_cu_values_ = -1.0;
-  VecSharedPtrClusterResult result_container_;
+  VecSharedPtrClusterResult cached_item_sets_;
 };
 
 

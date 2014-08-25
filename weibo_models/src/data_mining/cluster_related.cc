@@ -100,18 +100,20 @@ AuxiliaryFunc::FindMaxSimilarity(SimilarityMap *similarity_map) {
 }
 
 
-FeaturesAndMessageIDs::FeaturesAndMessageIDs(
-    const Features &features, const IDs &ids)
-    : features_(features), ids_(ids) {/* empty */}
+ClusterCached::ClusterCached(const SharedPtrItemSet &item_set) {
+  cached_item_set_ = SharedPtrItemSet(new ItemSetWithCosineDistance);
 
+  cached_item_set_->set_id(item_set->id());
+  cached_item_set_->set_features(item_set->features());
 
-Features FeaturesAndMessageIDs::GetFeatures() const {
-  return features_;
+  for (const SharedPtrItem &item : item_set->items()) {
+    cached_item_set_->add_item(item);
+  }
 }
 
 
-IDs FeaturesAndMessageIDs::GetIDs() const {
-  return ids_;
+SharedPtrItemSet ClusterCached::GetItemSet() const {
+  return cached_item_set_;
 }
 
 
@@ -129,7 +131,8 @@ void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
 
   // debug.
   for (const auto &item_set : item_sets) {
-    cout << "ID: " << item_set->id() <<  " Messages: " << item_set->items().size() << endl;
+    cout << "ID: " << item_set->id()
+         <<  " Messages: " << item_set->items().size() << endl;
     cout << "Features: ";
     int index = 0;
     for (const auto &feature : item_set->features()) {
@@ -147,21 +150,11 @@ void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
   // update max cu value.
   max_cu_values_ = current_cu_value;
   // update result.
-  result_container_.clear();
+  cached_item_sets_.clear();
   for (const auto &item_set : item_sets) {
-    auto features = item_set->features();
-    IDs ids;
-    for (const auto &item : item_set->items()) {
-      ids.push_back(item->id());
-    }
-    SharedPtrClusterResult result(new FeaturesAndMessageIDs(features, ids));
-    result_container_.push_back(result);
+    SharedPtrClusterResult cached_item_set(new ClusterCached(item_set));
+    cached_item_sets_.push_back(cached_item_set);
   }
-}
-
-
-VecSharedPtrClusterResult StateKeeper::result_container() const {
-  return result_container_;
 }
 
 
@@ -252,7 +245,7 @@ void HierarchyClustering::CarryOutCluster() {
 
 
 VecSharedPtrClusterResult HierarchyClustering::GetClusterResults() {
-  return state_keeper_.result_container();
+  return state_keeper_.cached_item_sets_;
 }
 
 
