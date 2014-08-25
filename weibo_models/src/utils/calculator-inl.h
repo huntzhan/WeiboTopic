@@ -30,7 +30,8 @@ data_mining::Features MeanFeatures::Calculate(
   data_mining::Features mean_features(dimension, 0.0);
   // sum up features.
   for (const auto &target : set_with_features_interface) {
-    auto features = target.features();
+    // target should be a pointer to an object with features() member function.
+    auto features = target->features();
     for (auto feature_iter = features.cbegin();
          feature_iter != features.cend(); ++feature_iter) {
       auto index = distance(features.cbegin(), feature_iter);
@@ -62,6 +63,17 @@ double Cosine::Evaluate(const Iterable &x, const Iterable &y) {
     return 0.0;
   }
   return top / (std::sqrt(bottom_x) * std::sqrt(bottom_y));
+}
+
+
+template <typename Iterable>
+double CatergoryUtilityEvaluator::CalculateSumOfSquares(
+    const Iterable &values) {
+  double sum_of_squares = 0.0;
+  for (const double &value : values) {
+    sum_of_squares += value * value;
+  }
+  return sum_of_squares;
 }
 
 

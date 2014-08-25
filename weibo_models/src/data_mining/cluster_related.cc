@@ -105,7 +105,7 @@ FeaturesAndMessageIDs::FeaturesAndMessageIDs(
     : features_(features), ids_(ids) {/* empty */}
 
 
-Features FeaturesAndMessageIDs GetFeatures() const {
+Features FeaturesAndMessageIDs::GetFeatures() const {
   return features_;
 }
 
@@ -127,17 +127,17 @@ void StateKeeper::Init(const ListSharedPtrItemSet &item_sets) {
 void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
   double current_cu_value = cu_evaluator_.Evaluate(item_sets);
   if (current_cu_value < max_cu_values_) {
-    continue;
+    return;
   }
   // update max cu value.
   max_cu_values_ = current_cu_value;
   // update result.
   result_container_.clear();
   for (const auto &item_set : item_sets) {
-    auto features = item_set.features();
-    IDs = ids;
-    for (const auto &item : item_set.items()) {
-      ids.push_back(item.id());
+    auto features = item_set->features();
+    IDs ids;
+    for (const auto &item : item_set->items()) {
+      ids.push_back(item->id());
     }
     SharedPtrClusterResult result(new FeaturesAndMessageIDs(features, ids));
     result_container_.push_back(result);

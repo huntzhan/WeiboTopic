@@ -39,16 +39,16 @@ class Cosine {
 
 class CatergoryUtilityEvaluator {
  public:
-  CatergoryUtilityEvaluator(const int &size, const double &sum_of_squares);
-  double Evaluate(const data_mining::ListSharedPtrItemSet &item_sets);
+  void Init(const int &size, const double &sum_of_squares);
+  double Evaluate(const data_mining::ListSharedPtrItemSet &item_sets) const;
 
   template <typename Iterable>
   static double CalculateSumOfSquares(const Iterable &values);
 
  private:
-  const int size_;
-  const double sum_of_squares_;
-}
+  int size_;
+  double sum_of_squares_;
+};
 
 
 }  // namespace utils
