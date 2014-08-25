@@ -41,7 +41,7 @@ namespace data_mining {
 
 
 constexpr const int kTriggerSize = 20;
-constexpr const double kFilterOutThreshole = 0.05;
+constexpr const double kFilterOutThreshole = 0.1;
 
 
 // compare function for ItemSetInterface.
