@@ -40,6 +40,10 @@ using data_mining::MeanFeatures;
 namespace data_mining {
 
 
+constexpr const int kTriggerSize = 20;
+constexpr const double kFilterOutThreshole = 0.05;
+
+
 // compare function for ItemSetInterface.
 auto item_set_compare = [](const SharedPtrItemSet &a,
                            const SharedPtrItemSet &b) {
@@ -240,7 +244,7 @@ void HierarchyClustering::CarryOutCluster() {
     cout << "========================================" << endl;
     cout << "Size: " << item_sets_.size() << endl;
     // end debug.
-    if (item_sets_.size() > 20) {
+    if (item_sets_.size() > kTriggerSize) {
       continue;
     }
     state_keeper_.Update(item_sets_);
@@ -249,7 +253,25 @@ void HierarchyClustering::CarryOutCluster() {
 
 
 VecSharedPtrClusterResult HierarchyClustering::GetClusterResults() {
-  return state_keeper_.GetClusterResults();
+  auto results = state_keeper_.GetClusterResults();
+
+  int size = 0;
+  for (const auto &result : results) {
+    auto item_set = result->GetItemSet();
+    size += item_set->items().size();
+  }
+  // remove item_set cotains items < 3%;
+  auto iter = results.begin();
+  while (iter != results.end()) {
+    auto item_set = (*iter)->GetItemSet();
+    double current_size = item_set->items().size();
+    if (current_size / size < kFilterOutThreshole) {
+      iter = results.erase(iter);
+    } else {
+      ++iter;
+    }
+  }
+  return results;
 }
 
 

@@ -34,13 +34,17 @@ using data_mining::AdapterForBitset;
 using data_mining::HierarchyClustering;
 
 
+constexpr const int kDimension = 20;
+constexpr const int kMaxProcessSize = 1000;
+
+
 int main() {
   TopicHandler handler("testcase", "SingleTopic");
   handler.Init();
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;
 
-  TFIDFDimensionReducer<20> reducer;
+  TFIDFDimensionReducer<kDimension> reducer;
   reducer.Process(raw_messages);
   auto keywords = reducer.GetKeywords();
   auto vectorized_messages = reducer.GetVectorizedMessages();
@@ -51,7 +55,7 @@ int main() {
     if (message.none()) {
       continue;
     }
-    if (nonzero_messages.size() >= 1000) {
+    if (nonzero_messages.size() >= kMaxProcessSize) {
       break;
     }
     nonzero_messages.push_back(message);
