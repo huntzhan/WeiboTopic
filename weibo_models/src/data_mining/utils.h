@@ -20,6 +20,14 @@
 #define DATA_MINING_UTILS_H_
 namespace data_mining {
 
+
+class Cosine {
+ public:
+  template <typename Iterable>
+  static double Evaluate(const Iterable &x, const Iterable &y);
+};
+
+
 class MeanFeatures {
  public:
   template <typename Iterable>

@@ -34,8 +34,6 @@ using std::upper_bound;
 using std::lower_bound;
 using std::max_element;
 
-using data_mining::MeanFeatures;
-
 
 namespace data_mining {
 

@@ -13,10 +13,27 @@
 //   Organization:  
 //
 // ============================================================================
-#include "utils/calculator.h"
-
-
 namespace data_mining {
+
+
+template <typename Iterable>
+double Cosine::Evaluate(const Iterable &x, const Iterable &y) {
+  if (x.size() != y.size()) {
+    return 0.0;
+  }
+  double top = 0;
+  double bottom_x = 0, bottom_y = 0;
+  for (std::size_t index = 0; index != x.size(); ++index) {
+    top += x[index] * y[index];
+    bottom_x += x[index] * x[index];
+    bottom_y += y[index] * y[index];
+  }
+  // force zero for empty vector.
+  if (!bottom_x || !bottom_y) {
+    return 0.0;
+  }
+  return top / (std::sqrt(bottom_x) * std::sqrt(bottom_y));
+}
 
 
 template <typename Iterable>
