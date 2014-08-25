@@ -126,6 +126,21 @@ void StateKeeper::Init(const ListSharedPtrItemSet &item_sets) {
 
 void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
   double current_cu_value = cu_evaluator_.Evaluate(item_sets);
+
+  // debug.
+  for (const auto &item_set : item_sets) {
+    cout << "ID: " << item_set->id() << endl;
+    cout << "Features: ";
+    int index = 0;
+    for (const auto &feature : item_set->features()) {
+      cout << index++ << ":" << feature << ", ";
+    }
+    cout << endl;
+  }
+  cout << "Max CU: " << max_cu_values_ << endl;
+  cout << "Cur CU: " << current_cu_value << endl;
+  // end debug.
+
   if (current_cu_value < max_cu_values_) {
     return;
   }
@@ -224,21 +239,12 @@ void HierarchyClustering::SingleStepOfClustering() {
 void HierarchyClustering::CarryOutCluster() {
   while (item_sets_.size() > 1) {
     SingleStepOfClustering();
+    if (item_sets_.size() > 20) {
+      continue;
+    }
     // debug.
     cout << "========================================" << endl;
     cout << "Size: " << item_sets_.size() << endl;
-    if (item_sets_.size() > 20 ) continue;
-
-    for (const auto &item_set : item_sets_) {
-      cout << "ID: " << item_set->id() << endl;
-      cout << "Features: ";
-      int index = 0;
-      for (const auto &feature : item_set->features()) {
-        cout << index++ << ":" << feature << ", ";
-      }
-      cout << endl;
-      cout << endl;
-    }
     // end debug.
     state_keeper_.Update(item_sets_);
   }
