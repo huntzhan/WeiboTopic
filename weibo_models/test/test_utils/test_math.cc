@@ -21,7 +21,6 @@
 
 using std::vector;
 using utils::Cosine;
-using utils::MeanFeatures;
 using utils::CatergoryUtilityEvaluator;
 
 
@@ -47,17 +46,6 @@ TEST(test_utils, test_cosine_mismatch) {
   vector<double> y = {2.0, 3.0};
   auto value = Cosine::Evaluate(x, y);
   EXPECT_EQ(0.0, value);
-}
-
-
-TEST(test_utils, test_mean_features) {
-  vector<double> f1 = {1.0, 0.0, 0.0};
-  vector<double> f2 = {0.0, 1.0, 0.0};
-  vector<double> f3 = {0.0, 0.0, 1.0};
-  vector<double> expected = {0.25, 0.25, 0.25};
-
-  auto mean_features = MeanFeatures::Calculate({f1, f2, f3}, 3);
-  EXPECT_EQ(expected, mean_features);
 }
 
 

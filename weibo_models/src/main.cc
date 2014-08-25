@@ -40,7 +40,7 @@ int main() {
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;
 
-  TFIDFDimensionReducer<10> reducer;
+  TFIDFDimensionReducer<20> reducer;
   reducer.Process(raw_messages);
   auto keywords = reducer.GetKeywords();
   auto vectorized_messages = reducer.GetVectorizedMessages();

@@ -129,7 +129,7 @@ void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
 
   // debug.
   for (const auto &item_set : item_sets) {
-    cout << "ID: " << item_set->id() << endl;
+    cout << "ID: " << item_set->id() <<  " Messages: " << item_set->items().size() << endl;
     cout << "Features: ";
     int index = 0;
     for (const auto &feature : item_set->features()) {

@@ -19,14 +19,18 @@
 #include "gtest/gtest.h"
 #include "test_data_mining/test_fixture.h"
 
+#include "data_mining/interface.h"
 #include "data_mining/item_related.h"
 #include "utils/dimension_reducer.h"
+#include "utils/calculator.h"
 
 
 using std::vector;
 
 using utils::BitsetFeatures;
 using data_mining::AdapterForBitset;
+using data_mining::VecSharedPtrItem;
+using utils::MeanFeatures;
 
 
 TEST(test_dm, test_adapter) {
@@ -69,4 +73,16 @@ TEST_F(TestItem, TestSimilarity3) {
   auto item_b = GetItem({0.0, 0.3});
   EXPECT_LT(0.624, item_a->Similarity(item_b));
   EXPECT_GT(0.625, item_a->Similarity(item_b));
+}
+
+
+TEST_F(TestItem, TestMeanFeatures) {
+  auto t1 = GetItem({0.75, 0.0, 0.0});
+  auto t2 = GetItem({0.0, 0.75, 0.0});
+  auto t3 = GetItem({0.0, 0.0, 0.75});
+  vector<double> expected = {0.25, 0.25, 0.25};
+
+  VecSharedPtrItem items = {t1, t2, t3};
+  auto mean_features = MeanFeatures::Calculate(items, 3);
+  EXPECT_EQ(expected, mean_features);
 }
