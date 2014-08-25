@@ -40,15 +40,4 @@ double Cosine::Evaluate(const Iterable &x, const Iterable &y) {
 }
 
 
-template <typename Iterable>
-double CatergoryUtilityEvaluator::CalculateSumOfSquares(
-    const Iterable &values) {
-  double sum_of_squares = 0.0;
-  for (const double &value : values) {
-    sum_of_squares += value * value;
-  }
-  return sum_of_squares;
-}
-
-
 }  // namespace utils
