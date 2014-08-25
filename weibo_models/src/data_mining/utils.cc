@@ -1,11 +1,11 @@
 // ============================================================================
 //
-//       Filename:  calculator.cc
+//       Filename:  utils.cc
 //
 //    Description:  
 //
 //        Version:  1.0
-//        Created:  08/24/2014 21:31:06
+//        Created:  08/25/2014 15:21:02
 //       Revision:  none
 //       Compiler:  g++
 //
@@ -13,14 +13,10 @@
 //   Organization:  
 //
 // ============================================================================
-#include "utils/calculator.h"
-#include "data_mining/interface.h"
+#include "data_mining/utils.h"
 
 
-using data_mining::ListSharedPtrItemSet;
-
-
-namespace utils {
+namespace data_mining {
 
 
 void CatergoryUtilityEvaluator::Init(const int &size,
@@ -48,4 +44,4 @@ double CatergoryUtilityEvaluator::Evaluate(
 }
 
 
-}  // namespace utils
+}  // namespace data_mining

@@ -20,7 +20,7 @@
 
 #include "data_mining/interface.h"
 #include "data_mining/item_related.h"
-#include "utils/calculator.h"
+#include "data_mining/utils.h"
 
 
 #ifndef DATA_MINING_CLUSTER_RELATED_H_
@@ -72,7 +72,7 @@ class StateKeeper {
   VecSharedPtrClusterResult GetClusterResults() const;
 
  private:
-  utils::CatergoryUtilityEvaluator cu_evaluator_;
+  CatergoryUtilityEvaluator cu_evaluator_;
   double max_cu_values_ = -1.0;
   VecSharedPtrClusterResult cached_item_sets_;
 };

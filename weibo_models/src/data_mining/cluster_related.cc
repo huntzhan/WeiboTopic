@@ -20,7 +20,6 @@
 
 #include "data_mining/cluster_related.h"
 #include "data_mining/utils.h"
-#include "utils/calculator.h"
 
 // debug.
 #include <iostream>

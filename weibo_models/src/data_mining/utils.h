@@ -28,6 +28,21 @@ class MeanFeatures {
       const int &dimension);
 };
 
+
+class CatergoryUtilityEvaluator {
+ public:
+  void Init(const int &size, const double &sum_of_squares);
+  double Evaluate(const ListSharedPtrItemSet &item_sets) const;
+
+  template <typename Iterable>
+  static double CalculateSumOfSquares(const Iterable &values);
+
+ private:
+  int size_;
+  double sum_of_squares_;
+};
+
+
 }  // namespace data_mining
 
 

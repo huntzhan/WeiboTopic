@@ -31,6 +31,7 @@ using utils::BitsetFeatures;
 using data_mining::AdapterForBitset;
 using data_mining::VecSharedPtrItem;
 using data_mining::MeanFeatures;
+using data_mining::CatergoryUtilityEvaluator;
 
 
 TEST(test_dm, test_adapter) {
@@ -85,4 +86,10 @@ TEST_F(TestItem, TestMeanFeatures) {
   VecSharedPtrItem items = {t1, t2, t3};
   auto mean_features = MeanFeatures::Calculate(items, 3);
   EXPECT_EQ(expected, mean_features);
+}
+
+
+TEST(test_utils, test_sum_of_squares) {
+  vector<double> f = {1.0, 0.5, 0.1};
+  EXPECT_EQ(1+0.25+0.01, CatergoryUtilityEvaluator::CalculateSumOfSquares(f));
 }

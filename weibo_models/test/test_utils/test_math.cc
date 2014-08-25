@@ -21,7 +21,6 @@
 
 using std::vector;
 using utils::Cosine;
-using utils::CatergoryUtilityEvaluator;
 
 
 TEST(test_utils, test_cosine_normal) {
@@ -46,10 +45,4 @@ TEST(test_utils, test_cosine_mismatch) {
   vector<double> y = {2.0, 3.0};
   auto value = Cosine::Evaluate(x, y);
   EXPECT_EQ(0.0, value);
-}
-
-
-TEST(test_utils, test_sum_of_squares) {
-  vector<double> f = {1.0, 0.5, 0.1};
-  EXPECT_EQ(1+0.25+0.01, CatergoryUtilityEvaluator::CalculateSumOfSquares(f));
 }
