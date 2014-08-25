@@ -13,21 +13,9 @@
 //   Organization:  
 //
 // ============================================================================
-
-#include "data_mining/interface.h"
-
 #ifndef UTILS_CALCULATOR_H_
 #define UTILS_CALCULATOR_H_
 namespace utils {
-
-
-class MeanFeatures {
- public:
-  template <typename Iterable>
-  static data_mining::Features Calculate(
-      const Iterable &set_with_features_interface,
-      const int &dimension);
-};
 
 
 class Cosine {

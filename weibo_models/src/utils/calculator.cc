@@ -13,7 +13,6 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include "utils/calculator.h"
 #include "data_mining/interface.h"
 

@@ -18,13 +18,14 @@
 #include <cstddef>
 #include <iterator>
 
+#include "data_mining/utils.h"
 #include "utils/calculator.h"
 
 
 using std::size_t;
 using std::distance;
 using utils::Cosine;
-using utils::MeanFeatures;
+using data_mining::MeanFeatures;
 
 
 namespace data_mining {

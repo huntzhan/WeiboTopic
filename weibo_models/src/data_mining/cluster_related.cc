@@ -13,13 +13,13 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include <utility>
 #include <algorithm>
 #include <memory>
 #include <iterator>
 
 #include "data_mining/cluster_related.h"
+#include "data_mining/utils.h"
 #include "utils/calculator.h"
 
 // debug.
@@ -35,7 +35,7 @@ using std::upper_bound;
 using std::lower_bound;
 using std::max_element;
 
-using utils::MeanFeatures;
+using data_mining::MeanFeatures;
 
 
 namespace data_mining {

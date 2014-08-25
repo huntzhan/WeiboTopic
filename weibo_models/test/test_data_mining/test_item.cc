@@ -21,8 +21,8 @@
 
 #include "data_mining/interface.h"
 #include "data_mining/item_related.h"
+#include "data_mining/utils.h"
 #include "utils/dimension_reducer.h"
-#include "utils/calculator.h"
 
 
 using std::vector;
@@ -30,7 +30,7 @@ using std::vector;
 using utils::BitsetFeatures;
 using data_mining::AdapterForBitset;
 using data_mining::VecSharedPtrItem;
-using utils::MeanFeatures;
+using data_mining::MeanFeatures;
 
 
 TEST(test_dm, test_adapter) {
