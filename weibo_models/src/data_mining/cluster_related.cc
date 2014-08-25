@@ -62,9 +62,9 @@ SharedPtrItemSetPair AuxiliaryFunc::MakeItemSetPair(
 
 
 
-ListSharedPtrItemSet::iterator
-AuxiliaryFunc::SearchItemSet(ListSharedPtrItemSet *item_sets,
-                             const SharedPtrItemSet &item_set) {
+ListSharedPtrItemSet::iterator AuxiliaryFunc::SearchItemSet(
+    ListSharedPtrItemSet *item_sets,
+    const SharedPtrItemSet &item_set) {
   return lower_bound(item_sets->begin(), item_sets->end(),
                      item_set, item_set_compare);
 }
@@ -87,8 +87,9 @@ void AuxiliaryFunc::InsertItemSet(ListSharedPtrItemSet *item_sets,
 }
 
 
-SharedPtrItemSetPair
-AuxiliaryFunc::FindMaxSimilarity(SimilarityMap *similarity_map) {
+SharedPtrItemSetPair AuxiliaryFunc::FindMaxSimilarity(
+    SimilarityMap *similarity_map) {
+  // function object to compare value of map.
   using IterType = pair<SharedPtrItemSetPair, double>;
   auto compare_value = [](const IterType &x, const IterType &y) {
     return x.second < y.second;

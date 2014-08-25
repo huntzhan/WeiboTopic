@@ -18,6 +18,7 @@
 #include <list>
 #include <memory>
 
+
 #ifndef DATA_MINING_INTERFACE_H_
 #define DATA_MINING_INTERFACE_H_
 namespace data_mining {
@@ -62,13 +63,6 @@ class ItemProperty {
 };
 
 
-class ItemInterface : public ItemProperty {
- public:
-  // interface to calculate similarity between two items.
-  virtual double Similarity(const SharedPtrItem &other) const = 0;
-};
-
-
 class ItemSetProperty : public ItemProperty {
  public:
   // accessor.
@@ -79,6 +73,13 @@ class ItemSetProperty : public ItemProperty {
 
  private:
   VecSharedPtrItem items_;
+};
+
+
+class ItemInterface : public ItemProperty {
+ public:
+  // interface to calculate similarity between two items.
+  virtual double Similarity(const SharedPtrItem &other) const = 0;
 };
 
 

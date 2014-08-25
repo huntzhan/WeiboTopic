@@ -13,7 +13,6 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include "utils/text_cleaner.h"
 
 #include <string>
@@ -21,12 +20,15 @@
 
 #include <boost/regex.hpp>
 
+
 using std::string;
 using std::vector;
 using boost::regex;
 using boost::regex_replace;
 
+
 namespace utils {
+
 
 string TextCleaner::Clean(string text) {
   vector<string> rules = {
@@ -40,5 +42,6 @@ string TextCleaner::Clean(string text) {
   }
   return text;
 }
+
 
 }  // namespace utils

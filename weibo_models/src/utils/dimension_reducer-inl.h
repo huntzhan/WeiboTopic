@@ -13,7 +13,6 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include <string>
 #include <bitset>
 #include <sstream>
