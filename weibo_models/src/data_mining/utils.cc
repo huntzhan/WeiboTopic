@@ -52,7 +52,7 @@ SharedPtrItem MaxSimilarityItemInItemSet::Find(
   SharedPtrItem target_item;
   for (const SharedPtrItem &item : item_set->items()) {
     auto features_of_item = item->features();
-    double current_similarity = utils::Cosine::Evaluate(
+    double current_similarity = Cosine::Evaluate(
         features_of_set, features_of_item);
     if (current_similarity > max_similarity) {
       max_similarity = current_similarity;

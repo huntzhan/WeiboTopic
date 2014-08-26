@@ -13,7 +13,6 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include "gtest/gtest.h"
 
 #include "utils/dimension_reducer.h"
@@ -22,8 +21,10 @@
 #include <algorithm>
 #include <string>
 
+
 using utils::TFIDFDimensionReducer;
 using std::find;
+
 
 TEST(test_utils, test_tfidfdimensionreducer) {
   mysql_handler::TopicHandler handler("testcase", "SingleTopic");
@@ -35,7 +36,6 @@ TEST(test_utils, test_tfidfdimensionreducer) {
   auto keywords = reducer.GetKeywords();
   auto messages = reducer.GetVectorizedMessages();
 
-  EXPECT_NE(keywords.cend(), find(keywords.cbegin(), keywords.cend(), "小米"));
   bool flag = false;
   for (const auto &message : messages) {
     if (message.any()) {
