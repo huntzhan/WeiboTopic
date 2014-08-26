@@ -1,6 +1,6 @@
 #!/bin/bash
 
-done_tables=$(grep "###Insertion of FilteredMicroblog" run.log | cut -d " " -f 3)
+done_tables=$(grep "Insertion of FilteredMicroblog" run.log | cut -d " " -f 3)
 echo $done_tables > done.log
 # declare -a done_tables
 
@@ -23,9 +23,6 @@ for table in $(mysql -u root -p123456 "split" -e "$sql" | grep "FilteredMicroblo
 			break
 		fi
 	done
-	if [ $table == "FilteredMicroblogxxx" ]; then
-		echo $table $flag $n
-	fi
 	if [ $flag == "0" ]; then
 		# undone_tables=("${undone_tables[@]}" $table)
 		undone_tables[$n]=$table

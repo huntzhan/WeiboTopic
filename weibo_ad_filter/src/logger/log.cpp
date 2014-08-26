@@ -13,6 +13,7 @@
 std::map<LogType, shared_ptr<ofstream>> Log::_loggers;
 const string Log::LOG_FILES[END_T] = {
   "",
+  "run.log",
   "zombie.log",
   "ref_low.log",
   "ref_high.log"

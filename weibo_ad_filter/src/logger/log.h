@@ -20,6 +20,7 @@ using std::shared_ptr;
 
 enum LogType {
   BEGIN_T,
+  RUN_T,
   ZOMBIE_T,
   REFLOW_T,
   REFHIGH_T,
@@ -35,6 +36,7 @@ class Log {
     static void Logging(LogType type, const string &record);
 
   private:
+    LogType type;
     static void _InitialLoggers();
     static shared_ptr<ofstream> _GetStreamByType(LogType type);
 
