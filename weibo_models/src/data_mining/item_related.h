@@ -72,14 +72,13 @@ namespace data_mining {
 template <std::size_t dimension>
 AdapterForBitset::AdapterForBitset(
     const utils::BitsetFeatures<dimension> &message, const int &id) {
+  // set id.
   id_ = id;
-  // 1.0 represents that the item holds the feature, while 0.0 not.
+  // set features.
+  // 1.0 represents that the item holds the feature, while 0.0 does not.
   for (std::size_t index = 0; index != message.size(); ++index) {
-    if (message[index]) {
-      features_.push_back(1.0);
-    } else {
-      features_.push_back(0.0);
-    }
+    const bool &has_feature = message[index];
+    has_feature ? features_.push_back(1.0) : features_.push_back(0.0);
   }
 }
 

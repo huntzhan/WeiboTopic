@@ -69,13 +69,6 @@ endfunction()
 ##############
 # Test cases #
 ##############
-# Options related to test cases.
-option(test_example "an example." ON)
-
-if(test_example)
-  # add_subdirectory(test/test_example)
-endif(test_example)
-
 add_subdirectory(test/test_mysql_conn)
 add_subdirectory(test/test_utils)
 add_subdirectory(test/test_data_mining)

@@ -13,16 +13,16 @@
 //   Organization:  
 //
 // ============================================================================
-#ifndef UTILS_DIMENSION_REDUCER_H_
-#define UTILS_DIMENSION_REDUCER_H_
-
 #include <string>
 #include <vector>
 #include <bitset>
 #include <cstddef>
 
 
+#ifndef UTILS_DIMENSION_REDUCER_H_
+#define UTILS_DIMENSION_REDUCER_H_
 namespace utils {
+
 
 // auxiliary types.
 using VecStr = std::vector<std::string>;
@@ -57,8 +57,11 @@ class TFIDFDimensionReducer : public DimensionReducerInterface<dimension> {
   VecBitset<dimension> vectorized_messages_;
 };
 
+
 }  // namespace utils
 
+
 #include "utils/dimension_reducer-inl.h"
+
 
 #endif

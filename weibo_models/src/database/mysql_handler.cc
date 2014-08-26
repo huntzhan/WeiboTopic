@@ -102,8 +102,7 @@ vector<string> TopicHandler::GetMessages() {
   // fetch result.
   vector<string> results;
   while (res->next()) {
-    results.push_back(
-        res->getString("content"));
+    results.push_back(res->getString("content"));
   }
   return results;
 }

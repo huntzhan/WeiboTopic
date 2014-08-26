@@ -13,8 +13,8 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include <string>
+#include <vector>
 #include <bitset>
 #include <sstream>
 #include <utility>
@@ -31,13 +31,18 @@ namespace utils {
 template <int dimension>
 void TFIDFDimensionReducer<dimension>::Process(const VecStr &messages) {
   utils::TextCleaner cleaner;
-  
+
+  // firstly, clean each messages and keep the result.
+  std::vector<std::string> cleaned_messages;
   std::ostringstream all_messages;
   for (const std::string &message : messages) {
     // read all mes
-    all_messages << cleaner.Clean(message);
+    auto cleaned_message = cleaner.Clean(message);
+    cleaned_messages.push_back(cleaned_message);
+    all_messages << cleaned_message;
   }
 
+  // secondly, extract keyword based on tf/idf.
   // load dataset. Make sure the path is relative to top-level build directory.
   CppJieba::KeywordExtractor extractor(
       "data/jieba/jieba.dict.utf8",
@@ -47,8 +52,9 @@ void TFIDFDimensionReducer<dimension>::Process(const VecStr &messages) {
   VecStr keywords;
   extractor.extract(all_messages.str(), keywords, dimension);
 
+  // thirdly, vectorize messages based on keywords and cleaned messages.
   VecBitset<dimension> vectorized_messages;
-  for (const std::string &message : messages) {
+  for (const std::string &message : cleaned_messages) {
     std::bitset<dimension> vectorized_message;
 
     // try to find each keyword in message.

@@ -13,17 +13,19 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include <string>
+
 
 #ifndef UTILS_TEXT_CLEANER_H_
 #define UTILS_TEXT_CLEANER_H_
 namespace utils {
 
+
 class TextCleaner {
  public:
   std::string Clean(std::string text); 
 };
+
 
 }  // namespace utils
 #endif

@@ -13,7 +13,6 @@
 //   Organization:  
 //
 // ============================================================================
-
 #include <vector>
 #include <utility>
 #include <functional>
@@ -71,9 +70,11 @@ class StateKeeper {
   void Update(const ListSharedPtrItemSet &item_sets);
   VecSharedPtrClusterResult GetClusterResults() const;
 
+  double max_cu_value() const { return max_cu_value_; }
+
  private:
   CatergoryUtilityEvaluator cu_evaluator_;
-  double max_cu_values_ = -1.0;
+  double max_cu_value_ = -1.0;
   VecSharedPtrClusterResult cached_item_sets_;
 };
 
@@ -83,11 +84,14 @@ class HierarchyClustering : public ClusterProcedure {
   // interfaces.
   void AddItem(const AdapterInterface &adapter) override;
   void Prepare() override;
-  void CarryOutCluster() override;
+  bool NotStop() const override;
+  void SingleMove() override;
   VecSharedPtrClusterResult GetClusterResults() override;
 
+  ListSharedPtrItemSet item_sets() const { return item_sets_; }
+  double max_cu_value() const { return state_keeper_.max_cu_value(); }
+
  private:
-  void SingleStepOfClustering();
   ListSharedPtrItemSet item_sets_;
   SimilarityMap similarity_of_item_sets_;
   StateKeeper state_keeper_;

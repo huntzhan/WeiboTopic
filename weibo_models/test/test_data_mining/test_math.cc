@@ -17,10 +17,10 @@
 #include "gtest/gtest.h"
 
 #include <vector>
-#include "utils/calculator.h"
+#include "data_mining/utils.h"
 
 using std::vector;
-using utils::Cosine;
+using data_mining::Cosine;
 
 
 TEST(test_utils, test_cosine_normal) {
