@@ -32,8 +32,12 @@ namespace utils {
 
 string TextCleaner::Clean(string text) {
   vector<string> rules = {
-    "http://.+?/\\w+",  // remove url.
-    "#.+#",  // remove tag.
+    // remove url.
+    "http://.+?/\\w+",
+    // remove topic tag.
+    "#.+#",
+    // remove emotion tag.
+    "\\[.+\\]",  
     "[#|:]"};
 
   for (const string &rule : rules) {

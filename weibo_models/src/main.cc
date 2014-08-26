@@ -35,6 +35,7 @@ using std::set;
 using std::string;
 
 using mysql_handler::TopicHandler;
+using utils::VecBitset;
 using utils::TFIDFDimensionReducer;
 using data_mining::AdapterForBitset;
 using data_mining::ListSharedPtrItemSet;
@@ -72,7 +73,9 @@ void PrintItemSetInfo(const ListSharedPtrItemSet &item_sets,
 
 
 void PrintClusterResult(const VecSharedPtrClusterResult &results,
-                        const vector<string> &raw_messages) {
+                        const vector<string> &raw_messages,
+                        const VecBitset<kDimension> &vectorized_messages,
+                        const vector<string> &keywords) {
 
   cout << "========================================" << endl;
   cout << "Cluster Result" << endl;
@@ -102,12 +105,19 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
     int id = item->id();
     cout << "ItemSet " << item_set->id() << ": " << endl
          << raw_messages[id] << endl;
+
+    cout << "With features: ";
+    auto vectorized_message = vectorized_messages[id];
+    for (size_t index = 0; index != vectorized_message.size(); ++index) {
+      bool has_feature = vectorized_message[index];
+      if (has_feature) {
+        cout << index << ":" << keywords[index] << " ";
+      }
+    }
     cout << endl;
   }
-}
 
-
-void PrintKeywords(const vector<string> &keywords) {
+  cout << "========================================" << endl;
   int index = 0;
   for (const auto &word : keywords) {
     cout << index++ << ":" << word << " ";
@@ -117,7 +127,8 @@ void PrintKeywords(const vector<string> &keywords) {
 
 
 int main() {
-  TopicHandler handler("testcase", "SingleTopic");
+  // TopicHandler handler("testcase", "SingleTopic");
+  TopicHandler handler("split", "Topic_20140823_82");
   handler.Init();
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;
@@ -172,6 +183,5 @@ int main() {
 
   auto results = clustering_handler.GetClusterResults();
 
-  PrintClusterResult(results, raw_messages);
-  PrintKeywords(keywords);
+  PrintClusterResult(results, raw_messages, vectorized_messages, keywords);
 }
