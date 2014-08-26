@@ -17,7 +17,7 @@
 #include "logger/log.h"
 using std::to_string;
 
-#define SQL_ADDR "192.168.1.108"
+#define SQL_ADDR "192.168.1.102"
 #define SQL_USER "root"
 #define SQL_PWD    "123456"
 #define SQL_DATABASE "sina"
