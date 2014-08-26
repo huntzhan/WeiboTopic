@@ -102,20 +102,23 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
   cout << "========================================" << endl;
   for (const auto &result : results) {
     auto item_set = result->GetItemSet();
-    auto item = MaxSimilarityItemInItemSet::Find(item_set);
-    int id = item->id();
-    cout << "ItemSet " << item_set->id() << ": " << endl
-         << raw_messages[id] << endl;
+    auto items = MaxSimilarityItemInItemSet::TopK(item_set, 3);
+    // top 3 items.
+    for (const auto &item : items) {
+      int id = item->id();
+      cout << "ItemSet " << item_set->id() << ": " << endl
+           << raw_messages[id] << endl;
 
-    cout << "With features: ";
-    auto vectorized_message = vectorized_messages[id];
-    for (size_t index = 0; index != vectorized_message.size(); ++index) {
-      bool has_feature = vectorized_message[index];
-      if (has_feature) {
-        cout << index << ":" << keywords[index] << " ";
+      cout << "With features: ";
+      auto vectorized_message = vectorized_messages[id];
+      for (size_t index = 0; index != vectorized_message.size(); ++index) {
+        bool has_feature = vectorized_message[index];
+        if (has_feature) {
+          cout << index << ":" << keywords[index] << " ";
+        }
       }
+      cout << endl;
     }
-    cout << endl;
     cout << endl;
   }
 
@@ -129,8 +132,8 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
 
 
 int main() {
-  TopicHandler handler("testcase", "SingleTopic");
-  // TopicHandler handler("split", "Topic_20140823_82");
+  // TopicHandler handler("testcase", "SingleTopic");
+  TopicHandler handler("split", "Topic_20140823_82");
   handler.Init();
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;

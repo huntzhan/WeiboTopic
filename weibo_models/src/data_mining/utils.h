@@ -53,7 +53,9 @@ class CatergoryUtilityEvaluator {
 
 class MaxSimilarityItemInItemSet {
  public:
-  static SharedPtrItem Find(const SharedPtrItemSet &item_set);
+  static VecSharedPtrItem TopK(
+      const SharedPtrItemSet &item_set,
+      const int &number);
 };
 
 

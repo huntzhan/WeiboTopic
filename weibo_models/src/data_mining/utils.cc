@@ -15,6 +15,14 @@
 // ============================================================================
 #include "data_mining/utils.h"
 
+#include <map>
+#include <utility>
+#include "data_mining/interface.h"
+
+
+using std::make_pair;
+using std::multimap;
+
 
 namespace data_mining {
 
@@ -44,22 +52,33 @@ double CatergoryUtilityEvaluator::Evaluate(
 }
 
 
-SharedPtrItem MaxSimilarityItemInItemSet::Find(
-    const SharedPtrItemSet &item_set) {
+VecSharedPtrItem MaxSimilarityItemInItemSet::TopK(
+    const SharedPtrItemSet &item_set,
+    const int &number) {
   auto features_of_set = item_set->features();
 
-  double max_similarity = 0.0;
-  SharedPtrItem target_item;
+  multimap<double, SharedPtrItem> evaluation_item_mapping;
+
   for (const SharedPtrItem &item : item_set->items()) {
+    // calculate evaluation of current features.
     auto features_of_item = item->features();
-    double current_similarity = Cosine::Evaluate(
+    double current_evaluation = Cosine::Evaluate(
         features_of_set, features_of_item);
-    if (current_similarity > max_similarity) {
-      max_similarity = current_similarity;
-      target_item = item;
+
+    evaluation_item_mapping.insert(
+        make_pair(current_evaluation, item));
+  }
+  // select top k.
+  VecSharedPtrItem top_k_items;
+  int counter = 0;
+  for (const auto &mapping : evaluation_item_mapping) {
+    top_k_items.push_back(mapping.second);
+    ++counter;
+    if (counter == number) {
+      break;
     }
   }
-  return target_item;
+  return top_k_items;
 }
 
 
