@@ -37,12 +37,83 @@ using std::string;
 using mysql_handler::TopicHandler;
 using utils::TFIDFDimensionReducer;
 using data_mining::AdapterForBitset;
+using data_mining::ListSharedPtrItemSet;
+using data_mining::VecSharedPtrClusterResult;
 using data_mining::HierarchyClustering;
 using data_mining::MaxSimilarityItemInItemSet;
 
 
 constexpr const int kDimension = 10;
 constexpr const int kMaxProcessSize = 1000;
+constexpr const int kPrintSize = 15;
+
+
+void PrintItemSetInfo(const ListSharedPtrItemSet &item_sets,
+                      const double &max_cu_value) {
+  cout << "========================================" << endl;
+  cout << "Size: " << item_sets.size() << endl;
+
+  if (item_sets.size() > kPrintSize) {
+    return;
+  }
+
+  for (const auto &item_set : item_sets) {
+    cout << "ID: " << item_set->id()
+         <<  " Messages: " << item_set->items().size() << endl;
+    cout << "Features: ";
+    int index = 0;
+    for (const auto &feature : item_set->features()) {
+      cout << index++ << ":" << feature << ", ";
+    }
+    cout << endl;
+  }
+  cout << "Max CU: " << max_cu_value << endl;
+}
+
+
+void PrintClusterResult(const VecSharedPtrClusterResult &results,
+                        const vector<string> &raw_messages) {
+
+  cout << "========================================" << endl;
+  cout << "Cluster Result" << endl;
+  // debug.
+  for (const auto &result : results) {
+    auto item_set = result->GetItemSet();
+    cout << "ID: " << item_set->id()
+         <<  " Messages: " << item_set->items().size() << endl;
+    cout << "Features: ";
+    int index = 0;
+    for (const auto &feature : item_set->features()) {
+      cout << index++ << ":" << feature << ", ";
+    }
+    cout << endl << "Contains: " << endl;
+    index = 0;
+    for (const auto &item : item_set->items()) {
+      if (index == 10) break;
+      int id = item->id();
+      cout << index << ": " << raw_messages[id] << endl;
+      ++index;
+    }
+  }
+  cout << "========================================" << endl;
+  for (const auto &result : results) {
+    auto item_set = result->GetItemSet();
+    auto item = MaxSimilarityItemInItemSet::Find(item_set);
+    int id = item->id();
+    cout << "ItemSet " << item_set->id() << ": " << endl
+         << raw_messages[id] << endl;
+    cout << endl;
+  }
+}
+
+
+void PrintKeywords(const vector<string> &keywords) {
+  int index = 0;
+  for (const auto &word : keywords) {
+    cout << index++ << ":" << word << " ";
+  }
+  cout << endl;
+}
 
 
 int main() {
@@ -90,45 +161,17 @@ int main() {
 
   clustering_handler.Prepare();
   cout << "Prepared up" << endl;
-  clustering_handler.CarryOutCluster();
 
-  cout << "========================================" << endl;
-  cout << "Cluster Result" << endl;
+  while (clustering_handler.NotStop()) {
+    clustering_handler.SingleMove();
+    auto item_sets = clustering_handler.item_sets();
+    double max_cu_value = clustering_handler.max_cu_value();
+
+    PrintItemSetInfo(item_sets, max_cu_value);
+  }
+
   auto results = clustering_handler.GetClusterResults();
-  // debug.
-  for (const auto &result : results) {
-    auto item_set = result->GetItemSet();
-    cout << "ID: " << item_set->id()
-         <<  " Messages: " << item_set->items().size() << endl;
-    cout << "Features: ";
-    int index = 0;
-    for (const auto &feature : item_set->features()) {
-      cout << index++ << ":" << feature << ", ";
-    }
-    cout << endl << "Contains: " << endl;
-    index = 0;
-    for (const auto &item : item_set->items()) {
-      if (index == 10) break;
-      int id = item->id();
-      cout << index << ": " << raw_messages[id] << endl;
-      ++index;
-    }
-  }
-  cout << "========================================" << endl;
-  // end debug.
 
-  int index = 0;
-  for (const auto &word : keywords) {
-    cout << index++ << ":" << word << " ";
-  }
-  cout << endl;
-
-  cout << "========================================" << endl;
-  for (const auto &result : results) {
-    auto item_set = result->GetItemSet();
-    auto item = MaxSimilarityItemInItemSet::Find(item_set);
-    int id = item->id();
-    cout << raw_messages[id] << endl;
-    cout << endl;
-  }
+  PrintClusterResult(results, raw_messages);
+  PrintKeywords(keywords);
 }

@@ -101,7 +101,9 @@ class ClusterProcedure {
   // interface to define cluster algorithm.
   virtual void AddItem(const AdapterInterface &adapter) = 0;
   virtual void Prepare() = 0;
-  virtual void CarryOutCluster() = 0;
+  // while (!IsStop()) { SingleMove(); }
+  virtual bool NotStop() const = 0;
+  virtual void SingleMove() = 0;
   virtual VecSharedPtrClusterResult GetClusterResults() = 0;
 };
 

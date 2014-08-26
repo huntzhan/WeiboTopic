@@ -21,11 +21,6 @@
 #include "data_mining/cluster_related.h"
 #include "data_mining/utils.h"
 
-// debug.
-#include <iostream>
-using std::cout;
-using std::endl;
-// end debug.
 
 using std::distance;
 using std::pair;
@@ -130,27 +125,11 @@ void StateKeeper::Init(const ListSharedPtrItemSet &item_sets) {
 
 void StateKeeper::Update(const ListSharedPtrItemSet &item_sets) {
   double current_cu_value = cu_evaluator_.Evaluate(item_sets);
-
-  // debug.
-  for (const auto &item_set : item_sets) {
-    cout << "ID: " << item_set->id()
-         <<  " Messages: " << item_set->items().size() << endl;
-    cout << "Features: ";
-    int index = 0;
-    for (const auto &feature : item_set->features()) {
-      cout << index++ << ":" << feature << ", ";
-    }
-    cout << endl;
-  }
-  cout << "Max CU: " << max_cu_values_ << endl;
-  cout << "Cur CU: " << current_cu_value << endl;
-  // end debug.
-
-  if (current_cu_value < max_cu_values_) {
+  if (current_cu_value < max_cu_value_) {
     return;
   }
   // update max cu value.
-  max_cu_values_ = current_cu_value;
+  max_cu_value_ = current_cu_value;
   // update result.
   cached_item_sets_.clear();
   for (const auto &item_set : item_sets) {
@@ -200,7 +179,7 @@ void HierarchyClustering::Prepare() {
 }
 
 
-void HierarchyClustering::SingleStepOfClustering() {
+void HierarchyClustering::SingleMove() {
   auto max_pair =
       AuxiliaryFunc::FindMaxSimilarity(&similarity_of_item_sets_);
   auto left_set = max_pair.first;
@@ -233,21 +212,16 @@ void HierarchyClustering::SingleStepOfClustering() {
     similarity_of_item_sets_[left_set_related_pair] =
         left_set->Similarity(item_set);
   }
+
+  // calculate CU values.
+  if (item_sets_.size() <= kTriggerSize) {
+    state_keeper_.Update(item_sets_);
+  }
 }
 
 
-void HierarchyClustering::CarryOutCluster() {
-  while (item_sets_.size() > 1) {
-    SingleStepOfClustering();
-    // debug.
-    cout << "========================================" << endl;
-    cout << "Size: " << item_sets_.size() << endl;
-    // end debug.
-    if (item_sets_.size() > kTriggerSize) {
-      continue;
-    }
-    state_keeper_.Update(item_sets_);
-  }
+bool HierarchyClustering::NotStop() const {
+  return item_sets_.size() > 1;
 }
 
 
