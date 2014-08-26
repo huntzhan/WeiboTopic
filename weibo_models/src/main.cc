@@ -46,7 +46,7 @@ using data_mining::MaxSimilarityItemInItemSet;
 
 constexpr const int kDimension = 10;
 constexpr const int kMaxProcessSize = 1000;
-constexpr const int kPrintSize = 15;
+constexpr const int kPrintSize = 50;
 
 
 void PrintItemSetInfo(const ListSharedPtrItemSet &item_sets,
@@ -97,6 +97,7 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
       cout << index << ": " << raw_messages[id] << endl;
       ++index;
     }
+    cout << endl;
   }
   cout << "========================================" << endl;
   for (const auto &result : results) {
@@ -115,6 +116,7 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
       }
     }
     cout << endl;
+    cout << endl;
   }
 
   cout << "========================================" << endl;
@@ -127,8 +129,8 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
 
 
 int main() {
-  // TopicHandler handler("testcase", "SingleTopic");
-  TopicHandler handler("split", "Topic_20140823_82");
+  TopicHandler handler("testcase", "SingleTopic");
+  // TopicHandler handler("split", "Topic_20140823_82");
   handler.Init();
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;
