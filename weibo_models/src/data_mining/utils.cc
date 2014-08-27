@@ -54,20 +54,42 @@ double CatergoryUtilityEvaluator::Evaluate(
 }
 
 
-VecSharedPtrItem MaxSimilarityItemInItemSet::TopK(
+VecSharedPtrItem MaxEvaluationItemInItemSet::TopK(
+    const ListSharedPtrItemSet &item_sets,
     const SharedPtrItemSet &item_set,
-    const int &number) {
+    const int &size) {
+  // evaluation based on:
+  // 1. similarity between item and item set it belongs to.
+  // 2. dissimilarity between item and other item sets.
   auto features_of_set = item_set->features();
-
   multimap<double, SharedPtrItem, greater_equal<double>>
       evaluation_item_mapping;
 
+  // calculate total items.
+  int number_of_items = 0;
+  for (const auto &item_set_to_be_count : item_sets) {
+    number_of_items += item_set_to_be_count->items().size();
+  }
+
   for (const SharedPtrItem &item : item_set->items()) {
-    // calculate evaluation of current features.
     auto features_of_item = item->features();
-    double current_evaluation = Cosine::Evaluate(
+    // similarity.
+    double similarity = Cosine::Evaluate(
         features_of_set, features_of_item);
 
+    // dissimilarity.
+    double dissimilarity = 0.0;
+    for (const auto &other_item_set : item_sets) {
+      if (other_item_set == item_set) { continue; }
+      auto other_features = other_item_set->features();
+      auto other_weight =
+          other_item_set->items() / static_cast<double>(number_of_items);
+      // calculate dissimilarity based on weight and cosine distance.
+      dissimilarity += other_weight * Cosine::Evaluate(
+          other_features, features_of_item);
+    }
+    // generate evaluation.
+    double current_evaluation = similarity - dissimilarity;
     evaluation_item_mapping.insert(
         make_pair(current_evaluation, item));
   }

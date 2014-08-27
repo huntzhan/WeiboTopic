@@ -51,11 +51,12 @@ class CatergoryUtilityEvaluator {
 };
 
 
-class MaxSimilarityItemInItemSet {
+class MaxEvaluationItemInItemSet {
  public:
   static VecSharedPtrItem TopK(
+      const ListSharedPtrItemSet &item_sets,
       const SharedPtrItemSet &item_set,
-      const int &number);
+      const int &size);
 };
 
 

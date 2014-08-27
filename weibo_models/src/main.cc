@@ -102,7 +102,7 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
   cout << "========================================" << endl;
   for (const auto &result : results) {
     auto item_set = result->GetItemSet();
-    auto items = MaxSimilarityItemInItemSet::TopK(item_set, 3);
+    auto items = MaxEvaluationItemInItemSet::TopK(item_set, 3);
     // top 3 items.
     for (const auto &item : items) {
       int id = item->id();
