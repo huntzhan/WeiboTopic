@@ -17,11 +17,13 @@
 
 #include <map>
 #include <utility>
+#include <functional>
 #include "data_mining/interface.h"
 
 
 using std::make_pair;
 using std::multimap;
+using std::greater_equal;
 
 
 namespace data_mining {
@@ -57,7 +59,8 @@ VecSharedPtrItem MaxSimilarityItemInItemSet::TopK(
     const int &number) {
   auto features_of_set = item_set->features();
 
-  multimap<double, SharedPtrItem> evaluation_item_mapping;
+  multimap<double, SharedPtrItem, greater_equal<double>>
+      evaluation_item_mapping;
 
   for (const SharedPtrItem &item : item_set->items()) {
     // calculate evaluation of current features.
