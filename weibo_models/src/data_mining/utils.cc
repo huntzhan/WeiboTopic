@@ -25,6 +25,9 @@ using std::make_pair;
 using std::multimap;
 using std::greater_equal;
 
+#include <iostream>
+using std::cout;
+using std::endl;
 
 namespace data_mining {
 
@@ -83,13 +86,13 @@ VecSharedPtrItem MaxEvaluationItemInItemSet::TopK(
       if (other_item_set == item_set) { continue; }
       auto other_features = other_item_set->features();
       auto other_weight =
-          other_item_set->items() / static_cast<double>(number_of_items);
+          other_item_set->items().size() / static_cast<double>(number_of_items);
       // calculate dissimilarity based on weight and cosine distance.
-      dissimilarity += other_weight * Cosine::Evaluate(
-          other_features, features_of_item);
+      dissimilarity += other_weight *
+          (1 - Cosine::Evaluate(other_features, features_of_item));
     }
     // generate evaluation.
-    double current_evaluation = similarity - dissimilarity;
+    double current_evaluation = similarity + dissimilarity;
     evaluation_item_mapping.insert(
         make_pair(current_evaluation, item));
   }
@@ -99,7 +102,7 @@ VecSharedPtrItem MaxEvaluationItemInItemSet::TopK(
   for (const auto &mapping : evaluation_item_mapping) {
     top_k_items.push_back(mapping.second);
     ++counter;
-    if (counter == number) {
+    if (counter == size) {
       break;
     }
   }
