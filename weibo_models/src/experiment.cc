@@ -56,7 +56,7 @@ vector<double> evaluate_sparse(
 
 
 int main() {
-  for (int table_id = 1; table_id != 100; ++table_id) {
+  for (const int &table_id : {4, 5, 12, 26, 31, 39, 43, 44, 46, 48}) {
     string table_name = "Topic_20140827_" + to_string(table_id);
     TopicHandler handler("split", table_name);
     handler.Init();
@@ -68,11 +68,37 @@ int main() {
     auto vectorized_messages = reducer.GetVectorizedMessages();
 
     auto sparse = evaluate_sparse(vectorized_messages);
-    // cout << "Table:" << table_name << endl;
+    cout << "Table:" << table_name << endl;
     for (auto iter = sparse.cbegin() + 1; iter != sparse.cend(); ++iter) {
-      // cout << distance(sparse.cbegin(), iter) << ":" << *iter << endl;
-      cout << *iter << '\t';
+      cout << distance(sparse.cbegin(), iter) << ":" << *iter << endl;
+      // cout << *iter << '\t';
     }
-    cout << endl;
+
+    // scan mx sparse value in 1~10 dimensions.
+    constexpr const int kSearchPoint = 10;
+    double max_val = 0.0;
+    for (int index = 1; index <= kSearchPoint; ++index) {
+      if (sparse[index] > max_val) { max_val = sparse[index]; }
+    }
+
+    const double target_sparse = max_val * 0.5;
+    int target_index = kSearchPoint;
+    if (target_sparse > sparse[kSearchPoint]) {
+      // search reverse.
+      while (sparse[target_index] < target_sparse) {
+        --target_index;
+      }
+    } else {
+      // search forword.
+      for (; target_index != kSearchPoint + 10; ++target_index) {
+        if (sparse[target_index] < target_sparse) {
+          --target_index;
+          break;
+        }
+      }
+    }
+    cout << table_name << ": " << target_index << " "
+         << "top: " << max_val << " "
+         << "target: " << target_sparse << endl;
   }
 }

@@ -135,7 +135,7 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
 
 int main() {
   // TopicHandler handler("testcase", "SingleTopic");
-  TopicHandler handler("split", "Topic_20140823_82");
+  TopicHandler handler("split", "Topic_20140827_4");
   handler.Init();
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;
