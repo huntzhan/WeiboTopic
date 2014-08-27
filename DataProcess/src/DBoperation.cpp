@@ -280,7 +280,7 @@ bool DBoperation::ChangeToNextTable(int & count){
 
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
-		if (this->tableIndex == 2){//this->table.size()-1
+		if (this->tableIndex == 15){//this->table.size()-1
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}

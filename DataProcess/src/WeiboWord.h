@@ -3,6 +3,8 @@
  *
  *  Created on: 2014年8月21日
  *      Author: Administrator
+ *  description：
+ *      处理过后微博下的每个词，包括词本身，词性，词频，文档频率和词的TFIDF值
  */
 
 #ifndef WWEIBOWORD_H_

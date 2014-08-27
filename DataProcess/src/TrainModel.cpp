@@ -56,9 +56,11 @@ std::string RegexReplace(std::string input){
   input=WidetoString2(put);
   return input;
 }
+
+
 //提取TFIDF最高的10000个词
 void PoliticsWordSort(ClassificationInfo &classinfo) {
-
+  int train_word_num=20000;
   std::map<std::string, WeiboWord>::iterator mapIt;
   std::vector<PAIR3> sort_vec;
   for (mapIt = classinfo.GetWrodFre()->begin(); mapIt != classinfo.GetWrodFre()->end(); ++mapIt) {
@@ -67,17 +69,17 @@ void PoliticsWordSort(ClassificationInfo &classinfo) {
 
   std::sort(sort_vec.begin(), sort_vec.end(), SortCmp);
   std::vector<PAIR3>::iterator  sort_vec_it = sort_vec.begin();
-  //*******************************
+
   int counter=0;
   for(;sort_vec_it!=sort_vec.end();++sort_vec_it){
     std::cout<<sort_vec_it->first<<"    "<<sort_vec_it->second.tfidf<<"   "<<
         sort_vec_it->second.wordfre<<"   "<<sort_vec_it->second.docfre<<std::endl;
     if(counter++>10000)break;
   }
-  //提取指定的特征词数量（50000）个
-  int topicWordNum=100000;
+  //提取指定的特征词数量（20000）个
+  int topicWordNum=train_word_num;
   classinfo.GetWrodFre()->clear();
-  if(sort_vec.size()<100000){
+  if(sort_vec.size()<train_word_num){
     topicWordNum=sort_vec.size();
   }
   std::vector<PAIR3>::iterator v_it = sort_vec.begin();
@@ -90,6 +92,8 @@ void PoliticsWordSort(ClassificationInfo &classinfo) {
     ++count;
   }
 }
+
+
 std::string ICTspilt(const char * sinput,int property) {
   std::string result;
   int nRstLen=0;
@@ -99,7 +103,6 @@ std::string ICTspilt(const char * sinput,int property) {
     result="";
     return result;
   }
-//  std::cout<<"npalen:  "<<nPaLen<<std::endl;
   char* sRst=(char *)malloc(nPaLen*2*sizeof(char)); //建议长度为字符串长度的倍。
   if(sRst==NULL)
   return NULL;
@@ -109,6 +112,8 @@ std::string ICTspilt(const char * sinput,int property) {
   sRst=NULL;
   return result;
 }
+
+
 void TrainModel::TrainClassModel(){
   Readstopwordset();
   std::list < std::string > articlelist;
@@ -118,12 +123,15 @@ void TrainModel::TrainClassModel(){
   SplitWord(articlelist,politic_article_list);
 }
 
+
+//分词初始化函数
 void init_ICTCAL(void) {
   if (!ICTCLAS_Init()) {
     printf("Init fails\n");
     return;
   }
 }
+//double转为string
 std::string doubletostring(double d){
   char tem[20];
 
@@ -131,12 +139,15 @@ std::string doubletostring(double d){
   std::string res(tem);
   return res;
 }
+//int转为string
 std::string intTostring(int a){
   char tem[10];
   sprintf(tem,"%d",a);
   std::string res(tem);
   return res;
 }
+
+//将结果保留到硬盘
 void SaveModelToTxt(std::string filename, ClassificationInfo &classinfo){
 
   std::ofstream  outfile(filename.c_str());
@@ -158,6 +169,8 @@ void SaveModelToTxt(std::string filename, ClassificationInfo &classinfo){
   }
   outfile.close();
 }
+
+//设置每个词是否在一条微博中重复出现标志位为初始值
 void SetWeiboWordIsOccuredFalse(std::map<std::string, WeiboWord> &mymap) {
   std::map<std::string, WeiboWord>::iterator it;
   it = mymap.begin();
@@ -237,28 +250,32 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
     std::list < std::string > &politic_article_list) {
 
 
-  std::string foldername[]= {"C000008","C000010","C000013","C000014","C000016","C000020","C000022","C000023"};
-  std::string politic_folder_name[]= {"Politic"};
-  int length1 = 8;int flag=1;
+  std::string foldername[]= {"C000010","C000013","C000014","C000016","C000022","C000023"};
+  std::string politic_folder_name[]= {"politicTrain"};
+//  std::string foldername[]= {"filterother"};
+//  std::string politic_folder_name[]= {"filterpolitic"};
+  int length1 = 6;int flag=1;
   std::string filename_prefix="../BayeData";
   //读取非政治类文章
   for (int i = 0; i < length1; ++i) {
-//    std::cout<<i<<std::endl;
+    std::cout<<i<<std::endl;
     for (int fi = 10; fi < 2000; fi++) {
 //      std::cout<<"have read "<<fi<<" articles"<<std::endl;
       std::string res = intTostring(fi);
       std::string everyfilename=filename_prefix+"/" + foldername[i] + "/" + res + ".txt";
-//      std::cout<<everyfilename<<std::endl;
+
       std::ifstream infile(everyfilename.c_str());
       std::string temp;
       std::string onearticlewords;
-
+      if(!infile){
+         std::cout<<"read other file error"<<std::endl;
+      }
       while (!infile.eof()) {
         infile >> temp;
         onearticlewords += temp;
 
       }
-
+//      std::cout<<everyfilename<<std::endl;
       onearticlewords=RegexReplace(onearticlewords);
       if(onearticlewords=="")continue;
       articlelist.push_back(onearticlewords);
@@ -266,22 +283,33 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
     }
   }
   int length2 = 1;
+  int len[]={4600};
   //读取政治类文章
   for (int i = 0; i < length2; ++i) {
-    for (int fi = 1; fi <= 4206; fi++) {
+    std::cout<<len[i]<<std::endl;
+    for (int fi = 1; fi <= len[i]; fi++) {
 //      std::cout<<"have read "<<fi<<" articles"<<std::endl;
       std::string res = intTostring(fi);
-      std::string everyfilename=filename_prefix+"/" + politic_folder_name[i] + "/shizheng" + res + ".txt";
+      std::string everyfilename=filename_prefix+"/" + politic_folder_name[i] + "/" + res + ".txt";
       std::ifstream infile(everyfilename.c_str());
       std::string temp;
       std::string onearticlewords;
+      if(!infile){
+        std::cout<<"read politic file error"<<std::endl;
+      }
       while (!infile.eof()) {
         infile >> temp;
         onearticlewords += temp;
       }
       onearticlewords=RegexReplace(onearticlewords);
+      if(onearticlewords=="")continue;
       politic_article_list.push_back(onearticlewords);
       infile.close();
+//      std::cout<<fi<<std::endl;
     }
   }
 }
+
+
+
+

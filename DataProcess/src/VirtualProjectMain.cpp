@@ -7,6 +7,7 @@
  *      先生成一个数据库的操作类，生成特征词（特征词，主题词，关键词都是指话题生成时的词，只是在不同阶段叫法不一样）
  *      再计算特征词 的共现度，最后一趟聚类生成话题
  */
+#include"TestModel.h"
 #include"TopicViewAndPolitics.h"
 #include"TrainModel.h"
 #include"DBoperation.h"
@@ -18,7 +19,12 @@
 #define DEBUG
 #define TIME
 
+
+#define SINGLEPASS
+//#define TRAIN
+//#define TEST
 int main() {
+#ifdef SINGLEPASS
 #ifdef TIME
 	time_t startmain;
 	startmain = time(NULL);
@@ -35,7 +41,7 @@ int main() {
 	int BELONG_TOPIC_THROD = 3;
 
 	//提取子话题时提取的单位词的个数
-	int NUM_OF_SUB_WORD = 10;
+	int NUM_OF_SUB_WORD = 4;
 
 	//调节阈值的参数
 	int THROD_ADD = 10;
@@ -60,9 +66,11 @@ int main() {
 	std::list<std::string>::iterator table_it;
 	dboper.ShowTable(table);
 	table_it=table.begin();
-	for(;table_it!=table.end();++table_it){
-		std::cout<<*table_it<<std::endl;
-	}
+	int tablecount=0;
+//	for(;table_it!=table.end();++table_it){
+//	  if(tablecount++>10)break;
+//		std::cout<<*table_it<<std::endl;
+//	}
 
 	//设置要访问的表
 	dboper.SetTableName(table.front());
@@ -102,7 +110,14 @@ int main() {
 	ends6 = time(NULL);
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
-//  TrainModel tm;
-//  tm.TrainClassModel();
+#endif
+#ifdef TRAIN
+  TrainModel tm;
+  tm.TrainClassModel();
+#endif
+#ifdef TEST
+  TestModel testmodel;
+  testmodel.ReadTest();
+#endif
 	return 0;
 }

@@ -3,6 +3,7 @@
  *
  *  Created on: 2014年8月11日
  *      Author: hogachen
+ *  description：
  */
 
 #ifndef VIEW_H_

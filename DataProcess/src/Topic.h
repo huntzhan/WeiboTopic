@@ -32,6 +32,8 @@ class Topic {
 
 
 public:
+  //计算话题是否为政治类时统计的词数
+  int allweibowordnum;
   //话题是否属于政治类的,1是政治类的，0不是政治类的
   int isPolitic;
 
@@ -72,6 +74,7 @@ public:
 	void TopicInit(TopicWord firstWord) {
 		this->m_stopic.push_back(firstWord);
 		this->isPolitic=0;
+		this->allweibowordnum=0;
 	}
 	list<TopicWord> *GetsTopic() {
 		return &this->m_stopic;

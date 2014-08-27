@@ -95,7 +95,7 @@ void TopicView::GenOneTopicView(Topic &onetopic) {
   }
   this->SortSubTopicMap(onetopic);
   this->SelectMainIdeaWithTopicWord(onetopic);
-  printTopicView(onetopic);
+  printTopicView(onetopic,this->NUM_OF_SUB_WORD);
   onetopic.GetMainIdea()->clear();
 }
 
@@ -109,12 +109,12 @@ void TopicView::SelectMainIdeaWithTopicWord(Topic &onetopic){
   int findIndex=100000;
 
   std::map<std::string,double>::iterator map_it;
-  std::cout<<"running"<<std::endl;
+//  std::cout<<"running"<<std::endl;
   std::list<subword>::iterator m_i_it=onetopic.GetSubWordList()->begin();
   for(;m_i_it != onetopic.GetSubWordList()->end();++m_i_it){
     onetopic.GetMainIdea()->insert(make_pair(m_i_it->word,m_i_it->fre));
   }
-  std::cout<<onetopic.GetSubWordList()->size()<<std::endl;
+//  std::cout<<onetopic.GetSubWordList()->size()<<std::endl;
   m_i_it=onetopic.GetSubWordList()->begin();
   for(;m_i_it != onetopic.GetSubWordList()->end();++m_i_it){
     if(main_idea_count++>40)break;
@@ -150,6 +150,7 @@ void TopicView::SortSubTopicMap(Topic &onetopic) {
   }
   int count = 0;
   int num_of_sub_word = this->NUM_OF_SUB_WORD;
+//  std::cout<<"NUM_OF_SUB_WORD： "<<this->NUM_OF_SUB_WORD<<std::endl;
   if (num_of_sub_word < zhutici_map->size()) {
     num_of_sub_word = zhutici_map->size();
   }
@@ -159,7 +160,7 @@ void TopicView::SortSubTopicMap(Topic &onetopic) {
   std::vector<PAIRS>::iterator sort_vec_it = vec_sort.begin();
   for (; sort_vec_it != vec_sort.end(); ++sort_vec_it) {
     ++count;
-    if (count >= num_of_sub_word - 1)
+    if (count > num_of_sub_word )
       break;
     subword sw(sort_vec_it->first, sort_vec_it->second);
     onetopic.GetSubWordList()->push_back(sw);
@@ -170,7 +171,7 @@ void TopicView::SortSubTopicListByWordLen(Topic &onetopic){
   int wordnum=0;
   std::list<subword>::iterator it =  onetopic.GetSubWordList()->begin();
   for(;it!= onetopic.GetSubWordList()->end();++it){
-    if(wordnum++>3)break;
+    if(++wordnum>this->NUM_OF_SUB_WORD)break;
     vec_sort.push_back(*it);
   }
   std::sort(vec_sort.begin(),vec_sort.end(),SubTopicSortByWordLength);
