@@ -67,6 +67,8 @@ void IsPolitics::AddKeyToMapWithProperty(WeiboWord &word) {
 
 void IsPolitics::GetEveryWordInOneTopicByWordProperty(Topic &onetopic) {
   this->topic_word_size=0;
+  this->keyword_map.clear();
+//  std::cout<<"mapsize: "<<this->keyword_map.size()<<std::endl;
   std::vector<WeiboWord>::iterator or_it;
   std::list<Weibo>::iterator t_w_it;
   t_w_it = onetopic.GetTopicWeibo()->begin();
@@ -76,6 +78,7 @@ void IsPolitics::GetEveryWordInOneTopicByWordProperty(Topic &onetopic) {
 
     or_it = resultword.begin();
     for (; or_it != resultword.end(); ++or_it) {
+      onetopic.allweibowordnum++;
       this-> topic_word_size++;
       this->AddKeyToMapWithProperty(*or_it);
     }
@@ -130,8 +133,8 @@ void IsPolitics::IsTopicPoliticsByBaye(Topic &onetopic)
   double all_article_num=(double)this->other_classification.article_num+this->politic_classification.article_num;
   double other_article_pro=(this->other_classification.article_num/all_article_num);
   double politic_article_pro= (this->politic_classification.article_num/all_article_num);
-  std::cout<<"all_article_num  "<<all_article_num<<"   this->other_classification.article_num  "<<this->other_classification.article_num<<std::endl;
-  std::cout<<"other_article_pro  "<<other_article_pro<<"  politic_article_pro  "<<politic_article_pro<<std::endl;
+//  std::cout<<"all_article_num  "<<all_article_num<<"   this->other_classification.article_num  "<<this->other_classification.article_num<<std::endl;
+//  std::cout<<"other_article_pro  "<<other_article_pro<<"  politic_article_pro  "<<politic_article_pro<<std::endl;
   //两种方案：1.直接计算词的后验概率  2.计算后验概率的同时将词的权值（词频等）也计算进去
    std::map<std::string, WeiboWord>::iterator it = this->GetKeyWordMap()->begin();
    for (; it != this->GetKeyWordMap()->end(); ++it) {
@@ -139,23 +142,26 @@ void IsPolitics::IsTopicPoliticsByBaye(Topic &onetopic)
     other_it = this->other_classification.word_fre.find(key);
     if (other_it != this->other_classification.word_fre.end()) {
 //      std::cout<<"other_it->second.wordfre  "<<other_it->second.wordfre<<"  this->other_classification.word_num  "<<this->other_classification.word_num<<std::endl;
-      other_classification_pro += it->second.wordfre*log(other_it->second.wordfre/this->other_classification.word_num);//*it->second.wordfre/100//由于词频太大会导致乘完之后后验概率失效;
+//      std::cout<<"其他：    "<<key<<std::endl;
+      other_classification_pro += log(it->second.wordfre/onetopic.allweibowordnum)+
+          log(other_it->second.wordfre/this->other_classification.word_num);//*it->second.wordfre/100//由于词频太大会导致乘完之后后验概率失效;
     }
     //计算在政治类中的后验概率
     politic_it = this->politic_classification.word_fre.find(key);
     if (politic_it != this->politic_classification.word_fre.end()) {
-      politic_classification_pro += it->second.wordfre*log(politic_it->second.wordfre/this->politic_classification.word_num);//同上
-    }
+//      std::cout<<"政治：     "<<key<<std::endl;
+      politic_classification_pro +=log(it->second.wordfre/onetopic.allweibowordnum)+
+          log(politic_it->second.wordfre/this->politic_classification.word_num);//同上
+    }// it->second.wordfre*
   }
   //判断属于哪一个类别,按照后验概率
    politic_classification_pro=-politic_classification_pro;
    other_classification_pro=-other_classification_pro;
-   std::cout<<"politic_classification_pro  "<<politic_classification_pro<<std::endl;
-   std::cout<<"other_classification_pro "<<other_classification_pro<<std::endl;
-//politic_classification_pro*politic_article_pro > other_classification_pro*other_article_pro
+//   std::cout<<"政治类 & 其他类    概率值： "<<politic_classification_pro<<"  "<<other_classification_pro<<std::endl;
+      //politic_classification_pro*politic_article_pro > other_classification_pro*other_article_pro
   if(politic_classification_pro > other_classification_pro){
-    std::cout<<"politic_classification_pro*politic_article_pro  "<<politic_classification_pro*politic_article_pro<<std::endl;
-    std::cout<<"other_classification_pro*other_article_pro "<<other_classification_pro*other_article_pro<<std::endl;
+//    std::cout<<"politic_classification_pro*politic_article_pro  "<<politic_classification_pro*politic_article_pro<<std::endl;
+//    std::cout<<"other_classification_pro*other_article_pro "<<other_classification_pro*other_article_pro<<std::endl;
     onetopic.isPolitic=1;
   }
 
@@ -178,7 +184,7 @@ void  IsPolitics::IsTopicPolitics(Topic &onetopic){
   for(;it != this->keyword_map.end(); ++it){
     onetopicword = it->first;
     if( this->politic_word_map.count(onetopicword)){
-      std::cout<<"ispolitic: "<<onetopicword<<"  "<<it->second.wordfre<<std::endl;
+//      std::cout<<"ispolitic: "<<onetopicword<<"  "<<it->second.wordfre<<std::endl;
       topic_score+=it->second.wordfre;
     }
   }

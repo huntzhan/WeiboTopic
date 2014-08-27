@@ -32,7 +32,16 @@ void TopicViewAndPolitics::InsterAllTopicToDatabase(){
     this->InsertTopicToDatabase(*it);
   }
 }
-
+void print10weibo(std::list<Weibo> &weibolist){
+  std::cout<<"话题下的5条微博如下： "<<std::endl<<std::endl;
+  int counter=0;
+  std::list<Weibo>::iterator it = weibolist.begin();
+  for(;it!=weibolist.end();++it){
+    if(++counter>=5)break;
+    std::cout<<std::endl;
+    std::cout<<it->text<<std::endl;
+  }
+}
 /*
  * @description：
  *  将一个话题插入数据库，先将话题的主要信息（包括话题微博数，话题主要观点，话题关键词）插入OneDayTopic表，获取插入时的ID
@@ -44,6 +53,8 @@ void TopicViewAndPolitics::InsertTopicToDatabase(Topic &one_topic) {
   std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
   std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
   list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
+  std::cout<<std::endl;
+  std::cout<<"话题热议词如下"<<std::endl;
   for(;topicword_it!=one_topic.GetsTopic()->end();++topicword_it){
     std::cout<<topicword_it->m_sword<<" ";
   }
@@ -72,30 +83,34 @@ void TopicViewAndPolitics::InsertTopicToDatabase(Topic &one_topic) {
     this->dboper->GetOneWeiBo(table_name,mid,oneweibo);
     one_topic.topic_weibo.push_back(oneweibo);//这里是一个话题完之后再插入
     readnum++;
+    //达到TOPICVIEW_WEIBO_NUM（50）条微博时，就开始提取话题概要，同时判断该话题是否为政治类
     if(readnum==this->TOPICVIEW_WEIBO_NUM||readnum == one_topic.topic_message_num){
       this->tw.GenOneTopicView(one_topic);
-
-      //这里可以用两种方案
       this->ispo.IsTopicPoliticsByBaye(one_topic);
-      std::cout<<"Is politics? : "<<one_topic.isPolitic<<std::endl;
+      std::cout<<"是否为政治类话题 ? : "<<one_topic.isPolitic<<std::endl<<std::endl;
+      print10weibo(one_topic.topic_weibo);
       break;
-      //test here
     }
     flagnum++;
+    //设置为每查询到1000条微博就批量插入一次数据库
     if(flagnum==1000){
-      this->dboper->InsertData(one_topic,flag);
-      flagnum=0;
+//      this->dboper->InsertData(one_topic,flag);
       std::cout<<"插入数据库一次，插入了 "<<readnum<<" 条微博"<<std::endl;
-      flag=1;
+      flag=1;flagnum=0;
       std::cout<<"size: "<<one_topic.weibo_id_list.size()<<std::endl;
     }
   }
-  this->dboper->InsertData(one_topic,flag);
+//  this->dboper->InsertData(one_topic,flag);
   one_topic.topic_weibo.clear();
   //释放内存
   one_topic.weibo_id_list.clear();
   std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 }
+
+/*
+ * @description：
+ *  以下是准备用多线程查询话题下的子话题模块
+ */
 
 
 /*
@@ -149,7 +164,6 @@ void Cluster::InsterAllTopicToDatabase(){
   for(;t_id_it!=thread_id_it.end();++thread_id_it){
     pthread_join(*t_id_it,NULL);
   }
-
 }
 */
 

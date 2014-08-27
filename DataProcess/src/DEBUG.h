@@ -20,8 +20,8 @@
 
 void printVectors(std::list<std::string>&list);
 void printMaps(std::map<std::string,TopicWord> &map);
-void printTopic(std::vector<Topic>*clusterlist);
+void printTopic(std::vector<Topic>*clusterlist,int NUM_OF_SUB_WORD);
 void printMatrix(std::map<std::string,CooccurrenceWord> &co_ccur_matrix);
-void printTopicView(Topic &onetopic);
+void printTopicView(Topic &onetopic,int NUM_OF_SUB_WORD);
 void printVector(std::vector<PAIR>&sort_vec);
 #endif /* DEBUG_H_ */
