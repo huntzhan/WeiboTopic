@@ -69,7 +69,7 @@ file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/userdict.txt
 	DESTINATION ${weibo_ad_filter_BINARY_DIR}/test/test_simhash/)
 add_executable(run_filter src/main.cpp)
-target_link_libraries(run_filter log model parser tactic connection_pool db_pool simhash db_operation preprocessor -lpthread)
+target_link_libraries(run_filter ref log model parser tactic connection_pool db_pool simhash db_operation preprocessor -lpthread)
 # add_subdirectory(src/tactic)
 # target_link_libraries(run simple_calculator)
 
