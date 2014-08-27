@@ -24,6 +24,8 @@ enum LogType {
   ZOMBIE_T,
   REFLOW_T,
   REFHIGH_T,
+  REF_DIST_1_T,
+  REF_PF_CLUSTER_T,
   END_T
 };
 

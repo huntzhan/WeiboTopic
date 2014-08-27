@@ -26,16 +26,49 @@ class RefCount {
     RefCount() {}
     ~RefCount() {}
 
-    void AddFingerPrint(const std::vector<string> &instance) {
+    unsigned int AddFingerPrint(const std::vector<string> &instance, int dist) {
       unsigned int pf = sim.BlogHashAfterParser(instance);
-      if(ref.find(pf) == ref.end())
+      vector<unsigned int> pf_values;
+      sim.HammingValuesWithinDistance(pf, dist, pf_values);
+      bool flag = false;
+      unsigned int res;
+      unsigned int max_count = 0;
+      for (auto v : pf_values){
+        if(ref.find(v) == ref.end())
+          continue;
+        else {
+          flag = true;
+          if (ref[v] > max_count){
+            max_count = ref[v];
+            res = v;
+          }
+        }
+      }
+      if (! flag) {
+        res = pf;
         ref[pf] = 1u;
-      else
-        ref[pf] = ref[pf]+1;
+      } else {
+        ref[res] = ref[res]+1;
+      }
+      return res;
     }
-    unsigned int GetRefCount(const std::vector<string> &instance) {
+    unsigned int GetRefCount(const std::vector<string> &instance, int dist, unsigned int &ret_pf) {
       unsigned int pf = sim.BlogHashAfterParser(instance);
-      return ref[pf];
+      vector<unsigned int> pf_values;
+      sim.HammingValuesWithinDistance(pf, dist, pf_values);
+      unsigned int max_count= 0;
+      for (auto v : pf_values) {
+        if (ref.find(v) == ref.end())
+          continue;
+        else {
+          ret_pf = v;
+          if (ref[v] > max_count) {
+            max_count = ref[v];
+            ret_pf = v;
+          }
+        }
+      }
+      return max_count;
     }
     void Clear() {
       ref.clear();

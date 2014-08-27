@@ -22,7 +22,7 @@
 using std::to_string;
 using std::vector;
 
-#define SQL_ADDR "192.168.1.102"
+#define SQL_ADDR "192.168.1.108"
 #define SQL_USER "root"
 #define SQL_PWD    "123456"
 #define SQL_DATABASE "sina"
@@ -76,7 +76,17 @@ int main() {
 
   std::list<string> tables = GetNotProcessedTables();
   /// get tables from to be processed
+#define TH 2
+#ifndef TH
   for(const string &table : tables){
+#else
+  int count = 0;
+  for(const string &table : tables){
+    count++;
+    if (count < TH) continue;
+    else if (count > TH) break;
+    else ;
+#endif
     query.SetTableName(table);
     int number_all_rows = query.Getcount();
     Log::Logging(RUN_T, "Start Filtering One Table: " + to_string(number_all_rows));
@@ -134,14 +144,15 @@ void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas) {
     /// ref count detection
     vector<string> w = UnpackInsertData(data);
     AddSpecialToken(data.text, w);  /// test symbols like http and @
-    ref.AddFingerPrint(w);
+    ref.AddFingerPrint(w, 1);
     RemoveSpecialToken(w);
   }
   for(auto data: prepare_datas) {
     vector<string> w = UnpackInsertData(data);
     AddSpecialToken(data.text, w);  /// test symbols like http and @
-    unsigned int count = ref.GetRefCount(w);
-    Log::Logging(REFLOW_T, data.text + " > " + to_string(count));
+    unsigned int pf;
+    unsigned int count = ref.GetRefCount(w, 1, pf);
+    Log::Logging(REF_DIST_1_T, data.text + ">" + to_string(pf) + ">" + to_string(count));
   }
 }
 

@@ -41,6 +41,7 @@ file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/calculate_average_spam_rate.sh
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/start.sh
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/stop.sh
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/ref_count.sh
 	DESTINATION 
 	${weibo_ad_filter_BINARY_DIR}/)
 file(COPY

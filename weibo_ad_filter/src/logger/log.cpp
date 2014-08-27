@@ -16,7 +16,9 @@ const string Log::LOG_FILES[END_T] = {
   "run.log",
   "zombie.log",
   "ref_low.log",
-  "ref_high.log"
+  "ref_high.log",
+  "ref_dist_1.log",
+  "ref_pf_cluster.log",
 };
 /**
  *  @brief _InitialLoggers
