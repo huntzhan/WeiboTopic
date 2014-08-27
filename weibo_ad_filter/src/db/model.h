@@ -37,6 +37,7 @@ typedef struct _BLOG {
 } Blog;
 
 void PrintBlog(const Blog &b);
+string Blog2Str(const Blog &b);
 #endif
 
 // #ifndef model_INC

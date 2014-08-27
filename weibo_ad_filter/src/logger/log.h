@@ -22,10 +22,10 @@ enum LogType {
   BEGIN_T,
   RUN_T,
   ZOMBIE_T,
-  REFLOW_T,
-  REFHIGH_T,
+  ZOMBIE_SIM_T,
   REF_DIST_1_T,
-  REF_PF_CLUSTER_T,
+  TACTIC_T,
+  TACTIC_SOURCE_T,
   END_T
 };
 
@@ -36,6 +36,7 @@ class Log {
   public:
     static const string LOG_FILES[END_T];
     static void Logging(LogType type, const string &record);
+    static void LoggingRandom(LogType type, const unsigned int random_size, const string &record);
 
   private:
     LogType type;

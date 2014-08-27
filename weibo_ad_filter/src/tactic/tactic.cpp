@@ -24,6 +24,7 @@ bool ZombieTactic::IsSpam(const Blog &b) {
   if (b.u_fans <= 10 || 
       b.u_followees >= 1000 || 
       b.u_bi_followers_count*1.0 / b.u_followees < 0.05){  /// invalid zombie user
+    tactic_count++;
     return true;
   }
   return false;

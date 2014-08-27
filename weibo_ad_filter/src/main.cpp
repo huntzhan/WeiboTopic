@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <utility>
 #include "db/DBoperation.h"
 #include "db/DBpool.h"
 #include "db/connection_pool.h"
@@ -27,6 +28,17 @@ using std::vector;
 #define SQL_PWD    "123456"
 #define SQL_DATABASE "sina"
 
+class InsertData {
+  public:
+    InsertData(Blog &b, vector<Word> & ws) {
+      blog = b;
+      words = ws;
+    }
+
+    Blog blog;
+    vector<Word> words;
+};
+
 Parser parser;
 DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
 DBpool insert;
@@ -38,6 +50,7 @@ void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_d
 vector<string> UnpackInsertData(const INSERT_DATA &data);
 void AddSpecialToken(const string &m_content, vector<string> &words);
 void RemoveSpecialToken(vector<string> &words);
+vector<string> WordsToStrs(const vector<Word> &ws);
 
 void InitMain() {
   ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
@@ -106,7 +119,8 @@ int main() {
 }
 
 void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas) {
-  vector<INSERT_DATA> prepare_datas;
+  vector<InsertData> datas;
+  // vector<INSERT_DATA> prepare_datas;
   query.SetTableName(table);
   int number_all_rows = query.Getcount();
   int number_left_rows = number_all_rows;
@@ -126,34 +140,65 @@ void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas) {
       std::vector<Word> words;
       parser.LexicalAnalysis(blog.m_content.c_str(), words);
       bool is_good_parsed_blog = pre.PerformTacticOnParsedBlog(words);
+      if (!is_good_blog) {
+        Log::LoggingRandom(ZOMBIE_T, 1000, Blog2Str(blog));
+      }
+      if (!is_good_parsed_blog) {
+        Log::LoggingRandom(ZOMBIE_SIM_T, 100, Blog2Str(blog));
+      }
       if(is_good_blog && is_good_parsed_blog){
         /// change parsed blog into insert_data
-        INSERT_DATA data = PackInsertData(blog, words);
-        if(data.text.length()<2 || data.spilt.length()<2 || data.text.empty() || data.spilt.empty()){
-          //std::cout << insertdata.text<<std::endl;
-          ;
-        }
-        else
-          prepare_datas.push_back(data);
+        InsertData data(blog, words);
+        datas.push_back(data);
+        // INSERT_DATA data = PackInsertData(blog, words);
+        // if(data.text.length()<2 || data.spilt.length()<2 || data.text.empty() || data.spilt.empty()){
+        //   //std::cout << insertdata.text<<std::endl;
+        //   ;
+        // }
+        // else
+        //   prepare_datas.push_back(data);
       }
     }
   }
+  pre.Report();
   /// ref count tactic
   RefCount ref;
-  for(auto data: prepare_datas){
+  for (auto data : datas) {
     /// ref count detection
-    vector<string> w = UnpackInsertData(data);
-    AddSpecialToken(data.text, w);  /// test symbols like http and @
-    ref.AddFingerPrint(w, 1);
-    RemoveSpecialToken(w);
+    vector<string> ws = WordsToStrs(data.words);
+    AddSpecialToken(data.blog.m_content, ws);  /// test symbols like http and @
+    ref.AddFingerPrint(ws, 1);
+    RemoveSpecialToken(ws);
   }
-  for(auto data: prepare_datas) {
-    vector<string> w = UnpackInsertData(data);
-    AddSpecialToken(data.text, w);  /// test symbols like http and @
+  for (auto data : datas) {
+    vector<string> ws = WordsToStrs(data.words);
+    AddSpecialToken(data.blog.m_content, ws);  /// test symbols like http and @
     unsigned int pf;
-    unsigned int count = ref.GetRefCount(w, 1, pf);
-    Log::Logging(REF_DIST_1_T, data.text + ">" + to_string(pf) + ">" + to_string(count));
+    unsigned int count = ref.GetRefCount(ws, 1, pf);
+    Log::Logging(REF_DIST_1_T, Blog2Str(data.blog) + ">" + to_string(pf) + ">" + to_string(count));
   }
+  // for(auto data: prepare_datas){
+  //   /// ref count detection
+  //   vector<string> w = UnpackInsertData(data);
+  //   AddSpecialToken(data.text, w);  /// test symbols like http and @
+  //   ref.AddFingerPrint(w, 1);
+  //   RemoveSpecialToken(w);
+  // }
+  // for(auto data: prepare_datas) {
+  //   vector<string> w = UnpackInsertData(data);
+  //   AddSpecialToken(data.text, w);  /// test symbols like http and @
+  //   unsigned int pf;
+  //   unsigned int count = ref.GetRefCount(w, 1, pf);
+  //   Log::Logging(REF_DIST_1_T, data.text + ">" + to_string(pf) + ">" + to_string(count));
+  // }
+}
+
+vector<string> WordsToStrs(const vector<Word> &ws) {
+  vector<string> res;
+  for(auto w : ws) {
+    res.push_back(w.word);
+  }
+  return res;
 }
 
 vector<string> UnpackInsertData(const INSERT_DATA &data) {

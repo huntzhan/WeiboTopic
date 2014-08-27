@@ -15,6 +15,8 @@
 
 TEST(TestLog, TestLogFile) {
   Log::Logging(ZOMBIE_T, "test");
+  for (int i = 0; i<100; i++)
+    Log::LoggingRandom(ZOMBIE_T, 1, "test");
 }
 
 // Step 3. Call RUN_ALL_TESTS() in main().
