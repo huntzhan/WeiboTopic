@@ -51,6 +51,10 @@ target_link_libraries(run item_related)
 target_link_libraries(run cluster_related)
 target_link_libraries(run dm_utils)
 
+add_executable(count src/experiment.cc)
+target_link_libraries(count mysql_handler)
+target_link_libraries(count dimension_reducer)
+
 
 ####################
 # Setup googletest #
