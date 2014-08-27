@@ -33,7 +33,7 @@ void printMaps(std::map<std::string, TopicWord> &mymap) {
         << std::endl;
   }
 }
-void printTopic(std::vector<Topic>*clusterlist) {
+void printTopic(std::vector<Topic>*clusterlist,int NUM_OF_SUB_WORD) {
   std::vector<Topic>::iterator clit = clusterlist->begin();
   int ti = 0;
   for (; clit != clusterlist->end(); ++clit) {
@@ -41,7 +41,7 @@ void printTopic(std::vector<Topic>*clusterlist) {
     std::list<TopicWord>*topic_vec = clit->GetsTopic();
     std::list<TopicWord>::iterator it = topic_vec->begin();
     std::cout << std::endl << std::endl;
-    printTopicView(*clit);
+    printTopicView(*clit,NUM_OF_SUB_WORD);
     std::cout << "topic_message_num: " << clit->topic_message_num << endl;
     std::cout << "话题 " << ti << "如下： " << std::endl;
     for (; it != topic_vec->end(); ++it) {
@@ -64,17 +64,20 @@ void printMatrix(std::map<std::string, CooccurrenceWord> &co_ccur_matrix) {
     std::cout << std::endl;
   }
 }
-void printTopicView(Topic &onetopic) {
+void printTopicView(Topic &onetopic,int NUM_OF_SUB_WORD) {
 
   std::list<subword>*subwordlist = onetopic.GetSubWordList();
   std::list<subword>::iterator it = subwordlist->begin();
   int count = 0;
+  std::cout<<std::endl;
+  std::cout << "话题概要如下： " << std::endl;
   std::cout << "***************" << std::endl;
   for (; it != subwordlist->end(); ++it) {
-    if (count++ > 3)
+    if (++count > NUM_OF_SUB_WORD)
       break;
-    std::cout << it->word << "    " << it->fre << std::endl;
+    std::cout << it->word  << std::endl;
   }
+  std::cout << "***************" << std::endl;
 }
 
 

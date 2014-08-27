@@ -41,7 +41,7 @@ using data_mining::AdapterForBitset;
 using data_mining::ListSharedPtrItemSet;
 using data_mining::VecSharedPtrClusterResult;
 using data_mining::HierarchyClustering;
-using data_mining::MaxSimilarityItemInItemSet;
+using data_mining::MaxEvaluationItemInItemSet;
 
 
 constexpr const int kDimension = 10;
@@ -76,12 +76,15 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
                         const vector<string> &raw_messages,
                         const VecBitset<kDimension> &vectorized_messages,
                         const vector<string> &keywords) {
+  ListSharedPtrItemSet item_sets;
+  for (const auto &result : results) {
+    auto item_set = result->GetItemSet();
+    item_sets.push_back(item_set);
+  }
 
   cout << "========================================" << endl;
   cout << "Cluster Result" << endl;
-  // debug.
-  for (const auto &result : results) {
-    auto item_set = result->GetItemSet();
+  for (const auto &item_set : item_sets) {
     cout << "ID: " << item_set->id()
          <<  " Messages: " << item_set->items().size() << endl;
     cout << "Features: ";
@@ -100,22 +103,24 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
     cout << endl;
   }
   cout << "========================================" << endl;
-  for (const auto &result : results) {
-    auto item_set = result->GetItemSet();
-    auto item = MaxSimilarityItemInItemSet::Find(item_set);
-    int id = item->id();
-    cout << "ItemSet " << item_set->id() << ": " << endl
-         << raw_messages[id] << endl;
+  for (const auto &item_set : item_sets) {
+    auto items = MaxEvaluationItemInItemSet::TopK(item_sets, item_set, 10);
+    // top 3 items.
+    for (const auto &item : items) {
+      int id = item->id();
+      cout << "ItemSet " << item_set->id() << ": " << endl
+           << raw_messages[id] << endl;
 
-    cout << "With features: ";
-    auto vectorized_message = vectorized_messages[id];
-    for (size_t index = 0; index != vectorized_message.size(); ++index) {
-      bool has_feature = vectorized_message[index];
-      if (has_feature) {
-        cout << index << ":" << keywords[index] << " ";
+      cout << "With features: ";
+      auto vectorized_message = vectorized_messages[id];
+      for (size_t index = 0; index != vectorized_message.size(); ++index) {
+        bool has_feature = vectorized_message[index];
+        if (has_feature) {
+          cout << index << ":" << keywords[index] << " ";
+        }
       }
+      cout << endl;
     }
-    cout << endl;
     cout << endl;
   }
 
@@ -129,8 +134,8 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
 
 
 int main() {
-  TopicHandler handler("testcase", "SingleTopic");
-  // TopicHandler handler("split", "Topic_20140823_82");
+  // TopicHandler handler("testcase", "SingleTopic");
+  TopicHandler handler("split", "Topic_20140823_82");
   handler.Init();
   auto raw_messages = handler.GetMessages();
   cout << "Got messages." << endl;
