@@ -14,6 +14,7 @@
 #include <set>
 #include <iostream>
 #include <fstream>
+#include "split/Textspilt.h"
 using std::string;
 
 typedef struct _BLOG {
@@ -38,6 +39,18 @@ typedef struct _BLOG {
 
 void PrintBlog(const Blog &b);
 string Blog2Str(const Blog &b);
+
+class ParsedBlog {
+  public:
+    Blog blog;
+    std::list<Word> Words;
+    unsigned fingerprint;
+
+    std::vector<string> Towords();
+    std::vector<unsigned> GetFingerPrints();
+    unsigned GetFingerPrint();
+    // INSERT_DATA ToInsertData();
+};
 #endif
 
 // #ifndef model_INC

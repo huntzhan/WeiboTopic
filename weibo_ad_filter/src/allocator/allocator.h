@@ -14,6 +14,7 @@
 #include <vector>
 #include <utility>
 #include <list>
+#include <algorithm>
 #include "db/DBoperation.h"
 #include "db/model.h"
 #include "logger/log.h"
@@ -30,13 +31,15 @@ static DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
  */
 class Allocator {
   public:
-    int GetBlogs(unsigned int num, list<Blog> &blogs);
+    int NextBlogs(unsigned int num, list<Blog> &blogs);
     unsigned GetRowsOfCurrentTable();
+    bool HasNextRow();
     bool HasNextTable();
     void NextTable();
 
     // ====================  LIFECYCLE     ==================================
-    Allocator(unsigned start_table_no, bool is_start_over);
+    Allocator(const string tablename);
+    Allocator(bool is_start_over);
     ~Allocator(){}
 
   private:
@@ -47,6 +50,7 @@ class Allocator {
     std::list<string>::iterator cur_table;
     unsigned rows_of_cur_table;
     unsigned rows_left_of_cur_table;
+    bool is_initialized = false;
     // DISALLOW_COPY_AND_ASSIGN
     Allocator(const Allocator&);
     void operator=(const Allocator&);

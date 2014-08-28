@@ -10,20 +10,33 @@
 #include "allocator.h"
 
 /**
- *  @brief Constructor
+ *  @brief Constructor only get the tables starts from 'M'
  *
  *  @param start_table_no starts from 1
  */
-Allocator::Allocator(unsigned start_table_no, bool is_start_over) {
+Allocator::Allocator(bool is_start_over) {
   query.DBConnect();
   if (is_start_over)
     query.GetTables(tables);
   else
     tables = GetNotProcessedTables();
-  cur_table = tables.begin();
-  for (unsigned i= 1; i<start_table_no; i++)
-    cur_table++;
-  query.SetTableName(*cur_table);
+}
+
+/**
+ *  @brief Constructor 
+ *
+ *  @param 
+ */
+Allocator::Allocator(const string tablename) {
+  query.DBConnect();
+  std::list<string> all_tables;
+  query.GetTables(all_tables);
+  std::list<string>::iterator find_iter = std::find(all_tables.begin(), all_tables.end(), tablename);
+  if (find_iter == all_tables.end()) {
+    Log::Logging(RUN_T, tablename + " not exists in Allocator");
+    exit(1);
+  }
+  tables.push_back(tablename);
 }
 
 std::set<string> Allocator::GetProcessedTables(){
@@ -50,7 +63,7 @@ std::list<string> Allocator::GetNotProcessedTables() {
   return undone_tables;
 }
 
-int Allocator::GetBlogs(unsigned int num, list<Blog> &blogs) {
+int Allocator::NextBlogs(unsigned int num, list<Blog> &blogs) {
     unsigned n = rows_of_cur_table > num? 
       num: 
       rows_left_of_cur_table;
@@ -60,13 +73,23 @@ int Allocator::GetBlogs(unsigned int num, list<Blog> &blogs) {
 }
 
 bool Allocator::HasNextTable() {
-  if (tables.end() == cur_table)
-    return false;
-  else return true;
-}
-  
-void Allocator::NextTable() {
+  if (! is_initialized) {
+    return true;
+  }
   cur_table++;
+  if (tables.end() == cur_table--)
+    return false;
+  return true;
+}
+
+void Allocator::NextTable() {
+  if (is_initialized == false) {
+    cur_table = tables.begin();
+    is_initialized = true;
+  }
+  else {
+    cur_table++;
+  }
   query.SetTableName(*cur_table);
   rows_of_cur_table = query.Getcount();
   rows_left_of_cur_table = rows_of_cur_table;
@@ -74,4 +97,10 @@ void Allocator::NextTable() {
 
 unsigned Allocator::GetRowsOfCurrentTable() {
   return rows_of_cur_table;
+}
+
+bool Allocator::HasNextRow() {
+  if (rows_left_of_cur_table > 0)
+    return true;
+  else return false;
 }

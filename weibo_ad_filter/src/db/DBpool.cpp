@@ -11,10 +11,9 @@ void DBpool::DBinit(std::string database, ConnPool *connpool) {
   ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "", 50);
   con = m_connpool->GetConnection();
   state = con->createStatement();
-  state->execute(database);\
-  std::cout<<"--------"<<std::endl;
-
+  state->execute(database);
 }
+
 void DBpool::DBclose() {
   m_connpool->ReleaseConnection(con);
 }
@@ -145,3 +144,4 @@ bool DBpool::DB_insertData(std::vector<INSERT_DATA> &insert_data) {
 
   return false;
 }
+

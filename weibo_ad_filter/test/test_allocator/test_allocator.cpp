@@ -20,13 +20,15 @@ using std::list;
 // that their results don't depend on their order.
 
 TEST(TestAllocator, TestAllocator) {
-  Allocator allo(1, true);
-  std::list<Blog> blogs;
-  ASSERT_TRUE(allo.GetBlogs(20, blogs) == 20u);
-  cout<< allo.GetRowsOfCurrentTable() << endl;
+  Allocator allo("Microblog1408215600");
   while (allo.HasNextTable()) {
     allo.NextTable();
     cout<< allo.GetRowsOfCurrentTable() << endl;
+    std::list<Blog> blogs;
+    while (allo.HasNextRow()) {
+      unsigned count = allo.NextBlogs(5000, blogs);
+      cout<< "get rows: " << count << endl;
+    }
   }
 
 }

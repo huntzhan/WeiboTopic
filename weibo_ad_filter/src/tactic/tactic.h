@@ -77,7 +77,10 @@ class SourceTactic : public Tactic {
       else {
         counter[b.m_source] += 1;
       }
-      if (b.m_source == "微问") {
+      if (b.m_source == "微问" ||
+          b.m_source == "爱问知识人" ||
+          b.m_source == "新浪博客" ||
+          b.m_source == "皮皮时光机") {
         tactic_count++;
         return true;
       }
