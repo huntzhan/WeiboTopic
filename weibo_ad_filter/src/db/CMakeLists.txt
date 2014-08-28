@@ -10,6 +10,6 @@ add_library(db_operation ${DB_OPERATION_SRC})
 add_library(model ${MODEL_SRC})
 target_link_libraries(connection_pool -lmysqlcppconn) 
 target_link_libraries(db_pool -lmysqlcppconn)
-target_link_libraries(db_operation -lmysqlclient)
+target_link_libraries(db_operation model -lmysqlclient)
 
 # target_link_libraries(db_pool -lmysqlclient -lmysqlcppconn -lpthread /usr/local/lib/libboost_regex.a) 

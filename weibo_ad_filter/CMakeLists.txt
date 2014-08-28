@@ -71,6 +71,8 @@ file(COPY
 	DESTINATION ${weibo_ad_filter_BINARY_DIR}/test/test_simhash/)
 add_executable(run_filter src/main.cpp)
 target_link_libraries(run_filter ref log model parser tactic connection_pool db_pool simhash db_operation preprocessor -lpthread)
+add_executable(run_ref_count src/run_ref_count.cpp)
+target_link_libraries(run_ref_count ref log model parser allocator)
 # add_subdirectory(src/tactic)
 # target_link_libraries(run simple_calculator)
 

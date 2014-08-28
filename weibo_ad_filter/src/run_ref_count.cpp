@@ -20,6 +20,7 @@
 #include <utility>
 #include "allocator/allocator.h"
 #include "logger/log.h"
+#include "split/parser.h"
 using std::string;
 using std::cout;
 using std::endl;
@@ -28,38 +29,39 @@ using std::vector;
 const unsigned ROWS_EACH_TIME = 5000;
 
 int main() {
+  Parser parser;
+
   Allocator allo("Microblog1408215600");
   while (allo.HasNextTable()) {
     allo.NextTable();
     std::list<Blog> blogs;
     while (allo.HasNextRow()) {
-      unsigned count = allo.NextBlogs(5000, blogs);
+      unsigned count = allo.NextBlogs(ROWS_EACH_TIME, blogs);
       Log::Logging(RUN_T, "get rows from crawler: " + to_string(count));
-        for(auto &blog : blogs) {
-          bool is_good_blog = pre.PerformTacticOnBlog(blog);
-          /// Lexcal Analysis by ICTCLAS50
-          std::vector<Word> words;
-          parser.LexicalAnalysis(blog.m_content.c_str(), words);
-          bool is_good_parsed_blog = pre.PerformTacticOnParsedBlog(words);
-          if (!is_good_blog) {
-            Log::LoggingRandom(ZOMBIE_T, 1000, Blog2Str(blog));
-          }
-          if (!is_good_parsed_blog) {
-            Log::LoggingRandom(ZOMBIE_SIM_T, 100, Blog2Str(blog));
-          }
-          if(is_good_blog && is_good_parsed_blog){
-            /// change parsed blog into insert_data
-            InsertData data(blog, words);
-            datas.push_back(data);
-            // INSERT_DATA data = PackInsertData(blog, words);
-            // if(data.text.length()<2 || data.spilt.length()<2 || data.text.empty() || data.spilt.empty()){
-            //   //std::cout << insertdata.text<<std::endl;
-            //   ;
-            // }
-            // else
-            //   prepare_datas.push_back(data);
-          }
-        }
+      for(auto &blog : blogs) {
+        /// Lexcal Analysis by ICTCLAS50
+        std::vector<Word> words;
+        parser.LexicalAnalysis(blog.m_content.c_str(), words);
+      }
     }
   }
 }
+
+// void DoRefCount() {
+//   /// ref count tactic
+//   RefCount ref;
+//   for (auto data : datas) {
+//     /// ref count detection
+//     vector<string> ws = WordsToStrs(data.words);
+//     AddSpecialToken(data.blog.m_content, ws);  /// test symbols like http and @
+//     ref.AddFingerPrint(ws, 1);
+//     RemoveSpecialToken(ws);
+//   }
+//   for (auto data : datas) {
+//     vector<string> ws = WordsToStrs(data.words);
+//     AddSpecialToken(data.blog.m_content, ws);  /// test symbols like http and @
+//     unsigned int pf;
+//     unsigned int count = ref.GetRefCount(ws, 1, pf);
+//     Log::Logging(REF_DIST_1_T, Blog2Str(data.blog) + ">" + to_string(pf) + ">" + to_string(count));
+//   }
+// }
