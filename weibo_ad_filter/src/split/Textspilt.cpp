@@ -51,7 +51,6 @@ std::string TextSpilt::RegexReplace(std::string input) {
   std::string output;
   std::wstring put;
   if (input.empty()) {
-    std::cout << "input RegexReplace error" << std::endl;
     std::string result = "";
     return result;
   }

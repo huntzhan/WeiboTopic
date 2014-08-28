@@ -40,6 +40,8 @@ file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/drop_undone_table.sh
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/calculate_average_spam_rate.sh
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/start.sh
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/stop.sh
+	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/ref_count.sh
 	DESTINATION 
 	${weibo_ad_filter_BINARY_DIR}/)
 file(COPY
@@ -67,8 +69,8 @@ file(COPY
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/user.lic
 	${weibo_ad_filter_SOURCE_DIR}/lib/data_split/userdict.txt
 	DESTINATION ${weibo_ad_filter_BINARY_DIR}/test/test_simhash/)
-add_executable(run_filter src/process.cpp)
-target_link_libraries(run_filter model parser tactic connection_pool db_pool simhash db_operation preprocessor -lpthread)
+add_executable(run_filter src/main.cpp)
+target_link_libraries(run_filter ref log model parser tactic connection_pool db_pool simhash db_operation preprocessor -lpthread)
 # add_subdirectory(src/tactic)
 # target_link_libraries(run simple_calculator)
 
@@ -97,3 +99,4 @@ add_subdirectory(test/test_parser)
 add_subdirectory(test/test_tactic)
 add_subdirectory(test/test_simhash)
 add_subdirectory(test/test_mysql_conn)
+add_subdirectory(test/test_log)

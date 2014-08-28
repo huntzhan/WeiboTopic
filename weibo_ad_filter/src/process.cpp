@@ -6,21 +6,6 @@
  Description:
  History    :
  *******************************************************************************/
-#include "db/DBoperation.h"
-#include "db/DBpool.h"
-#include "db/connection_pool.h"
-#include "db/model.h"
-#include "split/parser.h"
-#include "split/Textspilt.h"
-#include "tactic/preprocessor.h"
-#include <map>
-#include "simhash/simhash.h"
-
-#define SQL_ADDR "192.168.1.108"
-#define SQL_USER "root"
-#define SQL_PWD    "123456"
-#define SQL_DATABASE "sina"
-
 
 void display(std::list<std::list<std::string> > &msg) ;
 void count_the_user(list<Blog> &weibos);
@@ -28,108 +13,7 @@ void FilterTables(std::set<std::string> &settable);
 INSERT_DATA PackInsertData(const Blog &b, const vector<Word> &words);
 void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas);
 void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_datas);
-
-Parser parser;
-DBoperation query(SQL_ADDR, SQL_USER, SQL_PWD, SQL_DATABASE);
-DBpool insert;
-
-/**
- *  @brief Init_Main
- *
- *  @param
- *  @return
- */
-void InitMain() {
-
-  ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root",
-     "123456", 50);
-  insert.DBinit("use split", connpool);
-  query.DBConnect();
-  TextSpilt::init_ICTCAL();
-}
-
-INSERT_DATA PackInsertData(const Blog &b, const vector<Word> &words) {
-  string fenci;
-  for (Word w : words){
-    fenci.append(w.word + " " + w.proper + " ");
-  }
-  INSERT_DATA insertdata;
-  insertdata.mid = b.m_mid;
-  insertdata.text = b.m_content;
-  insertdata.spilt = fenci;
-  return insertdata;
-}
-
-void FilterOneTable(string table, vector<INSERT_DATA> &insert_datas) {
-  query.SetTableName(table);
-  int number_all_rows = query.Getcount();
-  int number_left_rows = number_all_rows;
-  int ROW_EACH_TIME = 2000;
-  Preprocessor pre;
-  while(number_left_rows > 0){
-    std::list<Blog> weibos;
-    int n = number_left_rows>ROW_EACH_TIME? ROW_EACH_TIME: number_left_rows;
-    /// print IO Operation
-    cout<< "Get blogs from db: " << n << endl;
-    query.GetWeiBos(number_all_rows - number_left_rows, n, weibos);
-    number_left_rows -= ROW_EACH_TIME;
-    /// start blogs filtering
-    for(auto &blog : weibos) {
-      bool is_good_blog = pre.PerformTacticOnBlog(blog);
-      /// Lexcal Analysis by ICTCLAS50
-      std::vector<Word> words;
-      parser.LexicalAnalysis(blog.m_content.c_str(), words);
-      bool is_good_parsed_blog = pre.PerformTacticOnParsedBlog(words);
-      if(is_good_blog && is_good_parsed_blog){
-        /// change parsed blog into insert_data
-        INSERT_DATA data = PackInsertData(blog, words);
-        if(data.text.length()<2 || data.spilt.length()<2 || data.text.empty() || data.spilt.empty()){
-          //std::cout << insertdata.text<<std::endl;
-          ;
-        }
-        else
-          insert_datas.push_back(data);
-        // PrintBlog(*ib);
-      }
-    }
-  }
-}
-
-int main() {
-  InitMain();
-  cout<<"Program Initialized"<<endl;
-
-  std::list<std::string> tables;
-  query.GetTables(tables);
-  // FilterTables(tables);
-  std::set<std::string> done_tables;
-  ifstream in("done.log");
-  string done_table;
-  while (in>>done_table) {
-    string t = done_table.substr(8);
-    done_tables.insert(t);
-  }
-  /// get tables from to be processed
-  for(const string &table : tables){
-    if(done_tables.find(table) != done_tables.end())
-      continue;
-    query.SetTableName(table);
-    int number_all_rows = query.Getcount();
-    cout<<"###Start Filtering One Table: " << number_all_rows << endl;
-    vector<INSERT_DATA> insert_datas;
-    FilterOneTable(table, insert_datas);
-    cout<<"###Blogs in One Table After Filtering: " << insert_datas.size() << "/" << number_all_rows <<endl;
-    /**
-     * Perform DB Insertion Operation here
-     */
-    string insert_tablename = "Filtered" + table;
-    InsertDataToTable(insert_tablename, insert_datas);
-  }
-
-  std::cout<<"Program has finished"<<std::endl;
-  return EXIT_SUCCESS;
-}
-
+INSERT_DATA PackInsertData(const Blog &b, const vector<Word> &words);
 bool SortCmp(const std::pair<string,int> &key1 ,const std::pair<string ,int> &key2 ){
   if (key1.second > key2.second)
     return true;
@@ -225,40 +109,6 @@ void count_the_user(list<Blog> &weibos) {
 
 }
 
-
-
-/**************************************************************************
- * 显示vector二维里面的内容
- */
-void display(std::list<std::list<std::string> > &msg) {
-  std::list<std::list<std::string> >::iterator it_first = msg.begin();
-  std::list<std::list<std::string> >::iterator end_first = msg.end();
-  for (; it_first != end_first; it_first++) {
-    std::list<std::string>::iterator id_second = it_first->begin();
-    std::list<std::string>::iterator end_second = it_first->end();
-    for (; id_second != end_second; id_second++) {
-      std::cout << *id_second << std::endl;
-    }
-    std::cout << "################################################" << std::endl;
-  }
-}
-/**
- * 这个是主要处理的 先从数据库里面提取数据，然后分词，最后插入
- */
-void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_datas) {
-  insert.SetTableName(tablename);
-  /// 建立数据库的表
-  insert.CreateTable();
-  time_t startT, endT;
-  double total;
-  startT = time(NULL);
-  /// Perform DB Insertion
-  insert.DB_insertData(insert_datas);
-  endT = time(NULL);
-  total = difftime(endT, startT);
-  std::cout << "###Insertion of " << tablename << " ends, taken time: " << total << std::endl;
-}
-
 /**
  *  @brief FilterTables return the tables to be processed
  *
@@ -287,6 +137,4 @@ void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_d
   }
   std::cout<<settable.size()<<std::endl;
 }
-
-
 

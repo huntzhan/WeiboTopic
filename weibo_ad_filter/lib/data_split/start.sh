@@ -1,4 +1,4 @@
 #! /bin/sh
 
-./run_filter >> run.log &
-tail -f run.log
+./run_filter >> tmp.log &
+tail -f tmp.log
