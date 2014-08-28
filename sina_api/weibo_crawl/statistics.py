@@ -38,10 +38,13 @@ logger.addHandler(email_handler)
 logger.setLevel(logging.INFO)
 
 
-class Statistics(object):
+class TableState(object):
 
-    @classmethod
-    def _extract_key(cls, db_name):
+    def __init__(self, db_url):
+        self.db_url = db_url
+        self.cached_static_table_names = []
+
+    def extract_key(self, db_name):
         name = re.sub(r'\d+', '', db_name)
         match = re.search(r'\d+', db_name)
         if match:
@@ -49,25 +52,54 @@ class Statistics(object):
         else:
             return '', ''
 
-    @classmethod
-    def report(cls):
-        engine = create_engine(DB_URL)
+    def _double_check_strategy(self):
+        engine = create_engine(self.db_url)
         metadata = MetaData()
         metadata.reflect(engine)
 
-        texts = []
-        for table_name in sorted(metadata.tables,
-                                 key=cls._extract_key):
+        def get_table_size(table_name):
             table = metadata.tables[table_name]
             size = engine.execute(
                 select([func.count()]).select_from(table),
             ).scalar()
+            return size
+
+        table_names = sorted(metadata.tables, key=self.extract_key)
+        new_tables = {}
+        # detect new tables.
+        for table_name in table_names:
+            if table_name in self.cached_static_table_names:
+                continue
+            new_tables[table_name] = get_table_size(table_name)
+        # sleep for a while.
+        time.sleep(5)
+        # detect stable tables.
+        for table_name, size in new_tables.items():
+            if get_table_size(table_name) != size:
+                # size change, not stable.
+                pass
+            else:
+                self.cached_static_table_names.append(table_name)
+
+    def get_static_tables(self):
+        self._double_check_strategy()
+        return self.cached_static_table_names
+
+
+class Statistics(object):
+
+    table_state = TableState(DB_URL)
+
+    @classmethod
+    def report(cls):
+        static_tables = cls.table_state.get_static_tables()
+        for table_name in static_tables:
             # format
             LINE_FORMAT = 'Table: {0}, Duration: {1}, Size: {2}'
             DURATION_FORMAT = "[{0} - {1}]"
             TIME_FORMAT = '%m/%d:%H'
 
-            epoch, _ = cls._extract_key(table_name)
+            epoch, _ = cls.static_tables.extract_key(table_name)
             if epoch:
                 begin = time.gmtime(int(epoch))
                 end = time.gmtime(int(epoch) + 3600)
