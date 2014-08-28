@@ -1,6 +1,8 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import logging
+import subprocess
+import sys
 
 from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
@@ -19,6 +21,17 @@ ordered_keys_for_init = [
     'code', 'access_token',
     'redirect_uri',
 ]
+
+
+def auto_restart():
+    args = sys.argv[1:]
+    while True:
+        try:
+            subprocess.check_call(args, stdout=subprocess.STDOUT)
+            break
+        except:
+            # just restart.
+            pass
 
 
 def api():
