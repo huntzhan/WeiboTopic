@@ -10,11 +10,9 @@
 #ifndef model_INC
 #define model_INC
 #include <string>
-#include <list>
 #include <vector>
 #include <set>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 using std::string;
 
@@ -51,34 +49,5 @@ typedef struct _BLOG {
 
 void PrintBlog(const Blog &b);
 string Blog2Str(const Blog &b);
-
-class ParsedBlog {
-  public:
-    Blog blog;
-    std::list<Word> Words;
-    unsigned fingerprint;
-
-    std::vector<string> Towords() {
-      std::vector<string> res;
-      for(auto w : Words) {
-        res.push_back(w.word);
-      }
-      return res;
-    }
-    unsigned GetFingerPrint() {
-      return fingerprint;
-    }
-    INSERT_DATA ToInsertData() {
-      std::ostringstream ss;
-      for (auto w : Words){
-        ss<< w.word << " " << w.proper << " ";
-      }
-      INSERT_DATA insertdata;
-      insertdata.mid = blog.m_mid;
-      insertdata.text = blog.m_content;
-      insertdata.spilt = ss.str();
-      return insertdata;
-    }
-};
 #endif
 

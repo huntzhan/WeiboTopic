@@ -22,6 +22,7 @@
 #include "cppconn/driver.h"
 #include "cppconn/connection.h"
 #include "db/model.h"
+#include "db/parsedblog.h"
 
 #ifndef _DATABASE_MYSQL_HANDLER_H_
 #define _DATABASE_MYSQL_HANDLER_H_

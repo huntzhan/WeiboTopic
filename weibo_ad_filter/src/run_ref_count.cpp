@@ -21,6 +21,9 @@
 #include "allocator/allocator.h"
 #include "logger/log.h"
 #include "split/parser.h"
+#include "db/model.h"
+#include "db/parsedblog.h"
+#include "ref_count/ref.h"
 using std::string;
 using std::cout;
 using std::endl;
@@ -30,6 +33,8 @@ const unsigned ROWS_EACH_TIME = 5000;
 
 int main() {
   Parser parser;
+  RefCount ref;
+  std::list<ParsedBlog> parsed_blogs;
 
   Allocator allo("Microblog1408215600");
   while (allo.HasNextTable()) {
@@ -42,9 +47,16 @@ int main() {
         /// Lexcal Analysis by ICTCLAS50
         std::vector<Word> words;
         parser.LexicalAnalysis(blog.m_content.c_str(), words);
+        ParsedBlog pb(blog, words);
+        unsigned fp = pb.GetFingerPrint();
+        ref.AddFingerPrint(fp, 1);
+        cout<< fp << endl;
+        parsed_blogs.push_back(pb);
       }
     }
   }
+  cout<< ref.GetRefSize() << endl;
+  cout<< parsed_blogs.size() << endl;
 }
 
 // void DoRefCount() {
