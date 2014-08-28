@@ -23,17 +23,6 @@ ordered_keys_for_init = [
 ]
 
 
-def auto_restart():
-    args = sys.argv[1:]
-    while True:
-        try:
-            subprocess.check_call(args, stdout=subprocess.STDOUT)
-            break
-        except:
-            # just restart.
-            pass
-
-
 def api():
     setup_logging()
     logger = logging.getLogger()

@@ -28,7 +28,6 @@ setup(
         'console_scripts': [
             'run_api = weibo_crawl.run:api',
             'run_report = weibo_crawl.run:report',
-            'auto_restart = weibo_crawl.run:auto_restart',
         ],
     },
     test_suite='tests.load_tests',
