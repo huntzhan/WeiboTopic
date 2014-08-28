@@ -5,6 +5,7 @@ import time
 import logging
 from logging.handlers import SMTPHandler
 import re
+from collections import OrderedDict
 
 from sqlalchemy import create_engine, MetaData, func, select
 
@@ -42,7 +43,7 @@ class TableState(object):
 
     def __init__(self, db_url):
         self.db_url = db_url
-        self.cached_static_table_names = []
+        self.cached_static_table_names = OrderedDict()
 
     def extract_key(self, db_name):
         name = re.sub(r'\d+', '', db_name)
@@ -75,11 +76,12 @@ class TableState(object):
         time.sleep(5)
         # detect stable tables.
         for table_name, size in new_tables.items():
-            if get_table_size(table_name) != size:
+            current_size = get_table_size(table_name)
+            if current_size != size:
                 # size change, not stable.
                 pass
             else:
-                self.cached_static_table_names.append(table_name)
+                self.cached_static_table_names[table_name] = current_size
 
     def get_static_tables(self):
         self._double_check_strategy()
@@ -93,13 +95,14 @@ class Statistics(object):
     @classmethod
     def report(cls):
         static_tables = cls.table_state.get_static_tables()
-        for table_name in static_tables:
+        texts = []
+        for table_name, size in static_tables.items():
             # format
             LINE_FORMAT = 'Table: {0}, Duration: {1}, Size: {2}'
             DURATION_FORMAT = "[{0} - {1}]"
             TIME_FORMAT = '%m/%d:%H'
 
-            epoch, _ = cls.static_tables.extract_key(table_name)
+            epoch, _ = cls.table_state.extract_key(table_name)
             if epoch:
                 begin = time.gmtime(int(epoch))
                 end = time.gmtime(int(epoch) + 3600)
