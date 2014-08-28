@@ -168,6 +168,25 @@ class DatabaseHandler:
             u2b = models[2](mid=mid, uid=uid)
             session.add(u2b)
 
+
+class CrossThreadDatabaseConnection(object):
+    Session = sessionmaker(bind=engine)
+
+    @classmethod
+    def open(cls):
+        # open connection.
+        cls.session = cls.Session()
+
+    @classmethod
+    def close(cls):
+        try:
+            cls.session.commit()
+        except (IntegrityError, TimeoutError) as e:
+            logger.warning(e)
+            session.rollback()
+        finally:
+            session.close()
+
     @classmethod
     def add_users_and_messages(cls, users, messages):
         user_instances = []
@@ -190,13 +209,9 @@ class DatabaseHandler:
             message_instances.append(models[1](**message_dict))
             user_message_relations.append(models[2](uid=uid, mid=mid))
 
-        with cls.modify_scope() as session:
-            for user_instance in user_instances:
-                session.merge(user_instance)
-
-            for message_instance in message_instances:
-                session.merge(message_instance)
-
-        with cls.modify_scope() as session:
-            for u2b_instance in user_message_relations:
-                session.merge(u2b_instance);
+        for user_instance, message_instance in\
+                zip(user_instances, message_instances):
+            session.merge(user_instance)
+            session.merge(message_instance)
+        for u2b_instance in user_message_relations:
+            session.merge(u2b_instance)

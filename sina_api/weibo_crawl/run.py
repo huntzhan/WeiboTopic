@@ -7,7 +7,7 @@ import time
 
 from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
-from .db_handler import DatabaseHandler
+from .db_handler import CrossThreadDatabaseConnection
 from .logger import setup_logging
 from .statistics import Statistics
 
@@ -29,10 +29,10 @@ def api():
     logger = logging.getLogger()
 
     ConfigurationCenter.load_configuration()
-    DatabaseHandler.open()
     logger.info("Finished prepareing.")
 
     while True:
+        CrossThreadDatabaseConnection.open()
         # for each keys, init handler and query.
         queries = []
         for info in ConfigurationCenter.generate_app_infos():
@@ -53,6 +53,7 @@ def api():
             logger.warning(e)
             time.sleep(120)
 
+        CrossThreadDatabaseConnection.close()
         logger.info("Finished loop.")
 
 
