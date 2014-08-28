@@ -27,6 +27,8 @@ enum LogType {
   TACTIC_T,
   TACTIC_SOURCE_T,
   TOO_SHORT_T,
+  V_T,
+  USER_T,
   END_T
 };
 

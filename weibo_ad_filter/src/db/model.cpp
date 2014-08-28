@@ -39,10 +39,10 @@ string Blog2Str(const Blog &b) {
     <<b.u_uid
     <<" "<<b.sex
     <<" "<<b.u_created_at
-    <<" ["<<b.u_followees
+    <<" +"<<b.u_followees
     <<" "<<b.u_fans
     <<" "<<b.u_posts
-    <<"] "<<b.u_bi_followers_count
+    <<"+ "<<b.u_bi_followers_count
     <<" "<<b.u_favourites_count
     <<" "<<b.u_vierfied;
   ss<<" ";
@@ -50,9 +50,9 @@ string Blog2Str(const Blog &b) {
     <<b.m_mid
     <<" "<<b.m_created_time
     <<" ["<<b.m_content<<"]"
-    <<" "<<b.m_source
-    <<" "<<b.m_favorites
+    <<" +"<<b.m_source
+    <<"+ +"<<b.m_favorites
     <<" "<<b.m_comments
-    <<" "<<b.m_forwards;
+    <<"+ "<<b.m_forwards;
   return ss.str();
 }

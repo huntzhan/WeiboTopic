@@ -20,7 +20,9 @@ const string Log::LOG_FILES[END_T] = {
   "ref_dist_1.log",
   "tactic.log",
   "tactic_source.log",
-  "too_short.log"
+  "too_short.log",
+  "v_user.log",
+  "user.log"
 };
 /**
  *  @brief _InitialLoggers
