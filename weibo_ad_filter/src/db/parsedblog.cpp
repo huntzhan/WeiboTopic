@@ -8,9 +8,10 @@
 #include "parsedblog.h"
 
 const string ParsedBlog::WORD_FOR_AT = "WORD_FOR_AT";
+SimHash ParsedBlog::sim;
 const string ParsedBlog::WORD_FOR_HTTP = "WORD_FOR_HTTP";
 
-ParsedBlog::ParsedBlog(Blog &b, std::vector<Word> Ws) {
+ParsedBlog::ParsedBlog(const Blog &b, const std::vector<Word> &Ws) {
   blog = b;
   Words = Ws;
   std::vector<string> ws = Towords();

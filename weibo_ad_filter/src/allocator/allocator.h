@@ -33,6 +33,7 @@ class Allocator {
   public:
     int NextBlogs(unsigned int num, list<Blog> &blogs);
     unsigned GetRowsOfCurrentTable();
+    string GetCurrentTableName();
     bool HasNextRow();
     bool HasNextTable();
     void NextTable();

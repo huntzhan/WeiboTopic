@@ -29,7 +29,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-const unsigned ROWS_EACH_TIME = 5000;
+const unsigned ROWS_EACH_TIME = 8000;
 
 int main() {
   Parser parser;
@@ -39,8 +39,9 @@ int main() {
   Allocator allo("Microblog1408215600");
   while (allo.HasNextTable()) {
     allo.NextTable();
-    std::list<Blog> blogs;
+    Log::Logging(RUN_T, "###Start Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
     while (allo.HasNextRow()) {
+      std::list<Blog> blogs;
       unsigned count = allo.NextBlogs(ROWS_EACH_TIME, blogs);
       Log::Logging(RUN_T, "get rows from crawler: " + to_string(count));
       for(auto &blog : blogs) {
@@ -49,14 +50,19 @@ int main() {
         parser.LexicalAnalysis(blog.m_content.c_str(), words);
         ParsedBlog pb(blog, words);
         unsigned fp = pb.GetFingerPrint();
-        ref.AddFingerPrint(fp, 1);
-        cout<< fp << endl;
+        // ref.AddFingerPrint(fp, 1);
         parsed_blogs.push_back(pb);
       }
     }
+    Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
+    // Log::Logging(RUN_T, "###Ref Objects: " + std::to_string(ref.GetRefSize()));
+    // for (auto i : parsed_blogs) {
+    //   unsigned int pf;
+    //   unsigned int count = ref.GetRefCount(i.GetFingerPrint(), 1, pf);
+    //   Log::Logging(REF_DIST_1_T, Blog2Str(i.blog_()) + ">" + to_string(pf) + ">" + to_string(count));
+    // }
+    parsed_blogs.clear();
   }
-  cout<< ref.GetRefSize() << endl;
-  cout<< parsed_blogs.size() << endl;
 }
 
 // void DoRefCount() {

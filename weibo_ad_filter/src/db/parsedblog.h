@@ -22,9 +22,10 @@ class ParsedBlog {
     std::vector<string> Towords();
     unsigned GetFingerPrint();
     INSERT_DATA ToInsertData();
+    Blog blog_() { return blog; }
 
     // ====================  LIFECYCLE     ==================================
-    ParsedBlog(Blog &b, std::vector<Word> Ws);
+    ParsedBlog(const Blog &b, const std::vector<Word> &Ws);
     ~ParsedBlog() {}
     ParsedBlog(const ParsedBlog& pb) {
       blog = pb.blog;
@@ -36,10 +37,10 @@ class ParsedBlog {
     void _AddSpecialToken(const string &m_content, std::vector<string> &words);
     void _RemoveSpecialToken(std::vector<string> &words);
 
-    SimHash sim;
     Blog blog;
     std::vector<Word> Words;
     unsigned fingerprint;
+    static SimHash sim;
     static const string WORD_FOR_AT;
     static const string WORD_FOR_HTTP;
 

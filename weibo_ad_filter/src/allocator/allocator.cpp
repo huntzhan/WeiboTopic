@@ -64,7 +64,7 @@ std::list<string> Allocator::GetNotProcessedTables() {
 }
 
 int Allocator::NextBlogs(unsigned int num, list<Blog> &blogs) {
-    unsigned n = rows_of_cur_table > num? 
+    unsigned n = rows_left_of_cur_table > num? 
       num: 
       rows_left_of_cur_table;
     query.GetWeiBos(rows_of_cur_table - rows_left_of_cur_table, n, blogs);
@@ -97,6 +97,10 @@ void Allocator::NextTable() {
 
 unsigned Allocator::GetRowsOfCurrentTable() {
   return rows_of_cur_table;
+}
+
+string Allocator::GetCurrentTableName() {
+  return *cur_table;
 }
 
 bool Allocator::HasNextRow() {
