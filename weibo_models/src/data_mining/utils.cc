@@ -25,9 +25,6 @@ using std::make_pair;
 using std::multimap;
 using std::greater_equal;
 
-#include <iostream>
-using std::cout;
-using std::endl;
 
 namespace data_mining {
 

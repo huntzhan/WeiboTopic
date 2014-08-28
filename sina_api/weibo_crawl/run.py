@@ -1,6 +1,9 @@
 from __future__ import (unicode_literals, print_function, absolute_import)
 
 import logging
+import subprocess
+import sys
+import time
 
 from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
@@ -43,7 +46,13 @@ def api():
         schedule = Schedule(DURATION)
         for query in queries:
             schedule.add_callback(query.query)
-        schedule.run()
+
+        try:
+            schedule.run()
+        except Exception as e:
+            logger.warning(e)
+            time.sleep(120)
+
         logger.info("Finished loop.")
 
 

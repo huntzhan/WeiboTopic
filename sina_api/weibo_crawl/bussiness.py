@@ -342,12 +342,18 @@ class PublicTimelineQuery(object):
         logger.info("Got messages.")
 
         items = response_json['statuses']
+        users = []
+        messages = []
         for item in items:
             user = self._extract_user(item)
             message = self._extract_message(item)
 
-            logger.debug("Adding entry to db.")
-            DatabaseHandler.add_entry(user, message)
-            logger.debug("Finished adding entry to db.")
+            users.append(user)
+            messages.append(message)
+
+            # logger.debug("Adding entry to db.")
+            # DatabaseHandler.add_entry(user, message)
+            # logger.debug("Finished adding entry to db.")
+        DatabaseHandler.add_users_and_messages(users, messages)
 
         logger.info("Finished query.")
