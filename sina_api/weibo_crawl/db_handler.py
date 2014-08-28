@@ -166,3 +166,36 @@ class DatabaseHandler:
         with cls.modify_scope() as session:
             u2b = models[2](mid=mid, uid=uid)
             session.add(u2b)
+
+    @classmethod
+    def add_users_and_messages(cls, users, messages):
+        user_instances = []
+        message_instances = []
+        user_message_relations = []
+
+        for user, message in zip(users, messages):
+            uid = user_dict['uid']
+            mid = message_dict['mid']
+            user_dict = dict(user._asdict())
+            messsage_dict = dict(messsage._asdict())
+
+            # get models.
+            raw_time = messsage_dict['created_time']
+            timestamp = time.strptime(raw_time, "%a %b %d %H:%M:%S +0800 %Y")
+            models = ModelManager.get_models(timestamp)
+
+            # create instance for merge.
+            user_instances.append(models[0](**user_dict))
+            messsage_instances.append(models[1](**messsage_dict))
+            user_message_relations.append(models[2](uid=uid, mid=mid))
+
+        with cls.modify_scope() as session:
+            for user_instance in user_instances:
+                session.merge(user_instance)
+
+            for message_instance in message_instances:
+                session.merge(message_instance)
+
+        with cls.modify_scope() as session:
+            for u2b_instance in user_message_relations:
+                session.merge(u2b_instance);
