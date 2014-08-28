@@ -22,7 +22,9 @@ class ParsedBlog {
     std::vector<string> Towords();
     unsigned GetFingerPrint();
     INSERT_DATA ToInsertData();
-    Blog blog_() { return blog; }
+    const Blog& blog_() { return blog; }
+    const std::vector<Word> &Words_() { return Words; }
+    unsigned fingerprint_() { return fingerprint; }
 
     // ====================  LIFECYCLE     ==================================
     ParsedBlog(const Blog &b, const std::vector<Word> &Ws);

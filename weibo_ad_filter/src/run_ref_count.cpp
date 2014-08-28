@@ -31,13 +31,17 @@ using std::vector;
 
 const unsigned ROWS_EACH_TIME = 8000;
 
+bool IsMeaninglessBlog(ParsedBlog &pb);
+
 int main() {
+  TextSpilt::init_ICTCAL();
   Parser parser;
   RefCount ref;
   std::list<ParsedBlog> parsed_blogs;
 
   Allocator allo("Microblog1408215600");
-  while (allo.HasNextTable()) {
+  if (allo.HasNextTable()) {
+  // while (allo.HasNextTable()) {
     allo.NextTable();
     Log::Logging(RUN_T, "###Start Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
     while (allo.HasNextRow()) {
@@ -49,22 +53,36 @@ int main() {
         std::vector<Word> words;
         parser.LexicalAnalysis(blog.m_content.c_str(), words);
         ParsedBlog pb(blog, words);
-        unsigned fp = pb.GetFingerPrint();
-        // ref.AddFingerPrint(fp, 1);
+        if (IsMeaninglessBlog(pb))
+          continue;
+        unsigned fp = pb.fingerprint_();
+        ref.AddFingerPrint(fp, 1);
         parsed_blogs.push_back(pb);
       }
     }
     Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
-    // Log::Logging(RUN_T, "###Ref Objects: " + std::to_string(ref.GetRefSize()));
-    // for (auto i : parsed_blogs) {
-    //   unsigned int pf;
-    //   unsigned int count = ref.GetRefCount(i.GetFingerPrint(), 1, pf);
-    //   Log::Logging(REF_DIST_1_T, Blog2Str(i.blog_()) + ">" + to_string(pf) + ">" + to_string(count));
-    // }
+    Log::Logging(RUN_T, "###Ref Objects: " + std::to_string(ref.GetRefSize()));
+    for (auto i : parsed_blogs) {
+      unsigned int pf;
+      unsigned int count = ref.GetRefCount(i.fingerprint_(), 1, pf);
+      Log::Logging(REF_DIST_1_T, Blog2Str(i.blog_()) + ">" + to_string(pf) + ">" + to_string(count));
+    }
     parsed_blogs.clear();
   }
 }
 
+bool IsMeaninglessBlog(ParsedBlog &pb) {
+  const std::vector<Word> &Ws = pb.Words_();
+  const Blog &blog = pb.blog_();
+  if (Ws.size() == 1 && Ws.front().word.empty()) {
+    return true;
+  }
+  else if (Ws.size() <= 6) {
+    Log::Logging(TOO_SHORT_T, std::to_string(Ws.size()) + " " + blog.m_content);
+    return true;
+  }
+  else return false;
+}
 // void DoRefCount() {
 //   /// ref count tactic
 //   RefCount ref;

@@ -17,7 +17,6 @@ ParsedBlog::ParsedBlog(const Blog &b, const std::vector<Word> &Ws) {
   std::vector<string> ws = Towords();
   _AddSpecialToken(blog.m_content, ws);  /// test symbols like http and @
   fingerprint = sim.BlogHashAfterParser(ws);
-  _RemoveSpecialToken(ws);
 }
 
 std::vector<string> ParsedBlog::Towords() {
@@ -26,13 +25,6 @@ std::vector<string> ParsedBlog::Towords() {
     res.push_back(w.word);
   }
   return res;
-}
-
-/**
- * return the fingerprint after replacing special symbols like @ and http://
- */
-unsigned ParsedBlog::GetFingerPrint() {
-  return fingerprint;
 }
 
 INSERT_DATA ParsedBlog::ToInsertData() {

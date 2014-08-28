@@ -92,11 +92,13 @@ class RefCount {
     }
 
   private:
-    SimHash sim;
+    static SimHash sim;
     std::map<unsigned int, unsigned int>ref;
 
     // DISALLOW_COPY_AND_ASSIGN
     RefCount(const RefCount&);
     void operator=(const RefCount&);
 };
+
+SimHash RefCount::sim;
 #endif

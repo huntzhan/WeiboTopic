@@ -19,7 +19,8 @@ const string Log::LOG_FILES[END_T] = {
   "zombie_sim.log",
   "ref_dist_1.log",
   "tactic.log",
-  "tactic_source.log"
+  "tactic_source.log",
+  "too_short.log"
 };
 /**
  *  @brief _InitialLoggers

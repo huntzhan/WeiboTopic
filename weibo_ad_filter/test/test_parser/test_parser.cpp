@@ -23,7 +23,10 @@ using std::endl;
 TEST(TestParser, TestParser) {
   TextSpilt::init_ICTCAL();
   Parser parser;
-  std::string rawtext("你好吗，我是蒙面超人迪加");
+
+  std::string rawtext("我真的很爱你");
+  // std::string rawtext("发表了博文《炒股入门：分时图是什么？怎么看大盘和个股分时图？》分时图是什么？分时图是指大盘和个股的动态实时（即时）分时走势图，其在实战研判中的地位极其重要，是即时把握多空力量转化即市场变化直接的根本所http://t.cn/RPjCUAo");
+  // std::string rawtext("[音乐盒][音乐盒][音乐盒][音乐盒][音乐盒]（分享自 @新浪乐库）（分享自）（分享自）（分享自）（分享自）");
   std::vector<Word> words;
   parser.LexicalAnalysis(rawtext, words);
   cout<<"Words: "<<endl;
