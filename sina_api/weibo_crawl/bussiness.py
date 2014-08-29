@@ -355,5 +355,6 @@ class PublicTimelineQuery(object):
             # logger.debug("Finished adding entry to db.")
         ThreadSafeHandler.open()
         ThreadSafeHandler.add_users_and_messages(users, messages)
+        ThreadSafeHandler.commit()
         ThreadSafeHandler.close()
         logger.info("Finished query.")
