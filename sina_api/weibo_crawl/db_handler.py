@@ -10,10 +10,14 @@ import logging
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
 from sqlalchemy.exc import IntegrityError, TimeoutError
+from sqlalchemy.orm import scoped_session
 
 from .model_manager import ModelManager
 from .persist import engine
 
+
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 
 logger = logging.getLogger(__name__)
 
@@ -66,34 +70,6 @@ def week_filter(*required_keys):
             return func(self, **processed_kwargs)
         return _wrap
     return _decorator
-
-
-# from sqlalchemy.orm import scoped_session
-#
-#
-# session_factory = sessionmaker(bind=engine)
-# Session = scoped_session(session_factory)
-#
-#
-# class ThreadSafeHandler(object):
-#
-#     @classmethod
-#     def open(self):
-#         Session()
-#
-#     @classmethod
-#     def close(self):
-#         Session.remove()
-#
-#     @classmethod
-#     def commit(self):
-#         Session.commit()
-#
-#     @classmethod
-#     def _exist(self, condition):
-#         result = Session.query(exists().where(condition)).scalar()
-#         logger.info(result)
-#         return result
 
 
 class DatabaseHandler:
@@ -169,23 +145,71 @@ class DatabaseHandler:
             session.add(u2b)
 
 
-class CrossThreadDatabaseConnection(object):
-    Session = sessionmaker(bind=engine)
+# class DatabaseConnection(object):
+#     Session = sessionmaker(bind=engine)
+#
+#     @classmethod
+#     def open(cls):
+#         # open connection.
+#         cls.session = cls.Session()
+#
+#     @classmethod
+#     def close(cls):
+#         try:
+#             cls.session.commit()
+#         except (IntegrityError, TimeoutError) as e:
+#             logger.warning(e)
+#             session.rollback()
+#         finally:
+#             session.close()
+#
+#     @classmethod
+#     def add_users_and_messages(cls, users, messages):
+#         user_instances = []
+#         message_instances = []
+#         user_message_relations = []
+#
+#         for user, message in zip(users, messages):
+#             user_dict = dict(user._asdict())
+#             message_dict = dict(message._asdict())
+#             uid = user_dict['uid']
+#             mid = message_dict['mid']
+#
+#             # get models.
+#             raw_time = message_dict['created_time']
+#             timestamp = time.strptime(raw_time, "%a %b %d %H:%M:%S +0800 %Y")
+#             models = ModelManager.get_models(timestamp)
+#
+#             # create instance for merge.
+#             user_instances.append(models[0](**user_dict))
+#             message_instances.append(models[1](**message_dict))
+#             user_message_relations.append(models[2](uid=uid, mid=mid))
+#
+#         for user_instance, message_instance in\
+#                 zip(user_instances, message_instances):
+#             cls.session.merge(user_instance)
+#             cls.session.merge(message_instance)
+#         for u2b_instance in user_message_relations:
+#             cls.session.merge(u2b_instance)
+
+
+class ThreadSafeHandler(object):
 
     @classmethod
-    def open(cls):
-        # open connection.
-        cls.session = cls.Session()
+    def open(self):
+        Session()
 
     @classmethod
-    def close(cls):
+    def close(self):
+        Session.remove()
+
+    @classmethod
+    def commit(self):
         try:
-            cls.session.commit()
+            Session.commit()
         except (IntegrityError, TimeoutError) as e:
             logger.warning(e)
-            session.rollback()
-        finally:
-            session.close()
+            Session.rollback()
 
     @classmethod
     def add_users_and_messages(cls, users, messages):
@@ -211,7 +235,7 @@ class CrossThreadDatabaseConnection(object):
 
         for user_instance, message_instance in\
                 zip(user_instances, message_instances):
-            session.merge(user_instance)
-            session.merge(message_instance)
+            Session.merge(user_instance)
+            Session.merge(message_instance)
         for u2b_instance in user_message_relations:
-            session.merge(u2b_instance)
+            Session.merge(u2b_instance)

@@ -12,7 +12,7 @@ import requests
 from selenium import webdriver
 
 from .config import ConfigurationCenter
-from .db_handler import CrossThreadDatabaseConnection
+from .db_handler import ThreadSafeHandler
 
 
 logger = logging.getLogger(__name__)
@@ -353,5 +353,7 @@ class PublicTimelineQuery(object):
 
             # logger.debug("Adding entry to db.")
             # logger.debug("Finished adding entry to db.")
-        CrossThreadDatabaseConnection.add_users_and_messages(users, messages)
+        ThreadSafeHandler.open()
+        ThreadSafeHandler.add_users_and_messages(users, messages)
+        ThreadSafeHandler.close()
         logger.info("Finished query.")
