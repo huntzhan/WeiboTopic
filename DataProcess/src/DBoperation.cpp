@@ -12,6 +12,45 @@ std::vector<std::string> split(std::string str){
 	return result;
 }
 
+
+void DBoperation::SelectOnetableByBatch(std::string table, std::list<std::string> &weibolist, std::list<Weibo> &weibocontentlist){
+
+  std::string weibo_mid_set;
+  int size=weibolist.size();
+  std::list<std::string>::iterator it =weibolist.begin();
+  for(;it != weibolist.end(); ++it){
+    if(--size<=0)break;
+    weibo_mid_set+=*it+",";
+  }
+
+  weibo_mid_set+=*it;
+//  std::cout<<weibo_mid_set<<std::endl;
+  const char* weibo_mid_set_cstr=weibo_mid_set.c_str();
+  int len = strlen(weibo_mid_set_cstr);
+  char SQL[2*len+128];
+  sprintf(SQL,"select mid,text,spilt from  %s where mid in (%s)",table.c_str(),weibo_mid_set_cstr);
+//  std::cout<<"run after SQL"<<std::endl;
+  ResultSet * result;
+  std::string split;
+  std::string text;
+  try{
+    result=state->executeQuery(SQL);
+//    std::cout<<"run after execute SQL"<<std::endl;
+    while(result->next()){
+      text = result->getString(2);
+      split = result->getString(3);
+      Weibo weibo;
+      weibo.mid=result->getString(1);
+      weibo.SetWeiboContentWords(split, text);
+      weibocontentlist.push_back(weibo);
+//      std::cout<<"run in get data"<<std::endl;
+    }
+    result->close();
+  }catch (sql::SQLException &e) {
+    perror(e.what());
+  }
+
+}
 std::string DBoperation::Gentime(){
   time_t t;
   t = time(0);
@@ -21,6 +60,53 @@ std::string DBoperation::Gentime(){
   ttime = localtime(&t);
   strftime(now, 64, "%Y%m%d", ttime);
   string strtime(now);
+  return strtime;
+}
+std::string DBoperation::GenDayAndTime(){
+  time_t t;
+  t = time(0);
+  char now[64];
+  struct tm *ttime;
+
+  ttime = localtime(&t);
+  strftime(now, 64, "%Y%m%d_%H", ttime);
+  string strtime(now);
+  return strtime;
+}
+std::string GenDayAndTimestamp(std::string format){
+  time_t t;
+  t = time(0);
+  char now[64];
+  struct tm *ttime;
+
+  ttime = localtime(&t);
+  strftime(now, 64, format.c_str(), ttime);
+  string strtime(now);
+  return strtime;
+}
+time_t str2time(std::string strtime){
+  tm tm_;
+  time_t t_;
+  char buf[128]= {0};
+
+  strcpy(buf, strtime.c_str());
+  strptime(buf, "%Y-%m-%d %H:%M:%S", &tm_); //将字符串转换为tm时间
+  tm_.tm_isdst = -1;
+  t_  = mktime(&tm_); //将tm时间转换为秒时间
+  return t_;
+}
+std::string formatTimeAtHour(){
+  char mytime[64];
+  sprintf(mytime,"%d",str2time(GenDayAndTimestamp("%Y-%m-%d %H:00:00")));
+  std::cout<<mytime<<std::endl;
+  std::string strtime(mytime);
+  return strtime;
+}
+std::string formatTimeAtDay(){
+  char mytime[64];
+  sprintf(mytime,"%d",str2time(GenDayAndTimestamp("%Y-%m-%d 00:00:00")));
+  std::cout<<mytime<<std::endl;
+  std::string strtime(mytime);
   return strtime;
 }
 void DBoperation::DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIndex,std::list<std::string>table){
@@ -35,7 +121,7 @@ void DBoperation::DBinit(std::string  database,ConnPool *connpool){
 	con = m_connpool->GetConnection();
 	state = con->createStatement();
 	state->execute(database);
-	this->topic_table_name=this->Gentime();
+	this->topic_table_name=this->GenDayAndTime();
 
 }
 /*@description：
@@ -67,11 +153,12 @@ long  DBoperation::GetTablecount(){
 		while (result->next()) {
 				str = result->getString(1);
 		}
-	} catch (sql::SQLException&e) {
+	} catch (sql::SQLException &e) {
 		perror(e.what());
 	}
 	long count=atol(str.c_str());
 	return  count;
+	result->close();
 }
 /**
  * 从数据库充读取已经分好的词，startline就是开始的行 length就是要读取的行数
@@ -95,11 +182,84 @@ void DBoperation::GetMidandText(long startline,long length,std::list<OneWeibo> &
 			word.word = goodWordstemp[i];
 			i++;
 			word.proper = goodWordstemp[i];
+
 			originalword.words.push_back(word);
 		}
 		 result.push_back(originalword);
     }
 	resultsql->close();
+}
+/**
+ * 从数据库充读取已经分好的词，startline就是开始的行 length就是要读取的行数
+ */
+void DBoperation::GetMidandTextAndSplit(long startline,long length,std::list<OneWeibo> &result){
+  ResultSet *resultsql;
+  char sql_query[200];
+  std::vector<std::string>regexresult;
+  std::string text;
+  sprintf(sql_query,"select mid,text,spilt from %s limit %ld ,%ld ",table_name.c_str(),startline,length);
+  resultsql = state->executeQuery(sql_query);
+  while (resultsql->next()) {
+    OneWeibo originalword;
+    originalword.MID = resultsql->getString(1);
+    text=resultsql->getString(2);
+    std::string spilt = resultsql->getString(3);
+
+    regexresult=RegexTagWord(text);
+
+
+    std::vector<std::string> goodWordstemp;
+    boost::split(goodWordstemp, spilt, boost::is_any_of(" ")); //分割
+
+    std::vector<std::string>::iterator it_word = goodWordstemp.begin();
+    std::vector<std::string>::iterator end_word = goodWordstemp.end();
+    for (int i = 0; i < goodWordstemp.size() - 1; i++) {
+      Word word;
+      word.word = goodWordstemp[i];
+      i++;
+      word.proper = goodWordstemp[i];
+
+      //判断该词否在tag中
+      if(iswordinregexresult(regexresult, word.word)){
+        word.is_tag_word=true;
+      }
+      else{
+        word.is_tag_word=false;
+      }
+
+      originalword.words.push_back(word);
+    }
+     result.push_back(originalword);
+    }
+  resultsql->close();
+}
+bool DBoperation::iswordinregexresult(std::vector<std::string>&regexresult, std::string word){
+  std::vector<std::string>::iterator it= regexresult.begin();
+  std::string str;
+
+  int index=-1;
+  for(;it != regexresult.end();++it){
+    str=*it;
+    index = str.find(word);
+
+    if(0<=index&&index<str.length()){
+      return true;
+    }
+  }
+  return false;
+}
+std::vector<std::string> DBoperation::RegexTagWord(std::string &weibo_origin_text){
+  std::vector<std::string>resVec;
+  boost::regex expr("#[\\S]+#");
+  boost::smatch what;
+  std::string::const_iterator start = weibo_origin_text.begin();
+  std::string::const_iterator end = weibo_origin_text.end();
+  while(boost::regex_search(start,end, what, expr)) {
+    resVec.push_back(what[0]);
+//    std::cout<<what[0]<<std::endl;
+    start = what[0].second;
+  }
+  return resVec;
 }
 /**
  *输入一个MID返回对应的微博
@@ -141,7 +301,56 @@ void DBoperation::ShowTable(std::list<std::string> &tables){
 DBoperation::~DBoperation(){
 	DBclose();
 }
+void DBoperation::CreateOneDayTopicTable(std::string mytablename) {
 
+  std::string  statement= "CREATE TABLE `%s` "
+      "(`topicid` int(20) NOT NULL AUTO_INCREMENT,"
+      "`topicwords` varchar(1000) DEFAULT NULL,"
+      "`mainidea` varchar(1000) DEFAULT NULL,"
+      "`weibonumber` int(11) default null,  "
+      "`isPolitic` int(11) default null,"
+      "PRIMARY KEY (`topicid`) ) "
+      "ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+
+  char sql_query[1024];
+  sprintf(sql_query,statement.c_str(),mytablename.c_str());
+  std::cout<<"建表语句"<<sql_query<<std::endl;
+  try {
+    state->execute(sql_query);
+    std::cout<<"数据库创建成果"<<std::endl;
+  } catch (sql::SQLException&e) {
+    perror(e.what());
+  }
+
+}
+bool DBoperation::QueryIfTableExist(std::string tablename){
+  char sql_query[1024];
+  ResultSet *result;
+  std::string statement="select table_name from information_schema.tables where table_name='%s'";
+
+  sprintf(sql_query,statement.c_str(),tablename.c_str());
+  std::cout<<"查表语句"<<sql_query<<std::endl;
+  try{
+    result=state->executeQuery(sql_query);
+    if(result->next()){
+        return true;
+    }else{
+      return false;
+    }
+  }catch(sql::SQLException &e){
+    perror(e.what());
+  }
+}
+void DBoperation::QueryIfOneDayTableExistAndCreate(){
+
+  std::string onedaytopic_tablename="OneDayTopic_"+Gentime();
+  std::cout<<"tablename: "<<onedaytopic_tablename<<std::endl;
+  if(QueryIfTableExist(onedaytopic_tablename))
+    return;
+  else{
+    CreateOneDayTopicTable(onedaytopic_tablename);
+  }
+}
 void DBoperation::InsertData(Topic &onetopic, int flag) {
   char table_name[512];
   std::string topictablename = "Topic_"+this->topic_table_name+"_";
@@ -149,13 +358,14 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
 
   //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
   try {
+    std::string OneDayTopicTablename = "OneDayTopic_"+Gentime();
     if (flag == 0) {
       //为进程加锁
 //      pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 //      pthread_mutex_init(&job_queue_mutex, NULL);
 //      pthread_mutex_lock (&job_queue_mutex);
 
-      std::string mytablename = "OneDayTopic";
+//      std::string mytablename = "OneDayTopic_"+Gentime();
       std::string topicwords;
       int weibonumbers = onetopic.topic_message_num;
       std::string main_idea;
@@ -169,13 +379,13 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
       for (; it != onetopic.m_stopic.end(); ++it) {
         topicwords += it->m_sword + " ";
       }
-      sprintf(sql_query, "insert into %s values('','%s','%s','%d')",
-          mytablename.c_str(), topicwords.c_str(), main_idea.c_str(),weibonumbers); //(topicid,topicwords,mainidea,weibonumber)
+      sprintf(sql_query, "insert into %s values('','%s','%s','%d','%d')",
+          OneDayTopicTablename.c_str(), topicwords.c_str(), main_idea.c_str(),weibonumbers,onetopic.isPolitic); //(topicid,topicwords,mainidea,weibonumber)
 
       state->executeUpdate(sql_query);
       con->commit();
 //      con->setAutoCommit(true);
-      newestID = GetNewserID();
+      newestID = GetNewserID(OneDayTopicTablename);
 
       sprintf(table_name, "%s%d", topictablename.c_str(), newestID);
 
@@ -185,10 +395,11 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
     }
 
     //第二次插入只要查询Topic的ID，然后插入数据
-    newestID = GetNewserID();
+    newestID = GetNewserID(OneDayTopicTablename);
     sprintf(table_name, "%s%d", topictablename.c_str(), newestID);
     InsertTopicWeiboIdToDatabase(onetopic, table_name);
-    onetopic.topic_weibo.clear();
+//    onetopic.topic_weibo.clear();
+//    std::cout<<"onetopic.topic_weibo size: "<<onetopic.topic_weibo.size()<<std::endl;
   } catch (sql::SQLException&e) {
     perror(e.what());
   }
@@ -221,11 +432,11 @@ void DBoperation::CreateTable(std::string mytablename) {
 	}
 
 }
-int DBoperation::GetNewserID(){
+int DBoperation::GetNewserID(std::string OneDayTopic_name){
 	ResultSet *result;
 	int res;
 	char sql_query[1024];
-	sprintf(sql_query, "select max(topicid) from OneDayTopic");
+	sprintf(sql_query, "select max(topicid) from %s",OneDayTopic_name.c_str());
 	try {
 		result=state->executeQuery(sql_query);
 		while (result->next()) {
@@ -246,6 +457,7 @@ void DBoperation::InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytab
 		char goodtext[1024];
 		string midandtable;
 		std::string mid;
+//		std::cout<<"onetopic.topic_weibo size: "<<onetopic.topic_weibo.size()<<std::endl;
 		std::list<Weibo>::iterator it = onetopic.topic_weibo.begin();
 		for(;it!= onetopic.topic_weibo.end();++it) {
 
@@ -255,6 +467,7 @@ void DBoperation::InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytab
 			sprintf(sql_query,"insert into %s values('%s','','%s','%s','%s','','','','','')",
 					mytablename.c_str(),it->mid.c_str(),goodtext,it->spilt.c_str(),it->belongtable.c_str());
 			state->executeUpdate(sql_query);
+//			std::cout<<"update 数据"<<std::endl;
 		}
 		con->commit();
 	} catch (sql::SQLException&e) {
@@ -280,7 +493,8 @@ bool DBoperation::ChangeToNextTable(int & count){
 
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
-		if (this->tableIndex == 15){//this->table.size()-1
+
+		if (this->tableIndex == this->table.size()){//this->table.size()-1
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}
@@ -355,5 +569,21 @@ std::vector<std::string> DBoperation::stringSplitToVector(std::string  &str,int 
 //  std::cout<<restemp<<std::endl;
   return goodWordstemp;
 }
-
+void DBoperation::DropTable(std::string table_prefix){
+  char sql_query[1024];
+  std::string statement = "select concat('drop table ',table_name,';') from information_schema.tables "
+      "where table_name like '%s'";
+  ResultSet * result;
+  sprintf(sql_query,statement.c_str(),table_prefix.c_str());
+  try{
+    result = state->executeQuery(sql_query);
+    while(result->next()){
+      std::string drop_statement = result->getString(1);
+      std::cout<<drop_statement<<std::endl;
+//      state->execute(drop_statement.c_str());
+    }
+  }catch(sql::SQLException &e){
+    perror(e.what());
+  }
+}
 

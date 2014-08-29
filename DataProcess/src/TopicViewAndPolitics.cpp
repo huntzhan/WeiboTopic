@@ -27,9 +27,15 @@ void TopicViewAndPolitics::InsterAllTopicToDatabase(){
   this->tw.InitTopicView(this->dboper,this->clusterList,this->NUM_OF_SUB_WORD,4);
 
   this->ispo.InitIsPolitics();
+  this->dboper->QueryIfOneDayTableExistAndCreate();
   std::vector<Topic>::iterator it = this->clusterList->begin();
+  int topicnum=0;
   for(;it!=this->clusterList->end();++it){
-    this->InsertTopicToDatabase(*it);
+    if(it->topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)continue;
+    topicnum++;
+
+    this->GetOneTopicWeiboByBatch(*it,topicnum);
+//    this->InsertTopicToDatabase(*it);
   }
 }
 void print10weibo(std::list<Weibo> &weibolist){
@@ -37,81 +43,122 @@ void print10weibo(std::list<Weibo> &weibolist){
   int counter=0;
   std::list<Weibo>::iterator it = weibolist.begin();
   for(;it!=weibolist.end();++it){
-    if(++counter>=5)break;
+    if(++counter>5)break;
     std::cout<<std::endl;
     std::cout<<it->text<<std::endl;
   }
 }
-/*
- * @description：
- *  将一个话题插入数据库，先将话题的主要信息（包括话题微博数，话题主要观点，话题关键词）插入OneDayTopic表，获取插入时的ID
- *  再将话题下的微博查询出来，插入数据库，由于最大的话题下的微博数会超过10万，一次读入再插入数据库会占用太多内存，所以分批（达到1000）
- *  就插入一次
- */
-void TopicViewAndPolitics::InsertTopicToDatabase(Topic &one_topic) {
-  if(one_topic.topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)return;
-  std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
-  std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
-  list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
-  std::cout<<std::endl;
-  std::cout<<"话题热议词如下"<<std::endl;
-  for(;topicword_it!=one_topic.GetsTopic()->end();++topicword_it){
-    std::cout<<topicword_it->m_sword<<" ";
+
+//打印输出信息
+void TopicViewAndPolitics::printMessage(Topic &one_topic, int topicnum){
+
+    std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
+    std::cout<<"话题TOP"<<topicnum<<std::endl;
+    std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
+    list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
+    std::cout<<std::endl;
+    std::cout<<"话题热议词如下"<<std::endl;
+    for(;topicword_it!=one_topic.GetsTopic()->end();++topicword_it){
+      std::cout<<topicword_it->m_sword<<" ";
+    }
+    std::cout<<std::endl;
+}
+
+//当数据量达到一定量时及时查询数据库
+void TopicViewAndPolitics::QueryWeiboIntime( std::map<string ,std::list<std::string> >&table_to_weibo,
+    std::list<Weibo> &weibocontentlist){
+
+  std::map<string ,std::list<std::string> >::iterator map_it;
+  map_it=table_to_weibo.begin();
+  for(;map_it!=table_to_weibo.end();++map_it){
+    std::string table=map_it->first;
+    this->dboper->SelectOnetableByBatch(table,map_it->second,weibocontentlist);
   }
-  std::cout<<std::endl;
+}
+//批量查询数据库
+void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnum){
 
+  //一个表下面的多条微博，一次批量查询一个表
+  if(one_topic.topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)return;
+  printMessage(one_topic,  topicnum);
 
-  double weiboid_num = 0.0;
   std::string mid;
   std::string table_name;
   std::string weiboidandtable;
   std::vector<std::string>result;
-  Weibo oneweibo;
-  int readnum=0;
-  int flagnum=0;
+
+  //将微博mid按表分开，以便批量查询数据库
+  std::map<string ,std::list<std::string> >table_to_weibo;
+  std::map<string ,std::list<std::string> >::iterator map_it;
+
+  //计数变量
+  int politic_counter=0;
+  int totalnum=0;
+
+  //是否是第一次插入数据库的标志位
   int flag=0;
+  //政治类话题是否处理过
+  int processed_politic=0;
 
   std::vector<subword>::iterator weibo_id_list_it =one_topic.GetWeiboIdList()->begin();
   for (; weibo_id_list_it != one_topic.GetWeiboIdList()->end(); ++weibo_id_list_it) {
+
     weiboidandtable=weibo_id_list_it->word;
     result=split2(weiboidandtable);
-    weiboid_num = weibo_id_list_it->fre;
     mid=result[0];
     table_name=result[1];
-    oneweibo.belongtable=table_name;
-    //这里是最耗时的
-    this->dboper->GetOneWeiBo(table_name,mid,oneweibo);
-    one_topic.topic_weibo.push_back(oneweibo);//这里是一个话题完之后再插入
-    readnum++;
-    //达到TOPICVIEW_WEIBO_NUM（50）条微博时，就开始提取话题概要，同时判断该话题是否为政治类
-    if(readnum==this->TOPICVIEW_WEIBO_NUM||readnum == one_topic.topic_message_num){
-      this->tw.GenOneTopicView(one_topic);
-      this->ispo.IsTopicPoliticsByBaye(one_topic);
-      std::cout<<"是否为政治类话题 ? : "<<one_topic.isPolitic<<std::endl<<std::endl;
-      print10weibo(one_topic.topic_weibo);
-      break;
+
+    map_it=table_to_weibo.find(table_name);
+    if(map_it!=table_to_weibo.end()){
+      map_it->second.push_back(mid);
+    }else{
+      std::list<std::string> one_table_weibo_list;
+      one_table_weibo_list.push_back(mid);
+      table_to_weibo.insert(make_pair(table_name,one_table_weibo_list));
     }
-    flagnum++;
-    //设置为每查询到1000条微博就批量插入一次数据库
-    if(flagnum==1000){
-//      this->dboper->InsertData(one_topic,flag);
-      std::cout<<"插入数据库一次，插入了 "<<readnum<<" 条微博"<<std::endl;
-      flag=1;flagnum=0;
-      std::cout<<"size: "<<one_topic.weibo_id_list.size()<<std::endl;
+    //当量达到50条时或者达到话题微博数时，进行话题概要提取和判断是否为政治类
+    politic_counter++;
+    if(politic_counter==this->TOPICVIEW_WEIBO_NUM||
+        politic_counter==one_topic.topic_message_num){
+      //如果处理过了，就不再处理
+      if(processed_politic==0){
+        QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
+        this->tw.GenOneTopicView(one_topic);
+        this->ispo.IsTopicPoliticsByBaye(one_topic);
+        std::cout<<"是否为政治类话题 ? : "<<one_topic.isPolitic<<std::endl<<std::endl;
+        print10weibo(one_topic.topic_weibo);
+        processed_politic=1;
+        //这里需要删除，不然下面会重复查询插入
+        one_topic.topic_weibo.clear();
+//        std::cout<<"in 50 :"<< one_topic.topic_weibo.size()<<std::endl;
+      }
+    }
+    //当微博量达到5000条时，查询数据库，同时清除table_to_weibo和one_topic.topic_weibo
+    totalnum++;
+    if(totalnum>=10000){
+      QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
+      this->dboper->InsertData(one_topic,flag);
+      std::cout<<"插入数据库一次，插入了 "<<totalnum<<" 条微博"<<std::endl;
+      table_to_weibo.clear();
+      one_topic.topic_weibo.clear();
+      totalnum=0;
+      flag=1;
     }
   }
-//  this->dboper->InsertData(one_topic,flag);
+  //最后要将没有满5000条的部分插入数据库
+  //最后没有满足5000条的也需要查询数据库插入
+  QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
+  this->dboper->InsertData(one_topic,flag);
   one_topic.topic_weibo.clear();
-  //释放内存
-  one_topic.weibo_id_list.clear();
   std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 }
+
+
 
 /*
  * @description：
  *  以下是准备用多线程查询话题下的子话题模块
  */
-
 
 /*
 class Message{
@@ -167,3 +214,69 @@ void Cluster::InsterAllTopicToDatabase(){
 }
 */
 
+/*
+ * @description：
+ *  将一个话题插入数据库，先将话题的主要信息（包括话题微博数，话题主要观点，话题关键词）插入OneDayTopic表，获取插入时的ID
+ *  再将话题下的微博查询出来，插入数据库，由于最大的话题下的微博数会超过10万，一次读入再插入数据库会占用太多内存，所以分批（达到1000）
+ *  就插入一次
+ */
+/*
+void TopicViewAndPolitics::InsertTopicToDatabase(Topic &one_topic) {
+  if(one_topic.topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)return;
+  std::cout<<std::endl<<std::endl<<std::endl<<std::endl;
+  std::cout<<"该话题下的微博有："<<one_topic.topic_message_num<<" 条"<<std::endl;
+  list<TopicWord> ::iterator topicword_it=one_topic.GetsTopic()->begin();
+  std::cout<<std::endl;
+  std::cout<<"话题热议词如下"<<std::endl;
+  for(;topicword_it!=one_topic.GetsTopic()->end();++topicword_it){
+    std::cout<<topicword_it->m_sword<<" ";
+  }
+  std::cout<<std::endl;
+
+
+  double weiboid_num = 0.0;
+  std::string mid;
+  std::string table_name;
+  std::string weiboidandtable;
+  std::vector<std::string>result;
+  Weibo oneweibo;
+  int readnum=0;
+  int flagnum=0;
+  int flag=0;
+
+  std::vector<subword>::iterator weibo_id_list_it =one_topic.GetWeiboIdList()->begin();
+  for (; weibo_id_list_it != one_topic.GetWeiboIdList()->end(); ++weibo_id_list_it) {
+    weiboidandtable=weibo_id_list_it->word;
+    result=split2(weiboidandtable);
+    weiboid_num = weibo_id_list_it->fre;
+    mid=result[0];
+    table_name=result[1];
+    oneweibo.belongtable=table_name;
+    //这里是最耗时的
+    this->dboper->GetOneWeiBo(table_name,mid,oneweibo);
+    one_topic.topic_weibo.push_back(oneweibo);//这里是一个话题完之后再插入
+    readnum++;
+    //达到TOPICVIEW_WEIBO_NUM（50）条微博时，就开始提取话题概要，同时判断该话题是否为政治类
+    if(readnum==this->TOPICVIEW_WEIBO_NUM||readnum == one_topic.topic_message_num){
+      this->tw.GenOneTopicView(one_topic);
+      this->ispo.IsTopicPoliticsByBaye(one_topic);
+      std::cout<<"是否为政治类话题 ? : "<<one_topic.isPolitic<<std::endl<<std::endl;
+      print10weibo(one_topic.topic_weibo);
+//      break;
+    }
+    flagnum++;
+    //设置为每查询到1000条微博就批量插入一次数据库
+    if(flagnum==1000){
+      this->dboper->InsertData(one_topic,flag);
+      std::cout<<"插入数据库一次，插入了 "<<readnum<<" 条微博"<<std::endl;
+      flag=1;flagnum=0;
+      std::cout<<"size: "<<one_topic.weibo_id_list.size()<<std::endl;
+    }
+    if(readnum>=3001)break;
+  }
+  this->dboper->InsertData(one_topic,flag);
+  one_topic.topic_weibo.clear();
+  //释放内存
+  one_topic.weibo_id_list.clear();
+  std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
+}*/

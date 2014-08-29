@@ -50,8 +50,8 @@ void GetTopic::GetEveryWordInCurrentHourByWordProperty() {
 
     resultword.clear();
 
-    this->dboper->GetMidandText(count, this->dboper->OneTimeReadWeiboNum,resultword);
-
+//    this->dboper->GetMidandText(count, this->dboper->OneTimeReadWeiboNum,resultword);
+    this->dboper->GetMidandTextAndSplit(count, this->dboper->OneTimeReadWeiboNum,resultword);
     or_it = resultword.begin();
     for (; or_it != resultword.end(); ++or_it) {
       num++;
@@ -79,15 +79,19 @@ void GetTopic::AddKeyToMapWithProperty(map<std::string, TopicWord> &filterMap, W
 	std::string key = word.word;
 	map<string, TopicWord>::iterator it;
 
-	if (word.word.size() >= 4 && (word.proper.compare("v") == 0
+	if (word.word.size() >= 4 && (word.is_tag_word==true||word.proper.compare("v") == 0
 			|| word.proper.compare("vn") == 0 || word.proper.compare("n") == 0
 			|| word.proper.compare("un") == 0)) {
 
 		it = filterMap.find(key);
 		if (it == filterMap.end()) {
-			TopicWord topicword(key, 1.0);
+		  double value=1.0;
+		  if(word.is_tag_word==true)value=30.0;
+			TopicWord topicword(key, value);
+//			if(word.is_tag_word==true)std::cout<<topicword.m_sword<<"  "<<topicword.m_dFrequency<<std::endl;
 			filterMap.insert(make_pair(key, topicword));
 		} else {
+		  if(word.is_tag_word==true)it->second.SetFrequency(it->second.GetFrequency() + 30);
 			it->second.SetFrequency(it->second.GetFrequency() + 1);
 		}
 	}
