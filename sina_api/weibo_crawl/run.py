@@ -7,7 +7,6 @@ import time
 
 from .bussiness import Schedule, WeiboAPIHandler, PublicTimelineQuery
 from .config import ConfigurationCenter
-from .db_handler import DatabaseHandler
 from .logger import setup_logging
 from .statistics import Statistics
 
@@ -29,7 +28,6 @@ def api():
     logger = logging.getLogger()
 
     ConfigurationCenter.load_configuration()
-    DatabaseHandler.open()
     logger.info("Finished prepareing.")
 
     while True:

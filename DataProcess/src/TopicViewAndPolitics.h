@@ -44,6 +44,10 @@ public:
 
   void InsterAllTopicToDatabase();
   void InsertTopicToDatabase(Topic &one_topic);
+  void GetOneTopicWeiboByBatch(Topic &one_topic, int topicnum);
+  void printMessage(Topic &one_topic, int topicnum);
+  void QueryWeiboIntime( std::map<string ,std::list<std::string> >&table_to_weibo,
+      std::list<Weibo> &weibocontentlist);
 };
 
 

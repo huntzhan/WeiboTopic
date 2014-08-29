@@ -53,7 +53,7 @@ public:
 	void ShowTable(std::list<std::string> &tables);
 
 	void CreateTable(std::string mytablename);
-	int  GetNewserID();
+	int  GetNewserID(std::string OneDayTopic_name);
 	void InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytablename);
 
 	void InsertData(Topic &onetopic, int flag);
@@ -61,7 +61,17 @@ public:
 
 	std::vector<std::string> BoostMatchWord(std::string str);
 	std::string Gentime();
+	void SelectOnetableByBatch(std::string table, std::list<std::string> &weibolist, std::list<Weibo> &weibo);
 	~DBoperation();
+	void CreateOneDayTopicTable(std::string mytablename);
+	bool QueryIfTableExist(std::string tablename);
+	void QueryIfOneDayTableExistAndCreate();
+	std::string GenDayAndTime();
+	std::vector<std::string> RegexTagWord(std::string &weibo_origin_text);
+	bool iswordinregexresult(std::vector<std::string>&regexresult, std::string word);
+	void GetMidandTextAndSplit(long startline,long length,std::list<OneWeibo> &result);
+
+	void DropTable(std::string table_prefix);
 };
 
 #endif

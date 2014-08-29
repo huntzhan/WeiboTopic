@@ -9,6 +9,7 @@
 typedef struct _Word{
 	std::string word;
 	std::string proper;
+	bool is_tag_word;
 }Word;
 
 class OneWeibo{

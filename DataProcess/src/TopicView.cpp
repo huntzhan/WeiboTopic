@@ -117,6 +117,7 @@ void TopicView::SelectMainIdeaWithTopicWord(Topic &onetopic){
 //  std::cout<<onetopic.GetSubWordList()->size()<<std::endl;
   m_i_it=onetopic.GetSubWordList()->begin();
   for(;m_i_it != onetopic.GetSubWordList()->end();++m_i_it){
+    //提取前40个单位词计算在特征词中的权值，再据此排序
     if(main_idea_count++>40)break;
     mainideaword = m_i_it->word;
 //    std::cout<<main_idea_count<<"main idea"<<std::endl;

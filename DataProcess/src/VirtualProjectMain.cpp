@@ -20,10 +20,17 @@
 #define TIME
 
 
+//二选一
+//#define QUERYTABLE
+#define MAIN_PARAM
+
+//四选一
 #define SINGLEPASS
 //#define TRAIN
 //#define TEST
-int main() {
+//#define _DROP_TABLE
+int main(int argc, char * argv[]) {
+
 #ifdef SINGLEPASS
 #ifdef TIME
 	time_t startmain;
@@ -38,13 +45,13 @@ int main() {
 	int RAND_SIZE = 10000;
 
 	//计算倒排索引的时候有多少个词出现在一条微博就算这条微博属于这个话题
-	int BELONG_TOPIC_THROD = 3;
+	int BELONG_TOPIC_THROD = 2;
 
 	//提取子话题时提取的单位词的个数
 	int NUM_OF_SUB_WORD = 4;
 
 	//调节阈值的参数
-	int THROD_ADD = 10;
+	int THROD_ADD = 0;
 
 	//一次性读取的微博数
 	int OneTimeReadWeiboNum=1000;
@@ -53,24 +60,30 @@ int main() {
 	int TOPICMAPTHROD = 100000;
 
 	//话题下的微博数小于这个数时该话题不存入数据库
-	int MIN_TOPIC_MESSAGE_NUM=10;
+	int MIN_TOPIC_MESSAGE_NUM=5;
 
-	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
+	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
 	DBoperation dboper;
 
 	//初始化要使用的数据库
 	dboper.DBinit("use split",connpool);
 
 	//查询该数据库有多少表
-	std::list<std::string> table;
-	std::list<std::string>::iterator table_it;
+/***************************************************************************/
+  std::list<std::string> table;
+#ifdef QUERYTABLE
 	dboper.ShowTable(table);
-	table_it=table.begin();
-	int tablecount=0;
-//	for(;table_it!=table.end();++table_it){
-//	  if(tablecount++>10)break;
-//		std::cout<<*table_it<<std::endl;
-//	}
+#endif
+#ifdef MAIN_PARAM
+	if(argc!=2){
+	  std::cout<<"参数个数不对，请重新输入"<<std::endl;
+	  return 0;
+	}else{
+	  //只保留第一个表
+	  std::string firsttable(argv[1]);
+	  table.push_back(firsttable);
+	}
+#endif
 
 	//设置要访问的表
 	dboper.SetTableName(table.front());
@@ -110,6 +123,13 @@ int main() {
 	ends6 = time(NULL);
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
+/******************************************************/
+#endif
+#ifdef _DROP_TABLE
+	std::string drop_table_name="Topic_%";
+	dboper.DropTable(drop_table_name);
+	drop_table_name="OneDayTopic_%";
+	dboper.DropTable(drop_table_name);
 #endif
 #ifdef TRAIN
   TrainModel tm;

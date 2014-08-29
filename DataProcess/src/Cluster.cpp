@@ -383,7 +383,7 @@ void Cluster::ListEveryTopicWeiboId(Topic &one_topic) {
 			one_topic.GetWeiboIdList()->end(), weibosort);
 
 	//及时清除内存
-	if(one_topic.topic_message_num<=10){
+	if(one_topic.topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM){
 	    one_topic.weibo_id_list.clear();
 	    std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 	}
