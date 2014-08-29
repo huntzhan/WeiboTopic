@@ -24,6 +24,7 @@
 #include "simhash/simhash.h"
 #include "database/mysql_handler.h"
 #include "split/Textspilt.h"
+#include "logger/log.h"
 
 using std::cout;
 using std::cin;
@@ -48,11 +49,21 @@ class Preprocessor {
     }
     bool PerformTacticOnBlog(const Blog& b);
     bool PerformTacticOnParsedBlog(const vector<Word> &words);
+    void Report() {
+      Log::Logging(TACTIC_T, "#####");
+      Log::Logging(TACTIC_T, "Zombie: " + std::to_string(t_zombie.count()));
+      Log::Logging(TACTIC_T, "Source: " + std::to_string(t_source.count()));
+      Log::Logging(TACTIC_T, "Spam Fingerprint: " + std::to_string(fingerprint_count));
+      Log::Logging(TACTIC_T, "Total blogs: " + std::to_string(total_blog));
+    }
 
   private:
     ZombieTactic t_zombie;
+    SourceTactic t_source;
     /// TopicTcatic t_topic;
     UserTactic t_user;
+    unsigned int fingerprint_count = 0;
+    unsigned int total_blog = 0;
 
     bool IsParsedBlogInFingerprints(const vector<string> &words, const int dist);
     bool IsSimhashValuesInDB(vector<unsigned int> v);

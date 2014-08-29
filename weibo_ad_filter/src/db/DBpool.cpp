@@ -11,10 +11,9 @@ void DBpool::DBinit(std::string database, ConnPool *connpool) {
   ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "", 50);
   con = m_connpool->GetConnection();
   state = con->createStatement();
-  state->execute(database);\
-  std::cout<<"--------"<<std::endl;
-
+  state->execute(database);
 }
+
 void DBpool::DBclose() {
   m_connpool->ReleaseConnection(con);
 }
@@ -130,7 +129,7 @@ bool DBpool::DB_insertData(std::vector<INSERT_DATA> &insert_data) {
     for (; it_insert != end_insert; it_insert++) {
       char goodtext[1024];
       const char *row = it_insert->text.c_str();
-     mysql_escape_string(goodtext, row, strlen(it_insert->text.c_str()));
+      mysql_escape_string(goodtext, row, strlen(it_insert->text.c_str()));
       sprintf(sql_query, "insert into %s values('%s','%s','%s')",
           table_name.c_str(), it_insert->mid.c_str(),goodtext,
           it_insert->spilt.c_str());
@@ -145,3 +144,4 @@ bool DBpool::DB_insertData(std::vector<INSERT_DATA> &insert_data) {
 
   return false;
 }
+

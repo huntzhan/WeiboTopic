@@ -21,6 +21,8 @@
 #include "mysql_driver.h"
 #include "cppconn/driver.h"
 #include "cppconn/connection.h"
+#include "db/model.h"
+#include "db/parsedblog.h"
 
 #ifndef _DATABASE_MYSQL_HANDLER_H_
 #define _DATABASE_MYSQL_HANDLER_H_
@@ -100,6 +102,13 @@ class SpamHandler : public SimpleHandler {
       : SimpleHandler(db_name, table_name) {/* empty */}
   int AddSpams(std::vector<unsigned int> &spams);
   bool QuerySpamSimhash(std::vector<unsigned int> &spam);
+};
+
+class FilteredBlogHandler : public SimpleHandler {
+ public:
+  FilteredBlogHandler(const std::string &db_name, const std::string &table_name)
+      : SimpleHandler(db_name, table_name) {/* empty */}
+  unsigned int AddFilteredBlogs(std::vector<ParsedBlog> &blogs);
 };
 
 }  // namespace mysql_handler

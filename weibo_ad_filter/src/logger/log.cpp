@@ -7,6 +7,7 @@
  */
 
 #include <ctime>
+#include <cstdlib>
 #include <utility>
 #include "log.h"
 
@@ -15,10 +16,13 @@ const string Log::LOG_FILES[END_T] = {
   "",
   "run.log",
   "zombie.log",
-  "ref_low.log",
-  "ref_high.log",
+  "zombie_sim.log",
   "ref_dist_1.log",
-  "ref_pf_cluster.log",
+  "tactic.log",
+  "tactic_source.log",
+  "too_short.log",
+  "v_user.log",
+  "user.log"
 };
 /**
  *  @brief _InitialLoggers
@@ -26,6 +30,7 @@ const string Log::LOG_FILES[END_T] = {
  *  @param
  */
 void Log::_InitialLoggers() {
+  srand(time(nullptr));
   for (int i = BEGIN_T+1; i!= END_T; i++) {
     shared_ptr<ofstream> pf(new ofstream(LOG_FILES[i], std::fstream::app));
     Log::_loggers.insert(std::pair<LogType, shared_ptr<ofstream>>(static_cast<LogType>(i), pf));
@@ -58,4 +63,15 @@ void Log::Logging(LogType type, const string &record) {
   strftime(buffer, 80, "%d-%m-%Y %H:%M:%S", tm);
   string time_str(buffer);
   *out << "<" << time_str << "> " << record << endl;
+}
+
+/**
+ *  @brief LoggingRandom only write a record every random_size times
+ *
+ *  @param random_size has to be less then RAND_MAX
+ */
+void Log::LoggingRandom(LogType type, const unsigned int random_size, const string &record) {
+  int r = rand();
+  if(r % random_size == 0)
+    Logging(type, record);
 }

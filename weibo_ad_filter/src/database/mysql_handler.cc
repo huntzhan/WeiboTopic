@@ -157,4 +157,8 @@ bool SpamHandler::QuerySpamSimhash(vector<unsigned int> &spam) {
   }
 }
 
+unsigned int FilteredBlogHandler::AddFilteredBlogs(std::vector<ParsedBlog> &blogs) {
+  return 0;
+}
+
 }  // namespace mysql_handler

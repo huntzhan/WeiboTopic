@@ -14,16 +14,23 @@
 #include "split/parser.h"
 #include "db/model.h"
 #include "simhash/simhash.h"
+#include "logger/log.h"
 using std::set;
 /**
  *  @brief Tactic Base class for different tactic performed on every single message
  */
 class Tactic {
 public:
+  unsigned int tactic_count;
   // ====================  LIFECYCLE     ==================================
-  Tactic() {}
+  Tactic() {
+    tactic_count = 0;
+  }
   ~Tactic() {}
   virtual bool IsSpam(const Blog &b) = 0;
+  unsigned int count() {
+    return tactic_count;
+  }
 
 private:
 
@@ -44,18 +51,47 @@ class ZombieTactic : public Tactic {
     virtual bool IsSpam(const Blog &b);
 
   private:
-    bool IsBlogInFingerprints(const Blog &b, int dist);
-    bool IsSimhashValuesInDB(vector<unsigned int> v){return false;}
-    void FlushCachedFingerprint(int dist);
-    void AddFingerPrint(const Blog &b, int dist);
-    void Flush(vector<unsigned int> &v){}  /*  Flush the simhash value in set into db */
-    set<unsigned int> fingerprint;
-    SimHash sim;
-    const size_t FLUSH_DB_THRED = 10000;
 
     // DISALLOW_COPY_AND_ASSIGN
     ZombieTactic(const ZombieTactic&);
     void operator=(const ZombieTactic&);
+};
+
+
+/**
+ *  @brief SourceTactic 
+ */
+class SourceTactic : public Tactic {
+  public:
+    // ====================  LIFECYCLE     ==================================
+    SourceTactic() {}
+    ~SourceTactic() {
+      for (auto i : counter) {
+        Log::Logging(TACTIC_SOURCE_T, i.first + ">" + std::to_string(i.second));
+      }
+    }
+	virtual bool IsSpam(const Blog &b) {
+      if (counter.find(b.m_source) == counter.end()) {
+        counter[b.m_source] = 1;
+      }
+      else {
+        counter[b.m_source] += 1;
+      }
+      if (b.m_source == "微问" ||
+          b.m_source == "爱问知识人" ||
+          b.m_source == "新浪博客" ||
+          b.m_source == "皮皮时光机") {
+        tactic_count++;
+        return true;
+      }
+      return false;
+    }
+
+  private:
+    std::map<string, unsigned int> counter;
+    // DISALLOW_COPY_AND_ASSIGN
+    SourceTactic(const SourceTactic&);
+    void operator=(const SourceTactic&);
 };
 
 class TopicTcatic : public Tactic{

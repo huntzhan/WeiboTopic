@@ -12,11 +12,6 @@
 
 using std::list;
 using std::string;
-typedef struct _insert_data {
-  std::string mid;
-  std::string text;
-  std::string spilt;
-} INSERT_DATA;
 
 class DBoperation {
 private:

@@ -20,6 +20,9 @@ bool Preprocessor::PerformTacticOnBlog(const Blog& b){
   }
   else if (t_user.IsSpam(b))  // manually selected user black list
     return false;
+  else if (t_source.IsSpam(b)) {
+    return false;
+  }
   else return true;
   // if (t_topic.IsSpam(b))
   //   return false;
@@ -31,10 +34,12 @@ bool Preprocessor::PerformTacticOnBlog(const Blog& b){
  *  @return
  */
 bool Preprocessor::PerformTacticOnParsedBlog(const vector<Word> &words){
+  total_blog++;
   vector<string> str_words;
   for(Word w : words)
     str_words.push_back(w.word);
   if (IsParsedBlogInFingerprints(str_words, HAMMING_DISTANCE)){  /// valid user, test it's blog
+    fingerprint_count++;
     return false;
   }
   else return true;

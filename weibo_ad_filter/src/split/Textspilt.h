@@ -13,10 +13,8 @@
 #include <boost/algorithm/string/trim.hpp>
 #include "ICTCLAS50/ICTCLAS50.h"
 #include <locale>
-typedef struct _Word {
-  std::string word;
-  std::string proper;
-} Word;
+#include "db/model.h"
+
 class TextSpilt {
 public:
   static void init_ICTCAL(void);
