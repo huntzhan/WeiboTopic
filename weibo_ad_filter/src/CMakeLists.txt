@@ -1,4 +1,5 @@
 
+add_subdirectory(bayes)
 add_subdirectory(db)
 add_subdirectory(tactic)
 add_subdirectory(split)

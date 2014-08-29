@@ -29,6 +29,9 @@ enum LogType {
   TOO_SHORT_T,
   V_T,
   USER_T,
+  BAYES_T,
+  BAYES_PASS_T,
+  BAYES_DUMP_T,
   END_T
 };
 

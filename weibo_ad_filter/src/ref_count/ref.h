@@ -83,10 +83,14 @@ class RefCount {
       return GetRefCount(fp, dist, ret_fp);
     }
 
+    unsigned int GetRefCountDirectly(const unsigned int fp) {
+      return ref[fp];
+    }
+
     unsigned GetRefSize() {
       return ref.size();
     }
-
+    
     void Clear() {
       ref.clear();
     }

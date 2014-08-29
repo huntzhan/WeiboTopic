@@ -22,7 +22,10 @@ const string Log::LOG_FILES[END_T] = {
   "tactic_source.log",
   "too_short.log",
   "v_user.log",
-  "user.log"
+  "user.log",
+  "bayes.log",
+  "bayes_pass.log",
+  "bayes_dump.log"
 };
 /**
  *  @brief _InitialLoggers
