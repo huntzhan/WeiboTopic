@@ -25,6 +25,8 @@ class ParsedBlog {
     const Blog& blog_() { return blog; }
     const std::vector<Word> &Words_() { return Words; }
     unsigned fingerprint_() { return fingerprint; }
+    void set_match_fingerprint(unsigned match_fp) { match_fingerprint = match_fp; }
+    unsigned match_fingerprint_() {return match_fingerprint;}
 
     // ====================  LIFECYCLE     ==================================
     ParsedBlog(const Blog &b, const std::vector<Word> &Ws);
@@ -42,6 +44,7 @@ class ParsedBlog {
     Blog blog;
     std::vector<Word> Words;
     unsigned fingerprint;
+    unsigned match_fingerprint;
     static SimHash sim;
     static const string WORD_FOR_AT;
     static const string WORD_FOR_HTTP;

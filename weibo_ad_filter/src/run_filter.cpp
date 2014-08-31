@@ -1,7 +1,7 @@
 /**
- * @file    run_ref_zombie.cpp
+ * @file    run_filter.cpp
  * @author  Guangyi Zhang <guangyizhang.jan@gmail.com>
- * @date    08/29/2014 01:13:09 PM
+ * @date    08/31/2014 07:58:06 PM
  * @version 1.0
  *
  */
@@ -20,7 +20,6 @@
 #include "db/DBpool.h"
 #include "db/connection_pool.h"
 #include "allocator/allocator.h"
-#include "logger/log.h"
 #include "split/parser.h"
 #include "db/model.h"
 #include "db/parsedblog.h"
@@ -39,25 +38,25 @@ inline bool IsSourceNotOk(const Blog &b);
 inline bool IsFromZombieUser(const Blog &b);
 void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_datas);
 
-int main() {
+int main(int argc, char **argv) {
   TextSpilt::init_ICTCAL();
   Parser parser;
-  RefCount ref;
-  std::list<ParsedBlog> parsed_blogs;
 
+  string db_name = "db_name";
   ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
-  insert.DBinit("use filter_no_duplicate", connpool);
+  insert.DBinit("use " + db_name, connpool);
 
-  // Allocator allo("Microblog1408215600");
-  // if (allo.HasNextTable()) {
-  Allocator allo(true);
-  while (allo.HasNextTable()) {
+  string table_name(argv[1]);
+  Allocator allo(table_name);
+  if (allo.HasNextTable()) {
+    RefCount ref;
+    std::list<ParsedBlog> parsed_blogs;
     allo.NextTable();
-    Log::Logging(RUN_T, "###Start Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
+    // Log::Logging(RUN_T, "###Start Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
     while (allo.HasNextRow()) {
       std::list<Blog> blogs;
       unsigned count = allo.NextBlogs(ROWS_EACH_TIME, blogs);
-      Log::Logging(RUN_T, "get rows from crawler: " + to_string(count));
+      // Log::Logging(RUN_T, "get rows from crawler: " + to_string(count));
       for(auto &blog : blogs) {
         if (IsSourceNotOk(blog))  /// source tacitc
           continue;
@@ -79,14 +78,14 @@ int main() {
       unsigned int pf;
       unsigned int count = ref.GetRefCount(i.fingerprint_(), HAMMING_DISTANCE, pf);
       // Log::Logging(REF_DIST_1_T, Blog2Str(i.blog_()) + ">" + to_string(pf) + ">" + to_string(count));
-      // if (count > 2)
-      //   continue;
-      /// source tactic
+      if (count > 2)
+        continue;
       insert_datas.push_back(i.ToInsertData());
     }
-    InsertDataToTable(allo.GetCurrentTableName(), insert_datas);
-    Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + " ends: >" + std::to_string(insert_datas.size()) + "/" + std::to_string(allo.GetRowsOfCurrentTable()));
-    parsed_blogs.clear();
+    string output_table_name = "Filtered" + allo.GetCurrentTableName();
+    InsertDataToTable(output_table_name, insert_datas);
+    cout << output_table_name << endl;
+    // Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + " ends: >" + std::to_string(insert_datas.size()) + "/" + std::to_string(allo.GetRowsOfCurrentTable()));
   }
 }
 

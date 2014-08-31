@@ -1,7 +1,7 @@
 /**
- * @file    run_ref_bayes.cpp
+ * @file    run_bayes_pool.cpp
  * @author  Guangyi Zhang <guangyizhang.jan@gmail.com>
- * @date    08/29/2014 04:50:38 PM
+ * @date    08/31/2014 03:26:17 PM
  * @version 1.0
  *
  */
@@ -27,6 +27,7 @@
 #include "db/parsedblog.h"
 #include "ref_count/ref.h"
 #include "bayes/bayes_classifier.h"
+#include "bayes/bayes_factory.h"
 using std::string;
 using std::cout;
 using std::endl;
@@ -56,10 +57,7 @@ int main() {
   // if (allo.HasNextTable()) {
   Allocator allo(false);
   while (allo.HasNextTable()) {
-    RefCount ref;
     std::list<shared_ptr<ParsedBlog>> parsed_blogs;
-    std::map<unsigned, std::list<shared_ptr<ParsedBlog>>> catalogs;
-    std::shared_ptr<std::map<string, double>> word_dict(new std::map<string, double>);
     allo.NextTable();
     Log::Logging(RUN_T, "###Start Table " + allo.GetCurrentTableName() + ": " + std::to_string(allo.GetRowsOfCurrentTable()));
     unsigned source_count = 0;
@@ -78,34 +76,25 @@ int main() {
         shared_ptr<ParsedBlog> pb(new ParsedBlog(blog, words));
         if (IsMeaninglessBlog(*pb))
           continue;
-        unsigned fp = pb->fingerprint_();
-        unsigned match_fp = ref.AddFingerPrint(fp, HAMMING_DISTANCE);
         parsed_blogs.push_back(pb);
-        catalogs[match_fp].push_back(pb);
       }
     }
-    /// calculate words_dict, i.e. P(w)
-    MakeWordsCounter(parsed_blogs, word_dict);
-    unsigned all_blogs = parsed_blogs.size();
-    for (auto &kv : *word_dict) {
-      kv.second = kv.second / all_blogs;
+    /// RefCount
+    RefCount ref;
+    for (auto &blog : parsed_blogs) {
+      unsigned fp = pb->fingerprint_();
+      unsigned match_fp = ref.AddFingerPrint(fp, HAMMING_DISTANCE);
+      pb->set_match_fingerprint(match_fp);
     }
-    /// set up bayes
-    std::vector<shared_ptr<Bayes>> classifiers;
-    for (auto &kv : catalogs) {
-      auto &catalog = kv.second;
-      if (catalog.size() < REF_COUNT_LOWER_BOUND)
-      // if (catalog.size() < 499)
-      // if (catalog.size() < 5 || catalog.size() > 40)
+    /// Make Bayes Classifiers
+    BayesFactory bayes_factory;
+    auto bayes_classifiers = bayes_factory.MakeBayesClassifiers(parsed_blogs);
+    BayesPool bayes_pool;
+    for (auto &bayes : bayes_classifiers) {
+      if (bayes.GetSizeOfKeyWords() < 2)
         continue;
-      string content= ((*catalog.begin())->blog_()).m_content;
-      if (content.find("#") != string::npos) /// dont take official topics as bayes classifier
-        continue;
-      std::shared_ptr<Bayes> bayes(new Bayes(catalog, parsed_blogs, word_dict, BAYES_THRESHOLD));
-      classifiers.push_back(bayes);
+      bayes_pool.AddBayesClassifier(bayes);
     }
-    Log::Logging(RUN_T, "###Bayes has setup: " + std::to_string(classifiers.size()));
-    Log::Logging(BAYES_T, "###Bayes has setup: " + std::to_string(classifiers.size()));
     /// filter blogs
     std::vector<INSERT_DATA> insert_datas;
     unsigned ref_left_count = 0;
@@ -197,13 +186,3 @@ inline bool IsFromZombieUser(const Blog &b) {
   return false;
 }
 
-void MakeWordsCounter(std::list<shared_ptr<ParsedBlog>> &parsed_blogs, std::shared_ptr<std::map<string, double>> &word_dict) {
-  for (auto &blog : parsed_blogs) {
-    for (auto &w : blog->Towords()) {
-      if (word_dict->find(w) == word_dict->end())
-        word_dict->insert(std::pair<string, unsigned>(w, 1));
-      else word_dict->at(w) += 1;
-    }
-  }
-  Log::Logging(RUN_T, "word_dict" + word_dict->begin()->first + std::to_string(word_dict->begin()->second));
-}

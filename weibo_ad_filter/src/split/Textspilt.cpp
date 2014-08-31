@@ -12,7 +12,7 @@ void TextSpilt::init_ICTCAL(void) {
   ICTCLAS_SetPOSmap(2);
   unsigned int nItems = ICTCLAS_ImportUserDictFile("userdict.txt",
       CODE_TYPE_UTF8);
-  std::cout << "add " << nItems << " user word" << std::endl;
+  // std::cout << "add " << nItems << " user word" << std::endl;
   ICTCLAS_SaveTheUsrDic(); //保存用户词典
   std::setlocale(LC_ALL, "zh_CN.UTF-8");
 }
