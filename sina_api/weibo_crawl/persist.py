@@ -21,6 +21,8 @@ engine = create_engine(
     DB_URL,
     pool_size=0,
     pool_timeout=60,
+    # aviod dirty reads.
+    isolation_level="SERIALIZABLE",
 )
 
 Base = declarative_base()
