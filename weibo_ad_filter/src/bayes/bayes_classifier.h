@@ -30,9 +30,8 @@ class Bayes {
     // ====================  LIFECYCLE     ==================================
     explicit Bayes(const std::list<shared_ptr<ParsedBlog>> &cata_blogs, 
                    const std::list<shared_ptr<ParsedBlog>> &all_blogs,
-                   shared_ptr<std::map<string, double>> dict,
+                   shared_ptr<std::map<string, double>> word_dict,
                    const double threshold) : THRESHOLD(threshold) { 
-      word_dict = dict;
       cata_size = cata_blogs.size();
       prob_S = cata_size*1.0 / all_blogs.size();
       std::map<string, unsigned> counter;
@@ -45,12 +44,16 @@ class Bayes {
             counter[w] += 1;
         }
       }
-      unsigned count_lower_bound = static_cast<unsigned>(cata_size * SPAM_WORD_LOWER_BOUND_RATIO);
       for (auto &kv : counter) {
-        if (kv.second < count_lower_bound)
-          continue;
-        prob_w_given_S[kv.first] = kv.second*1.0 / cata_size;
+        string w = kv.first;
+        double prob_w_given_S_ = kv.second*1.0 / cata_size;
+        double prob_w_given_S = prob_w_given_S_>1.0? 1.0 : prob_w_given_S_;
+        double prob_w = (*word_dict)[w];
+        double prob_cata_given_w_ = prob_w_given_S*prob_S / prob_w;
+        if (prob_cata_given_w_ > SPAM_CATA_GIVEN_WORD_LOWER_BOUND_RATIO)
+          prob_cata_given_w[w] = prob_cata_given_w_;
       }
+      Log::Logging(BAYES_T, "Bayes: " + GetSpamWords() + ">" + std::to_string(prob_S) + ">" + std::to_string(cata_size));
     }
     ~Bayes() {}
 
@@ -58,27 +61,36 @@ class Bayes {
       double prob_numerator = 1,
              prob_denominator = 1;
       bool is_tested = false;
+      unsigned match_word_count = 0;
+      std::set<string> dupicate_word;
+      /// test
+      std::ostringstream ss;
       for (auto &w : blog.Towords()) {
-        double prob_w = (*word_dict)[w];
-        if (prob_w_given_S.find(w) == prob_w_given_S.end())
+        if (prob_cata_given_w.find(w) == prob_cata_given_w.end())
           continue;
         is_tested = true;
-        double prob = prob_w_given_S[w]*prob_S / prob_w;
+        if (dupicate_word.find(w) == dupicate_word.end())
+          dupicate_word.insert(w);
+        else continue;
+        match_word_count++;
+        double prob = prob_cata_given_w[w];
+        ss<< "[" << w << "," << prob << "]";
         prob_numerator *= prob;
         prob_denominator *= 1-prob;
       }
-      if (! is_tested)
+      if (! is_tested || match_word_count < 2)
         return false;
-      res_prob = prob_numerator / prob_denominator;
-      Log::Logging(BAYES_T, Blog2Str(blog.blog_()) + ">" +  GetSpamWords() + ">" + std::to_string(prob_S) + ">" + std::to_string(res_prob));
-      if (res_prob >= THRESHOLD)
+      res_prob = prob_numerator / (prob_numerator + prob_denominator);
+      if (res_prob >= THRESHOLD) {
+        Log::Logging(BAYES_DUMP_T, Blog2Str(blog.blog_()) + ">" +  ss.str() + ">" + std::to_string(match_word_count) + ">" +std::to_string(prob_S) + ">" + std::to_string(res_prob));
         return true;
+      }
       else return false;
     }
 
     string GetSpamWords() {
       std::ostringstream ss;
-      for (auto &kv : prob_w_given_S) {
+      for (auto &kv : prob_cata_given_w) {
         ss<<"[" << kv.first << "," << kv.second << "]";
       }
       return ss.str();
@@ -86,11 +98,10 @@ class Bayes {
 
   private:
     const double THRESHOLD;
-    const double SPAM_WORD_LOWER_BOUND_RATIO = 0.5;
+    const double SPAM_CATA_GIVEN_WORD_LOWER_BOUND_RATIO = 0.5;
     unsigned cata_size;
-    std::shared_ptr<std::map<string, double>> word_dict;
     double prob_S;
-    std::map<string, double> prob_w_given_S;
+    std::map<string, double> prob_cata_given_w;
 
     // DISALLOW_COPY_AND_ASSIGN
     Bayes(const Bayes&);

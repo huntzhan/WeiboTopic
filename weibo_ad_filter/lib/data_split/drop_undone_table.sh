@@ -1,6 +1,6 @@
 #!/bin/bash
 
-done_tables=$(grep "Insertion of FilteredMicroblog" run.log | cut -d " " -f 3)
+done_tables=$(grep "ends:" run.log | cut -d " " -f 4)
 echo $done_tables > done.log
 # declare -a done_tables
 
@@ -15,7 +15,7 @@ echo $done_tables > done.log
 sql="show tables;"
 declare -a undone_tables
 n=0
-for table in $(mysql -u root -p123456 "split" -e "$sql" | grep "FilteredMicroblog"); do
+for table in $(mysql -u root -p123456 "filter_ref_zombie_source_bayes" -e "$sql" | grep "FilteredMicroblog"); do
 	flag=0
 	for t in ${done_tables[@]}; do
 		if [ $table == $t ]; then
@@ -42,5 +42,5 @@ if [ ${#undone_tables[@]} -gt 0 ]; then
 		sql_drop_table+=";"
 	done
 	echo $sql_drop_table
-	mysql -u root -p123456 "split" -e "$sql_drop_table"
+	mysql -u root -p123456 "filter_ref_zombie_source_bayes" -e "$sql_drop_table"
 fi

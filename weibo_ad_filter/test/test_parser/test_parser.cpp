@@ -24,7 +24,8 @@ TEST(TestParser, TestParser) {
   TextSpilt::init_ICTCAL();
   Parser parser;
 
-  std::string rawtext("我真的很爱你");
+  // std::string rawtext("我真的很爱你");
+  std::string rawtext("【为什么我们会失落呢？】生活中常有这种事情，来到跟前的往往轻易放过，远在天边的却又苦苦追求；占有它时总感平淡无味；失去的时候时方觉非常可惜。——没有坎坷的生活是幼稚的，缺少思考的生活是平庸的，失去追求的生活是空虚的，缺乏朝气的生活是贫乏的，毫无远见的生活是浅薄的。");
   // std::string rawtext("发表了博文《炒股入门：分时图是什么？怎么看大盘和个股分时图？》分时图是什么？分时图是指大盘和个股的动态实时（即时）分时走势图，其在实战研判中的地位极其重要，是即时把握多空力量转化即市场变化直接的根本所http://t.cn/RPjCUAo");
   // std::string rawtext("[音乐盒][音乐盒][音乐盒][音乐盒][音乐盒]（分享自 @新浪乐库）（分享自）（分享自）（分享自）（分享自）");
   std::vector<Word> words;
