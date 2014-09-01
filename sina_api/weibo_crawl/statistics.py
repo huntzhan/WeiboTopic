@@ -66,7 +66,7 @@ class TableState(object):
             return size
 
         table_names = sorted(metadata.tables, key=self.extract_key)
-        new_tables = {}
+        new_tables = OrderedDict()
         # detect new tables.
         for table_name in table_names:
             if table_name in self.cached_static_table_names:
