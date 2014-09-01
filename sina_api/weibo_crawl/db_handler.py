@@ -228,8 +228,8 @@ class ThreadSafeHandler(object):
             logger.warning(e)
             Session.rollback()
 
-    @lock_and_unlock()
     @classmethod
+    @lock_and_unlock()
     def add_users_and_messages(cls, users, messages):
         user_instances = []
         message_instances = []
