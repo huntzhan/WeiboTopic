@@ -7,6 +7,7 @@ import thread
 import time
 from contextlib import contextmanager
 import logging
+from collections import defaultdict
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import exists
@@ -193,6 +194,7 @@ class DatabaseHandler:
 #         for u2b_instance in user_message_relations:
 #             cls.session.merge(u2b_instance)
 
+
 def lock_and_unlock():
     lock = thread.allocate_lock()
 
@@ -229,11 +231,17 @@ class ThreadSafeHandler(object):
             Session.rollback()
 
     @classmethod
+    def _raw_sql_insert_or_update(cls, model, instances):
+        table_object = model.__table__
+        inserter = table_object.insert().prefix_with("IGNORE")
+        Session.execute(inserter, instances)
+
+    @classmethod
     @lock_and_unlock()
     def add_users_and_messages(cls, users, messages):
-        user_instances = []
-        message_instances = []
-        user_message_relations = []
+        model_user_mapping = defaultdict(list)
+        model_message_mapping = defaultdict(list)
+        model_u2m_mapping = defaultdict(list)
 
         for user, message in zip(users, messages):
             user_dict = dict(user._asdict())
@@ -247,13 +255,12 @@ class ThreadSafeHandler(object):
             models = ModelManager.get_models(timestamp)
 
             # create instance for merge.
-            user_instances.append(models[0](**user_dict))
-            message_instances.append(models[1](**message_dict))
-            user_message_relations.append(models[2](uid=uid, mid=mid))
+            model_user_mapping[models[0]].append(user_dict)
+            model_message_mapping[models[1]].append(message_dict)
+            model_u2m_mapping[models[2]].append({'uid': uid, 'mid': mid})
 
-        for user_instance, message_instance in\
-                zip(user_instances, message_instances):
-            Session.merge(user_instance)
-            Session.merge(message_instance)
-        for u2b_instance in user_message_relations:
-            Session.merge(u2b_instance)
+        for mapping in [model_user_mapping,
+                        model_message_mapping,
+                        model_u2m_mapping]:
+            for model, instances in mapping.items():
+                cls._raw_sql_insert_or_update(model, instances)
