@@ -3,6 +3,7 @@
 """
 from __future__ import (unicode_literals, print_function, absolute_import)
 
+import thread
 import time
 from contextlib import contextmanager
 import logging
@@ -192,6 +193,22 @@ class DatabaseHandler:
 #         for u2b_instance in user_message_relations:
 #             cls.session.merge(u2b_instance)
 
+def lock_and_unlock():
+    lock = thread.allocate_lock()
+
+    def _decorator(func):
+        def _wrap(*args, **kwargs):
+            lock.acquire()
+            result = None
+            try:
+                result = func(*args, **kwargs)
+            except Exception as e:
+                logger.warning("Error in lock decorator: ", e)
+            lock.release()
+            return result
+        return _wrap
+    return _decorator
+
 
 class ThreadSafeHandler(object):
 
@@ -211,6 +228,7 @@ class ThreadSafeHandler(object):
             logger.warning(e)
             Session.rollback()
 
+    @lock_and_unlock()
     @classmethod
     def add_users_and_messages(cls, users, messages):
         user_instances = []
