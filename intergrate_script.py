@@ -5,7 +5,8 @@ import subprocess
 import os
 from tempfile import NamedTemporaryFile
 
-# from weibo_crawl.statistics import TableState
+from weibo_crawl.statistics import TableState
+from weibo_crawl.persist import DB_URL
 
 
 ROOT = os.getcwd()
@@ -16,6 +17,14 @@ SUBTOPIC_REL_PATH = 'path/to/subtopic'
 CLEAN_ABS_PATH = os.path.join(ROOT, CLEAN_REL_PATH)
 TOPIC_ABS_PATH = os.path.join(ROOT, TOPIC_REL_PATH)
 SUBTOPIC_ABS_PATH = os.path.join(ROOT, SUBTOPIC_REL_PATH)
+
+
+group_adjacent = lambda a, k: zip(*([iter(a)] * k))
+
+
+def make_list_item(items):
+    for item in items:
+        yield list(item)
 
 
 def call_procedure(command, input_sets):
@@ -37,6 +46,56 @@ def call_procedure(command, input_sets):
         # discard temporary file.
         temp_file.close()
     return output_sets
+
+
+class TopicGenerator(object):
+
+    # recent 24 hours.
+    INTERVAL_LIMIT = 86400
+    table_state = TableState(DB_URL, INTERVAL_LIMIT)
+
+    @classmethod
+    def _check_table_name(cls, table_name, table_name_without_epoch):
+        _, target_name = cls.table_state.extract_key(table_name)
+        assert target_name == table_name_without_epoch
+
+    @classmethod
+    def generator_recent_tables(cls):
+        """
+        @brief: a generator yield (Microblog, WeiboUser, UserToBlog).
+        """
+        static_tables = list(cls.table_state.get_static_tables())
+        for message, user2message, user in\
+                group_adjacent(static_tables, 3):
+            cls._check_table_name(message, 'Microblog')
+            cls._check_table_name(user, 'WeiboUser')
+            cls._check_table_name(user2message, 'UserToBlog')
+
+            add_prefix = lambda x: 'sina.' + x
+            yield map(add_prefix, (message, user, user2message))
+
+
+def classify_topic_outputs(tables):
+    topic_tables = []
+    message_tables = []
+    for topic, messages in group_adjacent(tables, 2):
+        topic_tables.extend(topic)
+        message_tables.extend(messages)
+    return topic_tables, message_tables
+
+
+def intergration():
+    # data cleaner.
+    clean_tables = call_procedure(
+        CLEAN_ABS_PATH,
+        TopicGenerator.generator_recent_tables(),
+    )
+    # get topics.
+    topic_tables = call_procedure(
+        TOPIC_ABS_PATH,
+        make_list_item(clean_tables),
+    )
+    topic_tables, message_tables = classify_topic_outputs(topic_tables)
 
 
 def main():
