@@ -35,9 +35,11 @@ using std::string;
 using std::ostringstream;
 using std::vector;
 using std::unique_ptr;
+
 using sql::Driver;
 using sql::Statement;
 using sql::ResultSet;
+using sql::mysql::MySQL_Connection;
 
 
 namespace mysql_handler {
@@ -114,6 +116,9 @@ vector<string> TopicHandler::GetMessages() {
 void SubTopicHandler::StoreSubTopic(
     const VecMessagePair &sub_topic_messages) {
   auto conn = current_conn();
+  // another for escaping.
+  MySQL_Connection *stupid_conn = dynamic_cast<MySQL_Connection*>(conn.get());
+
   ostringstream formated_sql;
   // prepare table.
   unique_ptr<Statement> stmt(conn->createStatement());
@@ -134,11 +139,11 @@ void SubTopicHandler::StoreSubTopic(
                << "VALUES ";
   for (auto iter = sub_topic_messages.cbegin();
        iter != sub_topic_messages.cend(); ++iter) {
-    formated_sql << "(" 
-                 << "\"" << std::get<0>(*iter) << "\""
-                 << ","
-                 << "\"" << std::get<1>(*iter) << "\""
-                 << ")";
+    formated_sql << "(\"" 
+                 << stupid_conn->escapeString(std::get<0>(*iter))
+                 << "\",\""
+                 << stupid_conn->escapeString(std::get<1>(*iter))
+                 << "\")";
     int remain = distance(iter, sub_topic_messages.cend());
     if (remain > 1) {
       formated_sql << ", ";
