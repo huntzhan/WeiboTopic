@@ -13,7 +13,12 @@
 #include <mysql/mysql.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-
+namespace Coverage{
+	typedef struct _weibo{
+		std::string mid;
+		std::string content;
+	}WEIBO;
+}
 
 typedef struct _insert_data {
 	std::string mid;
@@ -73,6 +78,10 @@ public:
 	void GetMidandTextAndSplit(long startline,long length,std::list<OneWeibo> &result);
 
 	void DropTable(std::string table_prefix);
+	
+	void GetTagText(std::list<Coverage::WEIBO > &result,std::string content);
+	void getTopicMainIdea(std::vector<pair<int ,string>  > &result);
+	
 };
 
 #endif
