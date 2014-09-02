@@ -11,9 +11,9 @@ from weibo_crawl.bussiness import Schedule
 
 
 ROOT = os.getcwd()
-CLEAN_REL_PATH = 'path/to/clean'
-TOPIC_REL_PATH = 'path/to/topic'
-SUBTOPIC_REL_PATH = 'path/to/subtopic'
+CLEAN_REL_PATH = 'weibo_ad_filter/build/run_filter'
+TOPIC_REL_PATH = 'DataProcess/bin/VirtualProject'
+SUBTOPIC_REL_PATH = 'weibo_models/build/interface'
 
 CLEAN_ABS_PATH = os.path.join(ROOT, CLEAN_REL_PATH)
 TOPIC_ABS_PATH = os.path.join(ROOT, TOPIC_REL_PATH)
@@ -101,22 +101,29 @@ def classify_topic_outputs(tables):
 
 
 def intergration():
+    from pprint import pprint
     # data cleaner.
     clean_tables = call_procedure(
         CLEAN_ABS_PATH,
         TopicGenerator.generator_recent_tables(),
     )
+    pprint(clean_tables)
+
     # get topics.
     topic_tables = call_procedure(
         TOPIC_ABS_PATH,
         make_list_item(clean_tables),
     )
     topic_tables, message_tables = classify_topic_outputs(topic_tables)
+    pprint(topic_tables)
+    pprint(message_tables)
+
     # process message_tables.
     sub_topic_tables = call_procedure(
         SUBTOPIC_ABS_PATH,
         make_list_item(message_tables),
     )
+    pprint(sub_topic_tables)
 
 
 def main():
@@ -137,4 +144,5 @@ def test():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    intergration()
