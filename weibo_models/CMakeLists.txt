@@ -55,6 +55,13 @@ add_executable(count src/experiment.cc)
 target_link_libraries(count mysql_handler)
 target_link_libraries(count dimension_reducer)
 
+add_executable(interface src/interface.cc)
+target_link_libraries(interface mysql_handler)
+target_link_libraries(interface dimension_reducer)
+target_link_libraries(interface item_related)
+target_link_libraries(interface cluster_related)
+target_link_libraries(interface dm_utils)
+
 
 ####################
 # Setup googletest #
