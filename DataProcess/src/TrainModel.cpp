@@ -239,8 +239,8 @@ void TrainModel::SplitWord(std::list < std::string > &articlelist,
   AddWordToMap(articlelist,this->other_classification);
   AddWordToMap(politic_article_list, this->politic_classification);
 
-  SaveModelToTxt("other_classification.txt",this->other_classification);
-  SaveModelToTxt("politic_classification.txt", this->politic_classification);
+  SaveModelToTxt("normal.txt",this->other_classification);
+  SaveModelToTxt("trash.txt", this->politic_classification);
 
 }
 
@@ -251,7 +251,7 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
 
 
   std::string foldername[]= {"C000010","C000013","C000014","C000016","C000022","C000023"};
-  std::string politic_folder_name[]= {"politicTrain"};
+  std::string politic_folder_name[]= {"TrashFilter"};
 //  std::string foldername[]= {"filterother"};
 //  std::string politic_folder_name[]= {"filterpolitic"};
   int length1 = 6;int flag=1;
@@ -259,7 +259,7 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
   //读取非政治类文章
   for (int i = 0; i < length1; ++i) {
     std::cout<<i<<std::endl;
-    for (int fi = 10; fi < 2000; fi++) {
+    for (int fi = 10; fi < 1000; fi++) {
 //      std::cout<<"have read "<<fi<<" articles"<<std::endl;
       std::string res = intTostring(fi);
       std::string everyfilename=filename_prefix+"/" + foldername[i] + "/" + res + ".txt";
@@ -283,7 +283,7 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
     }
   }
   int length2 = 1;
-  int len[]={4600};
+  int len[]={83};
   //读取政治类文章
   for (int i = 0; i < length2; ++i) {
     std::cout<<len[i]<<std::endl;
@@ -305,7 +305,7 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
       if(onearticlewords=="")continue;
       politic_article_list.push_back(onearticlewords);
       infile.close();
-//      std::cout<<fi<<std::endl;
+      std::cout<<fi<<std::endl;
     }
   }
 }

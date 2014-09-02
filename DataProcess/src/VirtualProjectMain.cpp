@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
 	int NUM_OF_SUB_WORD = 4;
 
 	//调节阈值的参数
-	int THROD_ADD = 0;
+	int THROD_ADD = 5;
 
 	//一次性读取的微博数
 	int OneTimeReadWeiboNum=1000;
@@ -64,15 +64,17 @@ int main(int argc, char * argv[]) {
 
 	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
 	DBoperation dboper;
-
+	std::string database_name="filter_ref_zombie_source_bayes";
 	//初始化要使用的数据库
-	dboper.DBinit("use split",connpool);
+	dboper.DBinit(database_name,connpool);
 
 	//查询该数据库有多少表
 /***************************************************************************/
   std::list<std::string> table;
 #ifdef QUERYTABLE
-	dboper.ShowTable(table);
+  //查询数据库时查询的表的个数
+  int tablenum=10;
+	dboper.ShowTable(table,tablenum);
 #endif
 #ifdef MAIN_PARAM
 	if(argc!=2){
@@ -106,13 +108,15 @@ int main(int argc, char * argv[]) {
 	Cluster cluster(&dboper, topicwordmap);
 	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,
 	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM,NUM_OF_SUB_WORD);
+	cluster.CalConWithTime();
 	cluster.Singlepass();
-
+	//删除第一次聚类的特征词，降低聚类阈值和索引词个数，二次聚类
+//	cluster.EraseCo_ccur_matrix();
 
 	//生成话题主要观点模块、话题插入数据库模块、判断话题是否为政治类话题模块
 	TopicViewAndPolitics view_and_politics;
 	view_and_politics.InitTopicViewAndPolitics(&dboper,&cluster.clusterList,NUM_OF_SUB_WORD,
-      MIN_TOPIC_MESSAGE_NUM, TOPICVIEW_WEIBO_NUM);
+      MIN_TOPIC_MESSAGE_NUM, TOPICVIEW_WEIBO_NUM,&cluster.co_ccur_matrix);
 	view_and_politics.InsterAllTopicToDatabase();
 
 

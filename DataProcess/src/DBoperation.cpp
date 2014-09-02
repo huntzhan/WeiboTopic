@@ -120,8 +120,9 @@ void DBoperation::DBinit(std::string  database,ConnPool *connpool){
 //	ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
 	con = m_connpool->GetConnection();
 	state = con->createStatement();
-	state->execute(database);
+	state->execute("use "+database);
 	this->topic_table_name=this->GenDayAndTime();
+	this->database_name  = database;
 
 }
 /*@description：
@@ -285,11 +286,13 @@ void DBoperation::GetOneWeiBo(std::string table_name1,std::string MID,Weibo &one
 /**
  * 查询数据库下面有多少张表
  */
-void DBoperation::ShowTable(std::list<std::string> &tables){
+void DBoperation::ShowTable(std::list<std::string> &tables,int tablenum){
 	ResultSet *result;
+	int count=0;
 	try {
 		result = state->executeQuery("show tables");
 			while (result->next()) {
+			  if(++count>=tablenum)break;
 				tables.push_back(result->getString(1));
 		}
 	} catch (sql::SQLException&e) {
@@ -333,6 +336,7 @@ bool DBoperation::QueryIfTableExist(std::string tablename){
   try{
     result=state->executeQuery(sql_query);
     if(result->next()){
+      std::cout<<"数据库OneDayTopic系列已存在"<<std::endl;
         return true;
     }else{
       return false;
@@ -344,8 +348,11 @@ bool DBoperation::QueryIfTableExist(std::string tablename){
 void DBoperation::QueryIfOneDayTableExistAndCreate(){
 
   std::string onedaytopic_tablename="OneDayTopic_"+Gentime();
-  std::cout<<"tablename: "<<onedaytopic_tablename<<std::endl;
-  if(QueryIfTableExist(onedaytopic_tablename))
+  std::string query_table_name="OneDayTopic_"+Gentime();
+  //这里用指定的数据库名字，可是还是不可以
+//  std::string query_table_name=this->database_name+".OneDayTopic_"+Gentime();
+  std::cout<<"tablename: "<<query_table_name<<std::endl;
+  if(QueryIfTableExist(query_table_name))
     return;
   else{
     CreateOneDayTopicTable(onedaytopic_tablename);
@@ -494,7 +501,7 @@ bool DBoperation::ChangeToNextTable(int & count){
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
 
-		if (this->tableIndex == this->table.size()){//this->table.size()-1
+		if (this->tableIndex == this->table.size()){//this->table.size()
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}
@@ -586,4 +593,5 @@ void DBoperation::DropTable(std::string table_prefix){
     perror(e.what());
   }
 }
+
 

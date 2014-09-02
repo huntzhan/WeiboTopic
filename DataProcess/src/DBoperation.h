@@ -29,6 +29,7 @@ public:
 	Statement *state;
 
 	std::string topic_table_name;
+	std::string database_name;
 
 	void DB_query(char * sql_query, std::list<std::list<std::string> > &result);
 
@@ -50,7 +51,7 @@ public:
 	long GetTablecount();
 	void GetMidandText(long startline, long length,std::list<OneWeibo> &result);
 	void ShowTan();
-	void ShowTable(std::list<std::string> &tables);
+	void ShowTable(std::list<std::string> &tables,int tablenum);
 
 	void CreateTable(std::string mytablename);
 	int  GetNewserID(std::string OneDayTopic_name);
