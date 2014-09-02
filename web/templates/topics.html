@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% block header %}
+{% endblock %}
 {% block body %}
 <section class='jumbotron'>
 <div class="container" align='center'>
@@ -26,5 +28,16 @@
     </div>
 </div>
 {% block subtopic %} {% endblock %}
+{% block pagination %} {% endblock %}
+<!-- Time Picker -->
+<div class="well">
+    <h4 align='center'>Choose another time</h4>
+    <div id="datetimepicker" class="input-append date" align="center">
+        <input data-format="MM/dd/yyyy HH:mm" type="text"></input>
+        <span class="add-on">
+            <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+        </span>
+    </div>
+</div>
 </section>
 {% endblock %}
