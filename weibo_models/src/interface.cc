@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iterator>
 #include <tuple>
+#include <fstream>
 
 #include "database/mysql_handler.h"
 #include "utils/dimension_reducer.h"
@@ -31,6 +32,7 @@
 using std::cout;
 using std::endl;
 
+using std::ofstream;
 using std::distance;
 using std::vector;
 using std::set;
@@ -198,7 +200,7 @@ tuple<string, string> PackupMessagePair(
 }
 
 
-void WriteToDB(
+string WriteToDB(
     const string &input_database_name,
     const string &input_table_name,
     const int &index,
@@ -209,15 +211,20 @@ void WriteToDB(
   database_handler.Init();
   // write to db.
   database_handler.StoreSubTopic(message_pairs);
+  // return table naem.
+  return new_table_name;
 }
 
 
 void StoreTables(const string &input_database_name,
                  const string &input_table_name,
+                 const string &output_file_path,
                  const VecSharedPtrClusterResult &results,
                  const vector<string> &raw_messages,
                  const vector<string> &keywords) {
   auto item_sets = ExtractItemSetsFromResult(results);
+
+  vector<string> output_table_names;
   int index = 0;
   for (const auto &item_set: item_sets) {
     auto items = GetRepresentingItems(item_sets, item_set);
@@ -228,10 +235,22 @@ void StoreTables(const string &input_database_name,
           PackupMessagePair(item, raw_messages, keywords));
     }
     // write to db.
-    WriteToDB(input_database_name, input_table_name,
-              index, output_message_pairs);
+    const string &new_table_name = WriteToDB(
+        input_database_name, input_table_name,
+        index, output_message_pairs);
     ++index;
+    output_table_names.push_back(new_table_name);
   }
+  // output new table names..
+  ofstream out(output_file_path);
+  for (int index = 0; index != output_table_names.size(); ++index) {
+    // casue I've used the same database.
+    out << input_database_name << "." << output_table_names[index];
+    if (index != output_table_names.size() - 1) {
+      cout << ",";
+    }
+  }
+  out.close();
 }
 
 
@@ -302,5 +321,7 @@ int main(int args, char **argv) {
   auto results = clustering_handler.GetClusterResults();
 
   // PrintClusterResult(results, raw_messages, vectorized_messages, keywords);
-  StoreTables(database_name, table_name, results, raw_messages, keywords);
+  StoreTables(database_name, table_name,
+              output_file_path,
+              results, raw_messages, keywords);
 }
