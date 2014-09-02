@@ -125,19 +125,27 @@ void IsPolitics::IsTopicPoliticsByBaye(Topic &onetopic)
   this->GetEveryWordInOneTopicByWordProperty(onetopic);
   std::map<std::string,WeiboWord>::iterator other_it;
   std::map<std::string,WeiboWord>::iterator politic_it;
+
+  std::map<std::string,WeiboWord>::iterator normal_it;
+  std::map<std::string,WeiboWord>::iterator trash_it;
   std::string key;
   double other_classification_pro=1.0;
   double politic_classification_pro=1.0;
+
+  double normal_pro=1.0;
+  double trash_pro=1.0;
 
   //文章的概率
   double all_article_num=(double)this->other_classification.article_num+this->politic_classification.article_num;
   double other_article_pro=(this->other_classification.article_num/all_article_num);
   double politic_article_pro= (this->politic_classification.article_num/all_article_num);
-//  std::cout<<"all_article_num  "<<all_article_num<<"   this->other_classification.article_num  "<<this->other_classification.article_num<<std::endl;
-//  std::cout<<"other_article_pro  "<<other_article_pro<<"  politic_article_pro  "<<politic_article_pro<<std::endl;
   //两种方案：1.直接计算词的后验概率  2.计算后验概率的同时将词的权值（词频等）也计算进去
    std::map<std::string, WeiboWord>::iterator it = this->GetKeyWordMap()->begin();
    for (; it != this->GetKeyWordMap()->end(); ++it) {
+
+
+
+
     key = it->first;
     other_it = this->other_classification.word_fre.find(key);
     if (other_it != this->other_classification.word_fre.end()) {
@@ -153,6 +161,22 @@ void IsPolitics::IsTopicPoliticsByBaye(Topic &onetopic)
       politic_classification_pro +=log(it->second.wordfre/onetopic.allweibowordnum)+
           log(politic_it->second.wordfre/this->politic_classification.word_num);//同上
     }// it->second.wordfre*
+
+        normal_it = this->normal.word_fre.find(key);
+        if (normal_it != this->normal.word_fre.end()) {
+    //      std::cout<<"other_it->second.wordfre  "<<other_it->second.wordfre<<"  this->other_classification.word_num  "<<this->other_classification.word_num<<std::endl;
+    //      std::cout<<"其他：    "<<key<<std::endl;
+          normal_pro += log(it->second.wordfre/onetopic.allweibowordnum)+
+              log(normal_it->second.wordfre/this->normal.word_num);//*it->second.wordfre/100//由于词频太大会导致乘完之后后验概率失效;
+        }
+        //计算在政治类中的后验概率
+        trash_it = this->trash.word_fre.find(key);
+        if (trash_it != this->trash.word_fre.end()) {
+    //      std::cout<<"政治：     "<<key<<std::endl;
+          trash_pro +=log(it->second.wordfre/onetopic.allweibowordnum)+
+              log(trash_it->second.wordfre/this->trash.word_num);//同上
+        }// it->second.wordfre*
+
   }
   //判断属于哪一个类别,按照后验概率
    politic_classification_pro=-politic_classification_pro;
@@ -165,6 +189,16 @@ void IsPolitics::IsTopicPoliticsByBaye(Topic &onetopic)
     onetopic.isPolitic=1;
   }
 
+     //判断属于哪一个类别,按照后验概率
+     normal_pro=-normal_pro;
+     trash_pro=-trash_pro;
+     std::cout<<"正常类 & 垃圾类    概率值： "<<normal_pro<<"  "<<trash_pro<<std::endl;
+        //politic_classification_pro*politic_article_pro > other_classification_pro*other_article_pro
+    if(trash_pro > normal_pro){
+  //    std::cout<<"politic_classification_pro*politic_article_pro  "<<politic_classification_pro*politic_article_pro<<std::endl;
+  //    std::cout<<"other_classification_pro*other_article_pro "<<other_classification_pro*other_article_pro<<std::endl;
+      onetopic.isTrash=1;
+    }
 }
 
 /*
@@ -202,6 +236,12 @@ void IsPolitics::InitIsPolitics(){
       this->ReadBayeModel(this->politic_classification, "politic_classification.txt");
       std::cout<<"classification.word_fre.size :"<<this->other_classification.word_fre.size()<<std::endl;
       std::cout<<"classification.word_fre.size :"<<this->politic_classification.word_fre.size()<<std::endl;
+}
+void IsPolitics::InitIsTrash(){
+      this->ReadBayeModel(this->normal,"normal.txt");
+      this->ReadBayeModel(this->trash, "trash.txt");
+      std::cout<<"normal.word_fre.size :"<<this->normal.word_fre.size()<<std::endl;
+      std::cout<<"trash.word_fre.size :"<<this->trash.word_fre.size()<<std::endl;
 }
 
 

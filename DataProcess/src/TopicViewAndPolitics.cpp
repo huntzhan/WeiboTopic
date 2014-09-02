@@ -27,17 +27,22 @@ void TopicViewAndPolitics::InsterAllTopicToDatabase(){
   this->tw.InitTopicView(this->dboper,this->clusterList,this->NUM_OF_SUB_WORD,4);
 
   this->ispo.InitIsPolitics();
+  this->ispo.InitIsTrash();
   this->dboper->QueryIfOneDayTableExistAndCreate();
   std::vector<Topic>::iterator it = this->clusterList->begin();
   int topicnum=0;
-  for(;it!=this->clusterList->end();++it){
-    if(it->topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)continue;
-    topicnum++;
 
+  std::list<TopicWord>::iterator topicword_it ;
+  for(;it!=this->clusterList->end();++it){
+    if(it->topic_message_num<this->MIN_TOPIC_MESSAGE_NUM)
+    {
+      break;
+    }
+    topicnum++;
     this->GetOneTopicWeiboByBatch(*it,topicnum);
-//    this->InsertTopicToDatabase(*it);
   }
 }
+
 void print10weibo(std::list<Weibo> &weibolist){
   std::cout<<"话题下的5条微博如下： "<<std::endl<<std::endl;
   int counter=0;
@@ -126,6 +131,7 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
         this->tw.GenOneTopicView(one_topic);
         this->ispo.IsTopicPoliticsByBaye(one_topic);
         std::cout<<"是否为政治类话题 ? : "<<one_topic.isPolitic<<std::endl<<std::endl;
+        std::cout<<"是否为垃圾类话题 ? : "<<one_topic.isTrash<<std::endl<<std::endl;
         print10weibo(one_topic.topic_weibo);
         processed_politic=1;
         //这里需要删除，不然下面会重复查询插入
@@ -148,11 +154,34 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
   //最后要将没有满5000条的部分插入数据库
   //最后没有满足5000条的也需要查询数据库插入
   QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
+  //暂时切换为输出数据到本地文本
+//  this->SaveFileToLocal(one_topic,topicnum);
   this->dboper->InsertData(one_topic,flag);
   one_topic.topic_weibo.clear();
   std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 }
-
+std::string TopicViewAndPolitics::intTostring(int a){
+  char tem[10];
+  sprintf(tem,"%d",a);
+  std::string res(tem);
+  return res;
+}
+void TopicViewAndPolitics::SaveFileToLocal(Topic &one_topic,int id){
+  std::list<Weibo>::iterator it = one_topic.topic_weibo.begin();
+  std::string text;
+  std::string idstr=intTostring(id);
+  std::string filename = "../TrashFilter/"+idstr+".txt";
+  std::ofstream outfile(filename.c_str());
+  if(!outfile){
+    std::cout<<"打开文件失败!"<<std::endl;
+    return;
+  }
+  for(;it!= one_topic.topic_weibo.end();++it) {
+    text=it->text;
+    outfile<<text<<std::endl;
+  }
+  outfile.close();
+}
 
 
 /*
