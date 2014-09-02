@@ -103,21 +103,21 @@ int main(int argc, char * argv[]) {
 	gettopic.GenTopicWordByFrequency();
 
 	//一趟聚类模块
-	std::map<std::string, TopicWord>* topicwordmap;
-	topicwordmap = gettopic.GetTopicWord();
-	Cluster cluster(&dboper, topicwordmap);
-	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,
-	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM,NUM_OF_SUB_WORD);
-	cluster.CalConWithTime();
-	cluster.Singlepass();
+//	std::map<std::string, TopicWord>* topicwordmap;
+//	topicwordmap = gettopic.GetTopicWord();
+//	Cluster cluster(&dboper, topicwordmap);
+//	cluster.InitConfigure(RAND_SIZE, BELONG_TOPIC_THROD, THROD_ADD,
+//	    (int)weibosize,MIN_TOPIC_MESSAGE_NUM,TOPICVIEW_WEIBO_NUM,NUM_OF_SUB_WORD);
+//	cluster.CalConWithTime();
+//	cluster.Singlepass();
 	//删除第一次聚类的特征词，降低聚类阈值和索引词个数，二次聚类
 //	cluster.EraseCo_ccur_matrix();
 
 	//生成话题主要观点模块、话题插入数据库模块、判断话题是否为政治类话题模块
-	TopicViewAndPolitics view_and_politics;
-	view_and_politics.InitTopicViewAndPolitics(&dboper,&cluster.clusterList,NUM_OF_SUB_WORD,
-      MIN_TOPIC_MESSAGE_NUM, TOPICVIEW_WEIBO_NUM,&cluster.co_ccur_matrix);
-	view_and_politics.InsterAllTopicToDatabase();
+//	TopicViewAndPolitics view_and_politics;
+//	view_and_politics.InitTopicViewAndPolitics(&dboper,&cluster.clusterList,NUM_OF_SUB_WORD,
+//    MIN_TOPIC_MESSAGE_NUM, TOPICVIEW_WEIBO_NUM,&cluster.co_ccur_matrix);
+//	view_and_politics.InsterAllTopicToDatabase();
 
 
 

@@ -595,3 +595,39 @@ void DBoperation::DropTable(std::string table_prefix){
 }
 
 
+/***********************************************************************************************************
+ *
+ *  write by jinfa
+ */
+
+void DBoperation::GetTagText(std::list<Coverage::WEIBO > &result,std::string content){
+	ResultSet *resultsql;
+	char sql_query[200];
+	sprintf(sql_query,"select mid,%s from %s where %s REGEXP '[#＃][^＃#]*[#＃]' ",content.c_str(),table_name.c_str(),content.c_str());
+	resultsql = state->executeQuery(sql_query);
+	while (resultsql->next()) {
+		Coverage::WEIBO weibo;
+		weibo.mid=resultsql->getString(1);
+		weibo.content=resultsql->getString(2);
+		 result.push_back(weibo);
+    }
+	resultsql->close();
+}
+
+void DBoperation::getTopicMainIdea(std::vector<pair<int, string> > &result) {
+	ResultSet *resultsql;
+	char sql_query[200];
+	sprintf(sql_query, "select topicid,mainidea from %s ",
+			table_name.c_str());
+	resultsql = state->executeQuery(sql_query);
+	while (resultsql->next()) {
+		int id = resultsql->getInt(1);
+		string MainIdea = resultsql->getString(2);
+		result.push_back(make_pair(id, MainIdea));
+	}
+	resultsql->close();
+}
+
+
+
+
