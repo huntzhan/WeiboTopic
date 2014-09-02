@@ -57,7 +57,8 @@ def call_procedure(command, input_sets):
         # collect output.
         for line in filter(bool,
                            temp_file.read().split(os.linesep)):
-            output_sets.append(line.split(','))
+            results = list(filter(bool, line.split(',')))
+            output_sets.append(results)
         # discard temporary file.
         temp_file.close()
     return output_sets

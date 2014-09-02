@@ -206,7 +206,8 @@ string WriteToDB(
     const int &index,
     const VecMessagePair &message_pairs) {
   // setup database.
-  const string &new_table_name = "Sub" + to_string(index) + input_table_name;
+  const string &new_table_name =
+      "Sub_" + to_string(index) + "_" + input_table_name;
   SubTopicHandler database_handler(input_database_name, new_table_name);
   database_handler.Init();
   // write to db.
