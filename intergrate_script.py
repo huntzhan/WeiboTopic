@@ -7,6 +7,7 @@ from tempfile import NamedTemporaryFile
 
 from weibo_crawl.statistics import TableState
 from weibo_crawl.persist import DB_URL
+from weibo_crawl.bussiness import Schedule
 
 
 ROOT = os.getcwd()
@@ -96,10 +97,19 @@ def intergration():
         make_list_item(clean_tables),
     )
     topic_tables, message_tables = classify_topic_outputs(topic_tables)
+    # process message_tables.
+    sub_topic_tables = call_procedure(
+        SUBTOPIC_ABS_PATH,
+        make_list_item(message_tables),
+    )
 
 
 def main():
-    pass
+    ONE_HOUR = 3600.0
+    while True:
+        schedule = Schedule(ONE_HOUR)
+        schedule.add_callback(intergration)
+        schedule.run()
 
 
 def test():
@@ -112,4 +122,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()
