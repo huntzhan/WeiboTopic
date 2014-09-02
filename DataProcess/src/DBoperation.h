@@ -13,7 +13,13 @@
 #include <mysql/mysql.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-
+#include<fstream>
+namespace Coverage{
+	typedef struct _weibo{
+		std::string mid;
+		std::string content;
+	}WEIBO;
+}
 
 typedef struct _insert_data {
 	std::string mid;
@@ -29,6 +35,7 @@ public:
 	Statement *state;
 
 	std::string topic_table_name;
+	std::string database_name;
 
 	void DB_query(char * sql_query, std::list<std::list<std::string> > &result);
 
@@ -44,19 +51,19 @@ public:
 	void DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIndex,std::list<std::string>table);
 
 	MYSQL my_connection;
-	void DBinit(std::string database, ConnPool *connpool);
+	void DBinit(std::string database, std::string topic_table_name, ConnPool *connpool);
 	void DBclose();
 	void SetTableName(const std::string table_name);
 	long GetTablecount();
 	void GetMidandText(long startline, long length,std::list<OneWeibo> &result);
 	void ShowTan();
-	void ShowTable(std::list<std::string> &tables);
+	void ShowTable(std::list<std::string> &tables,int tablenum);
 
 	void CreateTable(std::string mytablename);
 	int  GetNewserID(std::string OneDayTopic_name);
 	void InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytablename);
 
-	void InsertData(Topic &onetopic, int flag);
+	void InsertData(Topic &onetopic, int flag, ofstream &outfile);
 	std::vector<std::string> stringSplitToVector(std::string  &str,int splitLen);
 
 	std::vector<std::string> BoostMatchWord(std::string str);
@@ -70,7 +77,8 @@ public:
 	std::vector<std::string> RegexTagWord(std::string &weibo_origin_text);
 	bool iswordinregexresult(std::vector<std::string>&regexresult, std::string word);
 	void GetMidandTextAndSplit(long startline,long length,std::list<OneWeibo> &result);
-
+	void GetTagText(std::list<Coverage::WEIBO > &result,std::string content);
+	void getTopicMainIdea(std::vector<pair<int ,string>  > &result);
 	void DropTable(std::string table_prefix);
 };
 

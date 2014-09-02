@@ -115,13 +115,15 @@ void DBoperation::DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIn
 	this->tableIndex=tableIndex;
 	std::copy(table.begin(), table.end(), std::back_inserter(this->table));
 }
-void DBoperation::DBinit(std::string  database,ConnPool *connpool){
+void DBoperation::DBinit(std::string  database,std::string topic_table_name, ConnPool *connpool){
 	m_connpool=connpool;
 //	ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
 	con = m_connpool->GetConnection();
 	state = con->createStatement();
-	state->execute(database);
-	this->topic_table_name=this->GenDayAndTime();
+	state->execute("use "+database);
+//	this->topic_table_name=this->GenDayAndTime();
+	this->topic_table_name=topic_table_name;
+	this->database_name  = database;
 
 }
 /*@description：
@@ -285,11 +287,13 @@ void DBoperation::GetOneWeiBo(std::string table_name1,std::string MID,Weibo &one
 /**
  * 查询数据库下面有多少张表
  */
-void DBoperation::ShowTable(std::list<std::string> &tables){
+void DBoperation::ShowTable(std::list<std::string> &tables,int tablenum){
 	ResultSet *result;
+	int count=0;
 	try {
 		result = state->executeQuery("show tables");
 			while (result->next()) {
+			  if(++count>=tablenum)break;
 				tables.push_back(result->getString(1));
 		}
 	} catch (sql::SQLException&e) {
@@ -333,6 +337,7 @@ bool DBoperation::QueryIfTableExist(std::string tablename){
   try{
     result=state->executeQuery(sql_query);
     if(result->next()){
+      std::cout<<"数据库OneDayTopic系列已存在"<<std::endl;
         return true;
     }else{
       return false;
@@ -343,22 +348,26 @@ bool DBoperation::QueryIfTableExist(std::string tablename){
 }
 void DBoperation::QueryIfOneDayTableExistAndCreate(){
 
-  std::string onedaytopic_tablename="OneDayTopic_"+Gentime();
-  std::cout<<"tablename: "<<onedaytopic_tablename<<std::endl;
-  if(QueryIfTableExist(onedaytopic_tablename))
+  std::string onedaytopic_tablename="OneDayTopic_"+topic_table_name;
+  std::string query_table_name="OneDayTopic_"+topic_table_name;
+  //这里用指定的数据库名字，可是还是不可以
+//  std::string query_table_name=this->database_name+".OneDayTopic_"+Gentime();
+  std::cout<<"tablename: "<<query_table_name<<std::endl;
+  if(QueryIfTableExist(query_table_name))
     return;
   else{
     CreateOneDayTopicTable(onedaytopic_tablename);
   }
 }
-void DBoperation::InsertData(Topic &onetopic, int flag) {
+void DBoperation::InsertData(Topic &onetopic, int flag, ofstream &outfile) {
   char table_name[512];
   std::string topictablename = "Topic_"+this->topic_table_name+"_";
   int newestID = 0;
 
   //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
   try {
-    std::string OneDayTopicTablename = "OneDayTopic_"+Gentime();
+//    std::string OneDayTopicTablename = "OneDayTopic_"+Gentime();
+    std::string OneDayTopicTablename = "OneDayTopic_"+topic_table_name;
     if (flag == 0) {
       //为进程加锁
 //      pthread_mutex_t job_queue_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -390,6 +399,8 @@ void DBoperation::InsertData(Topic &onetopic, int flag) {
       sprintf(table_name, "%s%d", topictablename.c_str(), newestID);
 
       CreateTable(table_name);
+      std::string oneline(table_name);
+      outfile<<oneline+",";
       //解锁
 //      pthread_mutex_unlock (&job_queue_mutex);
     }
@@ -494,7 +505,7 @@ bool DBoperation::ChangeToNextTable(int & count){
 	if (count >= this->weibo_size-1) {
 		this->tableIndex += 1;
 
-		if (this->tableIndex == this->table.size()){//this->table.size()-1
+		if (this->tableIndex == this->table.size()){//this->table.size()
 			std::cout<<"扫描完一遍数据库"<<std::endl;
 			return false;
 		}
@@ -587,3 +598,35 @@ void DBoperation::DropTable(std::string table_prefix){
   }
 }
 
+/***********************************************************************************************************
+ *
+ *  write by jinfa
+ */
+
+void DBoperation::GetTagText(std::list<Coverage::WEIBO > &result,std::string content){
+	ResultSet *resultsql;
+	char sql_query[200];
+	sprintf(sql_query,"select mid,%s from %s where %s REGEXP '[#＃][^＃#]*[#＃]' ",content.c_str(),table_name.c_str(),content.c_str());
+	resultsql = state->executeQuery(sql_query);
+	while (resultsql->next()) {
+		Coverage::WEIBO weibo;
+		weibo.mid=resultsql->getString(1);
+		weibo.content=resultsql->getString(2);
+		 result.push_back(weibo);
+    }
+	resultsql->close();
+}
+
+void DBoperation::getTopicMainIdea(std::vector<pair<int, string> > &result) {
+	ResultSet *resultsql;
+	char sql_query[200];
+	sprintf(sql_query, "select topicid,mainidea from %s ",
+			table_name.c_str());
+	resultsql = state->executeQuery(sql_query);
+	while (resultsql->next()) {
+		int id = resultsql->getInt(1);
+		string MainIdea = resultsql->getString(2);
+		result.push_back(make_pair(id, MainIdea));
+	}
+	resultsql->close();
+}

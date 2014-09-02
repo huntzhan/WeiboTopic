@@ -40,6 +40,7 @@ class Allocator {
 
     // ====================  LIFECYCLE     ==================================
     Allocator(const string tablename);
+    Allocator(const string db_name, const string tablename);
     Allocator(bool is_start_over);
     ~Allocator(){}
 

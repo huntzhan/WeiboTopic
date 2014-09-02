@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+<section class='jumbotron'>
+<div class="container" align='center'>
+    <div class='row'>
+        <h1>
+            Welcome!
+        </h1>
+        <p>
+        Weibo Topics Mining
+        </p>
+    </div>
+</div>
+</section>
+<section class='container'>
+<ul class="nav nav-tabs nav-justified" role="tablist">
+    <li class="active"><a data-toggle="tab" href="#common">Hotest Topics</a></li>
+    <li><a data-toggle="tab" href="#politics">Politics Topics</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="common">
+        {% block topics %} {% endblock %}
+    </div>
+    <div class="tab-pane" id="politics">
+        {% block politics %} {% endblock %}
+    </div>
+</div>
+{% block subtopic %} {% endblock %}
+</section>
+{% endblock %}

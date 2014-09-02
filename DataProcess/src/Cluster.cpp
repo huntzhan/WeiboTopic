@@ -145,23 +145,32 @@ void Cluster::CalWordsCoccurrence() {
 		}
 	}
 }
+/*
+ * @description
+ *  计算共现度封装了一个计时器
+ */
+void Cluster::CalConWithTime(){
+#ifdef TIME
+  time_t start3;
+  start3 = time(NULL);
+#endif
 
+  this->CalWordsCoccurrence();
+
+#ifdef TIME
+  time_t ends3;
+  ends3 = time(NULL);
+  std::cout << "计算特征词共现度用时：" << difftime(ends3, start3) << std::endl;
+#endif
+}
 /*
  * @description：
  *  一趟聚类的思想
  */
 void Cluster::Singlepass() {
 #ifdef TIME
-	time_t start3;
-	start3 = time(NULL);
-#endif
-
-	this->CalWordsCoccurrence();
-
-#ifdef TIME
-	time_t ends3;
-	ends3 = time(NULL);
-	std::cout << "计算特征词共现度用时：" << difftime(ends3, start3) << std::endl;
+  time_t start3;
+  start3 = time(NULL);
 #endif
 
 
@@ -181,6 +190,7 @@ void Cluster::Singlepass() {
 
 	//对于每一个词，计算词在话题列表Topic的距离
 	topic_w_it++;
+	std::cout<<"聚类前特征词的个数"<<this->topicword->size()<<std::endl;
 	for (; topic_w_it != this->topicword->end(); ++topic_w_it) {
 
 		vector<Topic>::iterator vec_clu_it = this->clusterList.begin();
@@ -216,7 +226,7 @@ void Cluster::Singlepass() {
 	start5 = time(NULL);
 #endif
 	//及时将共现矩阵清空
-	this->co_ccur_matrix.clear();
+//	this->co_ccur_matrix.clear();
 	//match weibo id to topic
 	this->MatchWeiboIDToTopic();
 	//select the weibo which have more than two words in topic
@@ -429,4 +439,66 @@ double Cluster::GenClusterThrod() {
 	}
 	return tempthrod / randsize;
 }
+void Cluster::EraseCo_ccur_matrix() {
+  std::vector<Topic>::iterator it = this->clusterList.begin();
+  std::map<std::string, CooccurrenceWord>::iterator map_it;
+  std::map<std::string,TopicWord>::iterator t_it;
+  std::list<TopicWord>::iterator topicword_it;
+  std::cout<<"删除元素"<<std::endl;
+  std::cout<<"删除之前map size为： "<<this->co_ccur_matrix.size()<<std::endl;
+  std::cout<<"删除之前topicword size为： "<<this->topicword->size()<<std::endl;
+  int count=0;
+  for (; it != this->clusterList.end(); ++it) {
 
+    if (it->topic_message_num >= this->MIN_TOPIC_MESSAGE_NUM) {
+      count++;
+      this->clusterListTemp.push_back(*it);
+      //删除co_ccur_matrix中已经形成话题的关键词
+      topicword_it = it->GetsTopic()->begin();
+      //输出所有词
+      for (; topicword_it != it->GetsTopic()->end(); ++topicword_it) {
+        std::string topicwordstr = topicword_it->m_sword;
+        map_it = this->co_ccur_matrix.find(topicwordstr);
+        t_it=this->topicword->find(topicwordstr);
+        if (map_it != this->co_ccur_matrix.end()) {
+          this->co_ccur_matrix.erase(map_it);
+        }
+        if(t_it!=this->topicword->end()){
+          this->topicword->erase(t_it);
+        }
+      }
+    }
+
+  }
+  std::cout<<"原来话题个数;"<<count<<std::endl;
+  std::cout<<"删除之后topicword size为： "<<this->topicword->size()<<std::endl;
+  std::cout<<"删除之后map size为： "<<this->co_ccur_matrix.size()<<std::endl;
+  this->clusterList.clear();
+  std::cout<<"再次聚类"<<std::endl;
+  //在聚类之前降低阈值
+  this->THROD_ADD=0;
+  this->BELONG_TOPIC_THROD=2;
+  this->Singlepass();
+
+  std::cout<<"合并话题"<<std::endl;
+  this->MergeClusterList();
+}
+void Cluster::MergeClusterList(){
+  std::vector<Topic>::iterator it = this->clusterList.begin();
+  int count2=0;
+  std::cout<<"第一次temp大小"<<this->clusterListTemp.size()<<std::endl;
+  for(;it!=this->clusterList.end();++it){
+     if(it->topic_message_num>=this->MIN_TOPIC_MESSAGE_NUM)
+     {
+       count2++;
+       this->clusterListTemp.push_back(*it);
+     }
+  }
+  std::cout<<"合并后temp大小"<<this->clusterListTemp.size()<<std::endl;
+  std::cout<<"第二次聚类后话题个数;"<<count2<<std::endl;
+  this->clusterList.clear();
+  std::copy(this->clusterListTemp.begin(),this->clusterListTemp.end(),std::back_inserter(this->clusterList));
+  this->SortTopic();
+  //最后的清除共现矩阵
+  this->co_ccur_matrix.clear();
+}

@@ -22,6 +22,18 @@ Allocator::Allocator(bool is_start_over) {
     tables = GetNotProcessedTables();
 }
 
+Allocator::Allocator(const string db_name, const string tablename) {
+  query.DBConnect(db_name);
+  std::list<string> all_tables;
+  query.GetTables(all_tables);
+  std::list<string>::iterator find_iter = std::find(all_tables.begin(), all_tables.end(), tablename);
+  if (find_iter == all_tables.end()) {
+    Log::Logging(RUN_T, tablename + " not exists in Allocator");
+    exit(1);
+  }
+  tables.push_back(tablename);
+}
+
 /**
  *  @brief Constructor 
  *

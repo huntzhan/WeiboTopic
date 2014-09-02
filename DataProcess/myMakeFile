@@ -1,14 +1,14 @@
 		CC = gcc
-		XX = g++
-		CFLAGS =-g
+		XX = /opt/rh/devtoolset-2/root/usr/bin/g++ 
+		CFLAGS =-g --std=c++11
 	TARGET = ./bin/VirtualProject
 	OBJECTDIR=/build/
 	SOURCES = $(wildcard ./src/*.c ./src/*.cpp)
 	OBJS = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
 $(TARGET) : $(OBJS)
-	$(XX) $(OBJS) -o $(TARGET)  -m64  -O3 -DOS_LINUX  ./lib/libboost_regex.a ./lib/libICTCLAS50.a    -I ./lib  -L /usr/lib64/mysql    -lmysqlclient
+	$(XX) $(OBJS) -o $(TARGET)  -m64  -O3  -DOS_LINUX  ./lib/libboost_regex.a ./lib/libICTCLAS50.a    -I ./lib  -L /usr/lib64/mysql    -lmysqlclient -lmysqlcppconn
 %.o:%.cpp
-	$(XX) $(CFLAGS) -c $< -o $@ -m64  -O3 -DOS_LINUX  ./lib/libboost_regex.a ./lib/libICTCLAS50.a     -I ./lib  -L /usr/lib64/mysql    -lmysqlclient
+	$(XX) $(CFLAGS) -c $< -o $@ -m64  -O3  -DOS_LINUX  ./lib/libboost_regex.a ./lib/libICTCLAS50.a     -I ./lib  -L /usr/lib64/mysql    -lmysqlclient -lmysqlcppconn
 	
-dclean:
+clean:
 	-rm ./src/*.o

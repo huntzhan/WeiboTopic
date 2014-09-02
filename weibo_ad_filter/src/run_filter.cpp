@@ -42,12 +42,17 @@ int main(int argc, char **argv) {
   TextSpilt::init_ICTCAL();
   Parser parser;
 
-  string db_name = "db_name";
+  /// get settings from argv
+  ofstream out(argv[1]);
+  string db_name, table_name;
+  std::istringstream input(argv[2]);
+  std::getline(input, db_name, '.');
+  std::getline(input, table_name, '.');
+
   ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
   insert.DBinit("use " + db_name, connpool);
 
-  string table_name(argv[1]);
-  Allocator allo(table_name);
+  Allocator allo(db_name, table_name);
   if (allo.HasNextTable()) {
     RefCount ref;
     std::list<ParsedBlog> parsed_blogs;
@@ -84,7 +89,8 @@ int main(int argc, char **argv) {
     }
     string output_table_name = "Filtered" + allo.GetCurrentTableName();
     InsertDataToTable(output_table_name, insert_datas);
-    cout << output_table_name << endl;
+    out << db_name << "." << output_table_name << endl;
+    out.close();
     // Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + " ends: >" + std::to_string(insert_datas.size()) + "/" + std::to_string(allo.GetRowsOfCurrentTable()));
   }
 }
@@ -111,6 +117,30 @@ void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_d
 inline bool IsSourceNotOk(const Blog &b) {
   if (b.m_source == "微问" ||
       b.m_source == "爱问知识人" ||
+      b.m_source == "唱吧" ||
+      b.m_source == "微游戏" ||
+      b.m_source == "微音乐" ||
+      b.m_source == "分享按钮" ||
+      b.m_source == "应用广场" ||
+      b.m_source == "百度分享" ||
+      b.m_source == "秦时明月手游" ||
+      b.m_source == "实惠" ||
+      b.m_source == "陌陌" ||
+      b.m_source == "股票123个股雷" ||
+      b.m_source == "微盘" ||
+      b.m_source == "互粉大厅" ||
+      b.m_source == "Instagram" ||
+      b.m_source == "美团网分享" ||
+      b.m_source == "微视" ||
+      b.m_source == "扇贝网" ||
+      b.m_source == "蜻蜓.fm收音机" ||
+      b.m_source == "QQ音乐" ||
+      b.m_source == "快手" ||
+      b.m_source == "虾米音乐" ||
+      b.m_source == "微相册" ||
+      b.m_source == "微三国" ||
+      b.m_source == "千图网免费素材" ||
+      b.m_source == "美团网" ||
       b.m_source == "新浪博客" ||
       b.m_source == "皮皮时光机" ||
       b.m_source == "投票" ||
@@ -131,7 +161,7 @@ inline bool IsFromZombieUser(const Blog &b) {
     return false;
   if (b.u_fans <= 50 || 
       b.u_followees >= 1000 || 
-      b.u_bi_followers_count*1.0 / b.u_followees < 0.4){  /// invalid zombie user
+      b.u_bi_followers_count*1.0 / b.u_followees < 0.2){  /// invalid zombie user
   // if (b.u_bi_followers_count*1.0 / b.u_followees < 0.5){  /// invalid zombie user
     return true;
   }

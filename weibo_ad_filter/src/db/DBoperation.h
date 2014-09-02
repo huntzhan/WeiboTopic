@@ -31,6 +31,7 @@ public:
               std::string mysql_database);
   ~DBoperation();
   void DBConnect();
+  void DBConnect(const string db_name);
   bool DB_insertData(INSERT_DATA &insert_data);
   void SetTableName(const std::string table_name);
   void GetText(long startline, long length,

@@ -21,6 +21,7 @@
 #include<unistd.h>
 #include <iostream>
 #include <map>
+#include<algorithm>
 #include <string>
 
 class Cluster{
@@ -53,7 +54,7 @@ public:
 
 	//最终生成的话题列表
 	std::vector<Topic> clusterList;
-
+	std::vector<Topic> clusterListTemp;
 	//存放待聚类的词（10000个）两两之间的共现度
 	std::map<std::string,CooccurrenceWord> co_ccur_matrix;
 
@@ -88,7 +89,7 @@ public:
 		this->NUM_OF_SUB_WORD=NUM_OF_SUB_WORD;
 	}
 
-
+	void CalConWithTime();
 	std::vector<Topic> * GetClusterList(){
 		return & clusterList;
 	}
@@ -120,6 +121,7 @@ public:
 
 	//根据词是否在这条微博出现来建立词到微博ID的倒排索引
 	void MatchWeiboIDToTopic();
-
+	void EraseCo_ccur_matrix();
+	void MergeClusterList();
 };
 #endif /* CLUSTER_H_ */

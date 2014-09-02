@@ -33,6 +33,10 @@ class IsPolitics{
 
   ClassificationInfo politic_classification;
 
+  ClassificationInfo normal;
+
+  ClassificationInfo trash;
+
 public:
   //这个话题选取的词的个数
   int topic_word_size;
@@ -59,6 +63,7 @@ public:
   }
 
   void ReadBayeModel(ClassificationInfo &classification, std::string filename);
+  void InitIsTrash();
 };
 
 #endif /* ISPOLITIC_H_ */

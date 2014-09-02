@@ -14,6 +14,10 @@ DBoperation::~DBoperation() {
   mysql_close(&my_connection);
 }
 
+void DBoperation::DBConnect(const string db_name){
+  this->mysql_database = db_name;
+  DBConnect();
+}
 void DBoperation::DBConnect(){
   //初始化插入
   mysql_init(&my_connection);

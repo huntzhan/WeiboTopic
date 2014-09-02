@@ -36,7 +36,8 @@ public:
   int allweibowordnum;
   //话题是否属于政治类的,1是政治类的，0不是政治类的
   int isPolitic;
-
+  //判断是否为垃圾话题
+  int isTrash;
   //话题下的特征词
 	list<TopicWord> m_stopic;
 
@@ -74,6 +75,7 @@ public:
 	void TopicInit(TopicWord firstWord) {
 		this->m_stopic.push_back(firstWord);
 		this->isPolitic=0;
+		this->isTrash=0;
 		this->allweibowordnum=0;
 	}
 	list<TopicWord> *GetsTopic() {
