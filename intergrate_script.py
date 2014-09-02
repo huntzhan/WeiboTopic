@@ -28,6 +28,19 @@ def make_list_item(items):
         yield list(item)
 
 
+class CWDSwitcher(object):
+
+    def __init__(self, program_path):
+        current_cwd = os.getcwd()
+        switch_cwd = os.path.dirname(program_path)
+
+    def __enter__(self):
+        os.chdir(self.switch_cwd)
+
+    def __exit__(self, *args):
+        os.chdir(self.current_cwd)
+
+
 def call_procedure(command, input_sets):
     output_sets = []
     for args in input_sets:
@@ -39,7 +52,8 @@ def call_procedure(command, input_sets):
         # insert command.
         args.insert(0, command)
         # run program.
-        subprocess.call(args)
+        with CWDSwitcher():
+            subprocess.call(args)
         # collect output.
         for line in filter(bool,
                            temp_file.read().split(os.linesep)):
