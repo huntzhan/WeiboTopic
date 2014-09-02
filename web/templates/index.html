@@ -1,0 +1,79 @@
+{% extends "topics.html" %}
+{% block title %}Index{% endblock %}
+{% block topics %}
+<table class='table table-striped'>
+    {% for entry in topics %}
+    <tr class='row'>
+        <td>
+            <span>
+                <a class='col-md-8' class='btn' data-toggle='modal' href='#topic-dialog'>
+                    {{ entry.summary }}
+                </a>
+                <span class='col-md-4'>
+                    Number of blogs
+                </span>
+            </span>
+            <span>
+                {% for keyword in entry.keywords %}
+                {{ keyword }}
+                {% endfor %}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+{% block politics %}
+<table class='table table-striped'>
+    {% for entry in topics %}
+    <tr class='row'>
+        <td>
+            <span>
+                <a class='col-md-8' class='btn' data-toggle='modal' href='#topic-dialog'>
+                    Political {{ entry.summary }}
+                </a>
+                <span class='col-md-4'>
+                    Number of blogs
+                </span>
+            </span>
+            <span>
+                {% for keyword in entry.keywords %}
+                {{ keyword }}
+                {% endfor %}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+{% block subtopic %}
+<div id='topic-dialog' class='modal fade' tabindex='-1' role='dialog'>
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal'>&times;</button>
+                <h3>Topic</h3>
+            </div>
+            <div class='modal-body'>
+                <table class='table table-striped'>
+                    {% for i in range (1,6): %}
+                    <tr>
+                        <h4>Sub Topic</h4>
+                        <ul>
+                            <li><p>blog...</p>
+                            <li><p>blog...</p>
+                            <li><p>blog...</p>
+                            <li><p>blog...</p>
+                            <li><p>blog...</p>
+                        </ul>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn btn-success' data-dismiss='modal'>Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
