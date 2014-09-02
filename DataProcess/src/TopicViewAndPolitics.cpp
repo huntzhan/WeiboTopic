@@ -29,7 +29,7 @@ void TopicViewAndPolitics::InsterAllTopicToDatabase(){
     std::cout<<"表名输出错误"<<std::endl;
     return ;
   }
-  outfile<<this->dboper->topic_table_name<<std::endl;
+  outfile<<this->dboper->database_name+"."+this->dboper->topic_table_name<<std::endl;
   this->tw.InitTopicView(this->dboper,this->clusterList,this->NUM_OF_SUB_WORD,4);
 
   this->ispo.InitIsPolitics();

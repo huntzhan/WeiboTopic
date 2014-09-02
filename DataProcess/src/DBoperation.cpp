@@ -400,7 +400,7 @@ void DBoperation::InsertData(Topic &onetopic, int flag, ofstream &outfile) {
 
       CreateTable(table_name);
       std::string oneline(table_name);
-      outfile<<oneline+",";
+      outfile<<this->database_name+"."+oneline+","; 
       //解锁
 //      pthread_mutex_unlock (&job_queue_mutex);
     }
