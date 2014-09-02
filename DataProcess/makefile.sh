@@ -1,2 +1,2 @@
 make -f myMakeFile
-cd ./bin
+rm -rf ./src/*.o

@@ -24,6 +24,12 @@ std::vector<std::string> split2(std::string str){
 
 //将所有的话题插入数据库，这里考虑优化为多线程
 void TopicViewAndPolitics::InsterAllTopicToDatabase(){
+  std::ofstream outfile(this->output_filename.c_str());
+  if(!outfile){
+    std::cout<<"表名输出错误"<<std::endl;
+    return ;
+  }
+  outfile<<this->dboper->topic_table_name<<std::endl;
   this->tw.InitTopicView(this->dboper,this->clusterList,this->NUM_OF_SUB_WORD,4);
 
   this->ispo.InitIsPolitics();
@@ -39,8 +45,10 @@ void TopicViewAndPolitics::InsterAllTopicToDatabase(){
       break;
     }
     topicnum++;
-    this->GetOneTopicWeiboByBatch(*it,topicnum);
+    this->GetOneTopicWeiboByBatch(*it,topicnum,outfile);
   }
+  outfile<<std::endl;
+  outfile.close();
 }
 
 void print10weibo(std::list<Weibo> &weibolist){
@@ -81,7 +89,7 @@ void TopicViewAndPolitics::QueryWeiboIntime( std::map<string ,std::list<std::str
   }
 }
 //批量查询数据库
-void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnum){
+void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnum ,ofstream &outfile){
 
   //一个表下面的多条微博，一次批量查询一个表
   if(one_topic.topic_message_num<=this->MIN_TOPIC_MESSAGE_NUM)return;
@@ -143,7 +151,7 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
     totalnum++;
     if(totalnum>=10000){
       QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
-      this->dboper->InsertData(one_topic,flag);
+      this->dboper->InsertData(one_topic,flag,outfile);
       std::cout<<"插入数据库一次，插入了 "<<totalnum<<" 条微博"<<std::endl;
       table_to_weibo.clear();
       one_topic.topic_weibo.clear();
@@ -156,7 +164,7 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
   QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
   //暂时切换为输出数据到本地文本
 //  this->SaveFileToLocal(one_topic,topicnum);
-  this->dboper->InsertData(one_topic,flag);
+  this->dboper->InsertData(one_topic,flag,outfile);
   one_topic.topic_weibo.clear();
   std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 }

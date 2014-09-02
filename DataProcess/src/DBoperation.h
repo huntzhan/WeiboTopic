@@ -13,6 +13,7 @@
 #include <mysql/mysql.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
+#include<fstream>
 namespace Coverage{
 	typedef struct _weibo{
 		std::string mid;
@@ -50,7 +51,7 @@ public:
 	void DBTableInit(int weibo_size,int OneTimeReadWeiboNum,int tableIndex,std::list<std::string>table);
 
 	MYSQL my_connection;
-	void DBinit(std::string database, ConnPool *connpool);
+	void DBinit(std::string database, std::string topic_table_name, ConnPool *connpool);
 	void DBclose();
 	void SetTableName(const std::string table_name);
 	long GetTablecount();
@@ -62,7 +63,7 @@ public:
 	int  GetNewserID(std::string OneDayTopic_name);
 	void InsertTopicWeiboIdToDatabase(Topic &onetopic,std::string mytablename);
 
-	void InsertData(Topic &onetopic, int flag);
+	void InsertData(Topic &onetopic, int flag, ofstream &outfile);
 	std::vector<std::string> stringSplitToVector(std::string  &str,int splitLen);
 
 	std::vector<std::string> BoostMatchWord(std::string str);
@@ -76,12 +77,9 @@ public:
 	std::vector<std::string> RegexTagWord(std::string &weibo_origin_text);
 	bool iswordinregexresult(std::vector<std::string>&regexresult, std::string word);
 	void GetMidandTextAndSplit(long startline,long length,std::list<OneWeibo> &result);
-
-	void DropTable(std::string table_prefix);
-	
 	void GetTagText(std::list<Coverage::WEIBO > &result,std::string content);
 	void getTopicMainIdea(std::vector<pair<int ,string>  > &result);
-	
+	void DropTable(std::string table_prefix);
 };
 
 #endif
