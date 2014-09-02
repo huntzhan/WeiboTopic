@@ -117,13 +117,14 @@ void SubTopicHandler::StoreSubTopic(
   ostringstream formated_sql;
   // prepare table.
   unique_ptr<Statement> stmt(conn->createStatement());
-  stmt->execute("DROP TEMPORARY TABLE IF EXISTS " + table_name());
-  ostringstream formated_sql;
+  stmt->execute("DROP TABLE IF EXISTS " + table_name());
   formated_sql << "CREATE TABLE "
                << table_name()
-               << "(id NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+               << "(id MEDIUMINT NOT NULL AUTO_INCREMENT, "
                   "content VARCHAR(255), "
-                  "keywords VARCHAR(255) )";
+                  "keywords VARCHAR(255), "
+                  "PRIMARY KEY(id) ) "
+               << "ENGINE=InnoDB CHARACTER SET=utf8";
   stmt->execute(formated_sql.str());
   // write to table.
   // reset formated_sql.
@@ -134,9 +135,9 @@ void SubTopicHandler::StoreSubTopic(
   for (auto iter = sub_topic_messages.cbegin();
        iter != sub_topic_messages.cend(); ++iter) {
     formated_sql << "(" 
-                 << std::get<0>(*iter)
+                 << "\"" << std::get<0>(*iter) << "\""
                  << ","
-                 << std::get<1>(*iter)
+                 << "\"" << std::get<1>(*iter) << "\""
                  << ")";
     int remain = distance(iter, sub_topic_messages.cend());
     if (remain > 1) {

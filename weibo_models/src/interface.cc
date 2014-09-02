@@ -60,7 +60,7 @@ using data_mining::MaxEvaluationItemInItemSet;
 
 
 constexpr const int kDimension = 10;
-constexpr const int kMaxProcessSize = 1000;
+constexpr const int kMaxProcessSize = 500;
 constexpr const int kPrintSize = 50;
 
 
@@ -187,7 +187,11 @@ tuple<string, string> PackupMessagePair(
   ostringstream keyword_text;
   for (size_t index = 0; index != features.size(); ++index) {
     bool has_feature = features[index];
-    if (has_feature) { keyword_text << keywords[index]; }
+    if (has_feature) {
+      keyword_text << keywords[index];
+    } else {
+      continue;
+    }
     if (index != features.size() - 1) {keyword_text << " "; }
   }
   return make_tuple(text, keyword_text.str());
@@ -234,7 +238,7 @@ void StoreTables(const string &input_database_name,
 int main(int args, char **argv) {
   if (args != 3) {
     cout << "Error argument size." << endl;
-    return;
+    return -1;
   }
   // extract arguments.
   const string output_file_path = argv[1];
@@ -290,9 +294,8 @@ int main(int args, char **argv) {
 
   while (clustering_handler.NotStop()) {
     clustering_handler.SingleMove();
-    auto item_sets = clustering_handler.item_sets();
-    double max_cu_value = clustering_handler.max_cu_value();
-
+    // auto item_sets = clustering_handler.item_sets();
+    // double max_cu_value = clustering_handler.max_cu_value();
     // PrintItemSetInfo(item_sets, max_cu_value);
   }
 
