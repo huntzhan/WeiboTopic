@@ -6,8 +6,16 @@ import os
 from tempfile import NamedTemporaryFile
 
 from weibo_crawl.statistics import TableState
-from weibo_crawl.persist import DB_URL
 from weibo_crawl.bussiness import Schedule
+
+
+DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
+    'root',
+    '123456',
+    '192.168.1.108',
+    '3306',
+    'sina',
+)
 
 
 ROOT = os.getcwd()
@@ -25,14 +33,14 @@ group_adjacent = lambda a, k: zip(*([iter(a)] * k))
 
 def make_list_item(items):
     for item in items:
-        yield list(item)
+        yield [item]
 
 
 class CWDSwitcher(object):
 
     def __init__(self, program_path):
-        current_cwd = os.getcwd()
-        switch_cwd = os.path.dirname(program_path)
+        self.current_cwd = os.getcwd()
+        self.switch_cwd = os.path.dirname(program_path)
 
     def __enter__(self):
         os.chdir(self.switch_cwd)
@@ -52,7 +60,8 @@ def call_procedure(command, input_sets):
         # insert command.
         args.insert(0, command)
         # run program.
-        with CWDSwitcher():
+        print(args)
+        with CWDSwitcher(command):
             subprocess.call(args)
         # collect output.
         for line in filter(bool,
@@ -67,7 +76,8 @@ def call_procedure(command, input_sets):
 class TopicGenerator(object):
 
     # recent 24 hours.
-    INTERVAL_LIMIT = 86400
+    # INTERVAL_LIMIT = 86400
+    INTERVAL_LIMIT = 10800
     table_state = TableState(DB_URL, INTERVAL_LIMIT)
 
     @classmethod
@@ -81,6 +91,7 @@ class TopicGenerator(object):
         @brief: a generator yield (Microblog, WeiboUser, UserToBlog).
         """
         static_tables = list(cls.table_state.get_static_tables())
+        print("Size: ", len(static_tables) / 3)
         for message, user2message, user in\
                 group_adjacent(static_tables, 3):
             cls._check_table_name(message, 'Microblog')
@@ -112,7 +123,7 @@ def intergration():
     # get topics.
     topic_tables = call_procedure(
         TOPIC_ABS_PATH,
-        make_list_item(clean_tables),
+        clean_tables,
     )
     topic_tables, message_tables = classify_topic_outputs(topic_tables)
     pprint(topic_tables)

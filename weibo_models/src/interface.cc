@@ -250,8 +250,9 @@ void StoreTables(const string &input_database_name,
     // casue I've used the same database.
     out << input_database_name << "." << output_table_names[index];
     if (index != output_table_names.size() - 1) {
-      cout << ",";
+      out << ",";
     }
+    out << endl;
   }
   out.close();
 }

@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
 	int RAND_SIZE = 10000;
 
 	//计算倒排索引的时候有多少个词出现在一条微博就算这条微博属于这个话题
-	int BELONG_TOPIC_THROD = 2;
+	int BELONG_TOPIC_THROD = 3;
 
 	//提取子话题时提取的单位词的个数
 	int NUM_OF_SUB_WORD = 4;
