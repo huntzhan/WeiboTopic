@@ -15,6 +15,7 @@
 // ============================================================================
 #include <vector>
 #include <set>
+#include <cstddef>
 #include <string>
 #include <sstream>
 #include <iterator>
@@ -32,6 +33,7 @@
 using std::cout;
 using std::endl;
 
+using std::size_t;
 using std::ofstream;
 using std::distance;
 using std::vector;
@@ -244,7 +246,7 @@ void StoreTables(const string &input_database_name,
   }
   // output new table names..
   ofstream out(output_file_path);
-  for (int index = 0; index != output_table_names.size(); ++index) {
+  for (size_t index = 0; index != output_table_names.size(); ++index) {
     // casue I've used the same database.
     out << input_database_name << "." << output_table_names[index];
     if (index != output_table_names.size() - 1) {
