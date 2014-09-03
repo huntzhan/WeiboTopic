@@ -77,7 +77,7 @@ class TopicGenerator(object):
 
     # recent 24 hours.
     # INTERVAL_LIMIT = 86400
-    INTERVAL_LIMIT = 10800
+    INTERVAL_LIMIT = 43200
     table_state = TableState(DB_URL, INTERVAL_LIMIT)
 
     @classmethod
