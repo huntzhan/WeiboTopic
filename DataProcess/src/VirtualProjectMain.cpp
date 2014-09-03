@@ -14,6 +14,7 @@
 #include "GetTopic.h"
 #include "Cluster.h"
 #include "DEBUG.h"
+#include "coverage.h"
 #include<iostream>
 #include<time.h>
 #define DEBUG
@@ -51,7 +52,7 @@ int main(int argc, char * argv[]) {
 	int RAND_SIZE = 10000;
 
 	//计算倒排索引的时候有多少个词出现在一条微博就算这条微博属于这个话题
-	int BELONG_TOPIC_THROD = 3;
+	int BELONG_TOPIC_THROD = 2;
 
 	//提取子话题时提取的单位词的个数
 	int NUM_OF_SUB_WORD = 4;
@@ -75,8 +76,8 @@ int main(int argc, char * argv[]) {
 	string output_filename(argv[1]);
 	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
 	DBoperation dboper;
-
-
+	
+//	CCoverage m_coverage(&dboper);
 //从主函数输入参数
 #ifdef MAIN_PARAM
   if(argc!=3){
