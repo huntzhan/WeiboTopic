@@ -20,7 +20,7 @@ DB_URL = 'mysql://{}:{}@{}:{}/{}?charset=utf8&use_unicode=0'.format(
 
 ROOT = os.getcwd()
 CLEAN_REL_PATH = 'weibo_ad_filter/build/run_filter'
-TOPIC_REL_PATH = 'DataProcess/bin/VirtualProject'
+TOPIC_REL_PATH = 'DataProcess/bin/run_dataprocess'
 SUBTOPIC_REL_PATH = 'weibo_models/build/interface'
 
 CLEAN_ABS_PATH = os.path.join(ROOT, CLEAN_REL_PATH)
