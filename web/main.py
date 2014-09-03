@@ -1,3 +1,6 @@
+import sys
+import getopt
+
 from flask import Flask, render_template
 
 from model import Topic, SubTopic
@@ -45,5 +48,9 @@ def metrics():
 
 
 if __name__ == '__main__':
+    topic_db_name, topic_table_name = sys.argv[1].split('.')
+    subtopic_db_name, subtopic_table_name = sys.argv[2].split('.')
+
+    # run the web server
     app.run(host='0.0.0.0')
     # app.run()
