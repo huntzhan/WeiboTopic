@@ -13,6 +13,7 @@
 #include"TopicView.h"
 #include"IsPolitics.h"
 #include"CooccurrenceWord.h"
+#include<fstream>
 class TopicViewAndPolitics{
   //生成子话题对象
   TopicView tw;
@@ -34,21 +35,26 @@ class TopicViewAndPolitics{
   //话题下观点提取代表性的微博数
   int TOPICVIEW_WEIBO_NUM;
 
+  //输出文件的名字
+  std::string output_filename;
+
 public:
   //初始化函数，设置参数
   void InitTopicViewAndPolitics(DBoperation * dboper,std::vector<Topic>*clusterList,int NUM_OF_SUB_WORD,
-      int MIN_TOPIC_MESSAGE_NUM,int TOPICVIEW_WEIBO_NUM,std::map<std::string,CooccurrenceWord> *co_ccur_matrix){
+      int MIN_TOPIC_MESSAGE_NUM,int TOPICVIEW_WEIBO_NUM,std::map<std::string,CooccurrenceWord> *co_ccur_matrix,
+      std::string output_filename){
     this->dboper=dboper;
     this->clusterList=clusterList;
     this->NUM_OF_SUB_WORD=NUM_OF_SUB_WORD;
     this->MIN_TOPIC_MESSAGE_NUM=MIN_TOPIC_MESSAGE_NUM;
     this->TOPICVIEW_WEIBO_NUM=TOPICVIEW_WEIBO_NUM;
     this->co_ccur_matrix=co_ccur_matrix;
+    this->output_filename=output_filename;
   }
 
   void InsterAllTopicToDatabase();
   void InsertTopicToDatabase(Topic &one_topic);
-  void GetOneTopicWeiboByBatch(Topic &one_topic, int topicnum);
+  void GetOneTopicWeiboByBatch(Topic &one_topic, int topicnum,ofstream &outfile);
   void printMessage(Topic &one_topic, int topicnum);
   void QueryWeiboIntime( std::map<string ,std::list<std::string> >&table_to_weibo,
       std::list<Weibo> &weibocontentlist);

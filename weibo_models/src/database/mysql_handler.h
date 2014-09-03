@@ -17,6 +17,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <tuple>
 
 #include "mysql_driver.h"
 #include "cppconn/driver.h"
@@ -27,6 +28,7 @@
 namespace mysql_handler {
 
 using SharedConn = std::shared_ptr<sql::Connection>;
+using VecMessagePair = std::vector<std::tuple<std::string, std::string>>; 
 
 // @brief: class to target table.
 class DatabaseLocation {
@@ -100,6 +102,15 @@ class TopicHandler : public SimpleHandler {
       : SimpleHandler(db_name, table_name) {/* empty */}
   std::vector<std::string> GetMessages();
 };
+
+
+class SubTopicHandler : public SimpleHandler {
+ public:
+  SubTopicHandler(const std::string &db_name, const std::string &table_name)
+      : SimpleHandler(db_name, table_name) {/* empty */}
+  void StoreSubTopic(const VecMessagePair &sub_topic_messages);
+};
+
 
 }  // namespace mysql_handler
 #endif

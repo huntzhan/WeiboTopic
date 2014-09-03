@@ -16,11 +16,13 @@
 
 #include "database/mysql_handler.h"
 
+#include <iterator>
 #include <string>
 #include <memory>
 #include <utility>
 #include <sstream>
 
+#include "mysql_connection.h"
 #include "mysql_driver.h"
 #include "cppconn/driver.h"
 #include "cppconn/exception.h"
@@ -28,13 +30,17 @@
 #include "cppconn/statement.h"
 
 
+using std::distance;
+using std::tuple;
 using std::string;
 using std::ostringstream;
 using std::vector;
 using std::unique_ptr;
+
 using sql::Driver;
 using sql::Statement;
 using sql::ResultSet;
+using sql::mysql::MySQL_Connection;
 
 
 namespace mysql_handler {
@@ -105,6 +111,46 @@ vector<string> TopicHandler::GetMessages() {
     results.push_back(res->getString("content"));
   }
   return results;
+}
+
+
+void SubTopicHandler::StoreSubTopic(
+    const VecMessagePair &sub_topic_messages) {
+  auto conn = current_conn();
+  // another for escaping.
+  MySQL_Connection *stupid_conn = dynamic_cast<MySQL_Connection*>(conn.get());
+
+  ostringstream formated_sql;
+  // prepare table.
+  unique_ptr<Statement> stmt(conn->createStatement());
+  stmt->execute("DROP TABLE IF EXISTS " + table_name());
+  formated_sql << "CREATE TABLE "
+               << table_name()
+               << "(id MEDIUMINT NOT NULL AUTO_INCREMENT, "
+                  "content VARCHAR(255), "
+                  "keywords VARCHAR(255), "
+                  "PRIMARY KEY(id) ) "
+               << "ENGINE=InnoDB CHARACTER SET=utf8";
+  stmt->execute(formated_sql.str());
+  // write to table.
+  // reset formated_sql.
+  formated_sql.str("");
+  formated_sql << "INSERT INTO " << table_name()
+               << "(content, keywords) "
+               << "VALUES ";
+  for (auto iter = sub_topic_messages.cbegin();
+       iter != sub_topic_messages.cend(); ++iter) {
+    formated_sql << "(\"" 
+                 << stupid_conn->escapeString(std::get<0>(*iter))
+                 << "\",\""
+                 << stupid_conn->escapeString(std::get<1>(*iter))
+                 << "\")";
+    int remain = distance(iter, sub_topic_messages.cend());
+    if (remain > 1) {
+      formated_sql << ", ";
+    }
+  }
+  stmt->execute(formated_sql.str());
 }
 
 

@@ -41,17 +41,26 @@ logger.setLevel(logging.INFO)
 
 class TableState(object):
 
-    def __init__(self, db_url):
+    def __init__(self, db_url, interval_limit=None):
         self.db_url = db_url
         self.cached_static_table_names = OrderedDict()
+        self.interval_limit = interval_limit
 
-    def extract_key(self, db_name):
-        name = re.sub(r'\d+', '', db_name)
-        match = re.search(r'\d+', db_name)
+    def extract_key(self, table_name):
+        name = re.sub(r'\d+', '', table_name)
+        match = re.search(r'\d+', table_name)
         if match:
             return match.group(0), name
         else:
             return '', ''
+
+    def _check_timestamp(self, table_name):
+        epoch, _ = self.extract_key(table_name)
+        if self.interval_limit is None:
+            return True
+        if time.time() - int(epoch) > self.interval_limit:
+            return False
+        return True
 
     def _double_check_strategy(self):
         engine = create_engine(self.db_url)
@@ -71,6 +80,9 @@ class TableState(object):
         for table_name in table_names:
             if table_name in self.cached_static_table_names:
                 continue
+            if not self._check_timestamp(table_name):
+                continue
+
             new_tables[table_name] = get_table_size(table_name)
         # sleep for a while.
         time.sleep(5)
