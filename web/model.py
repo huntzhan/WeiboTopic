@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from db import DBOperator
 
@@ -72,8 +73,12 @@ class CachedModel:
     @classmethod
     def _MakeTopicFromRow(cls, row, timestamp):
         topic_id = row[0]
-        keywords = row[1].encode('utf-8')
-        mainidea = row[2].encode('utf-8')
+        # keywords = row[1].encode('utf-8')
+        # mainidea = row[2].encode('utf-8')
+        keywords = row[1]
+        mainidea = row[2]
+        # keywords = unicode(row[1], 'utf8')
+        # mainidea = unicode(row[2], 'utf8')
         number = row[3]
         is_politic = row[4]
         return Topic(timestamp,

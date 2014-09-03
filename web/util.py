@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import time
 from time import mktime
@@ -6,9 +7,13 @@ from time import mktime
 def ToTimestamp(_datetime):
     """
     @brief
-    @input _datetime: format '09/10/2014 02:52'
+    @input _datetime: format '09/28/2014 02:52 PM'
     """
-    _datetime = _datetime[0:-2] + '00'
-    t_stru = time.strptime(_datetime, "%d/%m/%Y %H:%M")
+    am_pm = _datetime[-2:]
+    hour = int(_datetime[-8:-6])
+    if am_pm == 'PM':
+        hour+= 12
+    _datetime = _datetime[0:-8] + str(hour) + ':00'
+    t_stru = time.strptime(_datetime, "%m/%d/%Y %H:%M")
     t_secs = long(mktime(t_stru))
     return str(t_secs)

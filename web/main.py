@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import getopt
 
@@ -18,16 +20,19 @@ app.config.update(dict(
 @app.route('/')
 def index():
     tar_time = request.args.get('time', '')
-    if tar_time == '':
+    if tar_time == '' or\
+       len(tar_time) != len("09/10/2014 02:52 PM"):
         return render_template('index.html')
     else:
         topics = []
-        # 09/10/2014 02:52
-        # get topics
-        timestamp = ToTimestamp(tar_time)
+        politic_topics = []
+        timestamp = ToTimestamp(tar_time) # format: 09/28/2014 02:52 PM
         topics = CachedModel.GetOneHourTopic(timestamp)
-        if len(topics) == 0:
-            return render_template('index.html', topics=topics)
+        for topic in topics:
+            if topic.is_politic == 1L:
+                politic_topics.append(topic)
+        if len(topics) != 0:
+            return render_template('index.html', topics=topics, politic_topics=politic_topics)
         else:
             return render_template('index.html')
     # return redirect(url_for('show_entries'))

@@ -12,44 +12,44 @@
                     {{ entry.mainidea }}
                 </a>
                 <span class='col-md-4'>
-                    Number of blogs
+                    blogs: {{ entry.number_of_blogs }}
                 </span>
             </span>
             <span>
-                {% for keyword in entry.keywords %}
-                {{ keyword }}
-                {% endfor %}
+                <lead>Keywords</lead>: {{ entry.keywords }}
             </span>
         </td>
     </tr>
     {% else %}
+    <tr class='row'>
         <em>Unbelievable.  No entries here so far</em>
+    </tr>
     {% endfor %}
 </table>
 {% endblock %}
 <!-- political topics -->
 {% block politics %}
 <table class='table table-striped'>
-    {% for entry in topics %}
+    {% for entry in politic_topics %}
     <tr class='row'>
         <td>
             <span>
                 <a class='col-md-8' class='btn' data-toggle='modal' href='#topic-dialog'>
-                    Political {{ entry.mainidea }}
+                    {{ entry.mainidea }}
                 </a>
                 <span class='col-md-4'>
-                    Number of blogs
+                    blogs: {{ entry.number_of_blogs }}
                 </span>
             </span>
             <span>
-                {% for keyword in entry.keywords %}
-                {{ keyword }}
-                {% endfor %}
+                <lead>Keywords</lead>: {{ entry.keywords }}
             </span>
         </td>
     </tr>
     {% else %}
-    <em>Unbelievable.  No entries here so far</em>
+    <tr class='row'>
+        <em>Unbelievable.  No entries here so far</em>
+    </tr>
     {% endfor %}
 </table>
 {% endblock %}

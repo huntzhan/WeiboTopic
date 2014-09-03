@@ -14,7 +14,8 @@ class DBOperator:
         self.conn = MySQLdb.connect(user=self.username,
                                passwd=self.passwd,
                                db=self.db_name,
-                               charset='utf8')
+                               charset='utf8',
+                               use_unicode=True)
 
     def __enter__(self):
         return self
