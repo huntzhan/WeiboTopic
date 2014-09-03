@@ -1,4 +1,4 @@
-#genrate the bayes lib
+#process_SOURCE_DIR}/lib/ICTCLAS50/libICTCLAS50.agenrate the bayes lib
 SET(TRAIN_SRC TrainModel.h TrainModel.cpp)
 SET(TEST_SRC TestModel.h TestModel.cpp)
 add_library(bayes_train ${TRAIN_SRC})

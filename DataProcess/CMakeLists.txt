@@ -7,8 +7,7 @@ project(dataprocess CXX)
 ###########################
 # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -I /usr/include/mysql -m64  -O3 -DOS_LINUX  -lmysqlclient -lmysqlcppconn -lpthread -L /usr/lib64/mysql ")
 # ICTCLAS50 needs -DOS_LINUX option
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -DOS_LINUX")
-
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11 -DOS_LINUX")
 ############################
 # Setting for dependencies #
 ############################
@@ -38,6 +37,7 @@ include_directories(${dataprocess_SOURCE_DIR}/src/politic_topics)
 include_directories(${dataprocess_SOURCE_DIR}/src/topic_summary)
 include_directories(${dataprocess_SOURCE_DIR}/src/bayes)
 include_directories(${dataprocess_SOURCE_DIR}/src/singlepass)
+include_directories(${dataprocess_SOURCE_DIR}/src/coverage)
 # Normal build process should be place here.
 
 ################
@@ -49,5 +49,6 @@ set(EXECUTABLE_OUTPUT_PATH ${dataprocess_SOURCE_DIR}/bin)
 
 add_executable(run_dataprocess src/VirtualProjectMain.cpp)
 target_link_libraries(run_dataprocess bayes dboperation connection_pool
-	        cluster gentopic test ispolitics topicviewpolictics util)
+	        cluster gentopic test ispolitics topicviewpolictics util
+coverage_lib parser_lib textsplit_lib simhash_lib)
 

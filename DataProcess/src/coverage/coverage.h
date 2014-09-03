@@ -12,6 +12,8 @@
 #include <map>
 #include "simhash.h"
 #include <iomanip>
+#include "time.h"
+#include "stdio.h"
 typedef struct _topic{
 	std::string tag;
 	int num;
@@ -42,7 +44,7 @@ class CCoverage{
     vector<pair<string,unsigned> > TopicHash;
     map<int,MainTopic> matchTopic;
     vector<TopicCount> TopicSearchCount;
-    int disCount;
+    unsigned  int disCount;
     SimHash sim;
     double JaccardThrethod;
     int SimhashThrethod;
@@ -61,10 +63,10 @@ public:
     	this->dboper=m_dboper;
     }
     ~CCoverage(){}
-    void MatchTopicByJaccard(const std::string hotTopic);
+    void MatchTopicByJaccard(const std::string hotTopic,const std::string OneDayTopic);
     void MatchTopicBySimHash();
-    void GetSearchCount(void);
-    void SearchCountSort();
+    void GetSearchCount(const std::string tablename);
+
 private:
     void GetTag();
     void SortTag();
@@ -74,7 +76,10 @@ private:
     void _MatchTopicByJaccard();
     void DisplayMatch();
     void GetHourTopic(const char * path);
-
+    void OutPutResult();
+    string TramTime(const std::string table);
+    void mGetSearchCount(void);
+    void SearchCountSort();
  //  bool SortCmp(const pair<string,TopicTag> &key1,const pair<string,TopicTag> &key2);
 
 };
