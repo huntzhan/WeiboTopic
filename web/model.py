@@ -1,4 +1,5 @@
 
+from db import DBOperator
 
 class Topic:
     """ @brief one timestamp(one hour) uniquely determines one Topic instance, which usually has many topics
@@ -10,6 +11,12 @@ class Topic:
         self.mainidea = kwargs['mainidea']
         self.number_of_blogs = kwargs['weibonumber']
         self.is_politic = kwargs['isPolitic']
+
+    def __repr__(self):
+        return "%s-%d, number: %d, is political: %d\n%s\n%s\n" %\
+            (self.timestamp, self.id,
+             self.number_of_blogs, self.is_politic,
+             self.mainidea, self.keywords)
 
 
 class Blog:
@@ -33,52 +40,45 @@ class SubTopic:
 
 class CachedModel:
     cached_topics = []
-    LIMIT = 0
-    TOPN = 25
+    db_handler = DBOperator()
+    # TOPN = 25
     CACHE_TOPIC_LIMIT = 100
 
     @classmethod
     def GetOneHourTopic(cls, timestamp):
         """
         @brief construct a 'most-recent-used-first' cached Topic list
+        @return [] if table doesn't exist
         """
         tar = None
-        for i in range [0, len(cls.cache_topics)-1]:
-            if cls.cache_topics[i].timestamp == timestamp:
+        for i in range(0, len(cls.cached_topics)-1):
+            if cls.cached_topics[i].timestamp == timestamp:
                 tar = i
+        topics = []
         if tar:
-            topic = cls.cache_topics[tar]
-            del cls.cache_topics[tar]
-            cls.cache_topics.insert(0, topic)
+            topics = cls.cached_topics[tar]
+            del cls.cached_topics[tar]
+            cls.cached_topics.insert(0, topics)
         else :
-            topic = DBOperator.GetOneHourTopics(timestamp, LIMIT, TOPN)
-            cls.cache_topics.insert(0, topic)
-            while len(cls.cache_topics) > CACHE_TOPIC_LIMIT:
-                cls.cache_topics.pop()
+            rows = cls.db_handler.GetOneHourTopics(timestamp)
+            if rows:
+                for row in rows:
+                    topics.append(cls._MakeTopicFromRow(row, timestamp))
+                cls.cached_topics.insert(0, topics)
+                while len(cls.cached_topics) > cls.CACHE_TOPIC_LIMIT:
+                    cls.cached_topics.pop()
+        return topics
 
-
-class DBOperator:
-    """
-    get topics and sub_topics from db throught raw sql queries
-    """
-
-    def __init__(self, db_name):
-        self.db_name = db_name
-
-    def GetOneHourTopics(self, timestamp, limit, topn):
-        """
-        @brief read at most 'limit' rows(topics) from db, and
-        return the top n based on the number of blogs in each topic
-        @input timestamp: format 'xxx'
-        @input limit: 0 for no limit
-        """
-        return []
-        pass
-
-    def GetSubTopics(self, timestamp, No_topic, limit):
-        """
-        @brief read the sub topic tables of one topic at the specific hour determined by timestamp
-        @input limit: 0 for no limit
-        """
-        return [[], []];
-        pass
+    @classmethod
+    def _MakeTopicFromRow(cls, row, timestamp):
+        topic_id = row[0]
+        keywords = row[1].encode('utf-8')
+        mainidea = row[2].encode('utf-8')
+        number = row[3]
+        is_politic = row[4]
+        return Topic(timestamp,
+                     topic_id,
+                     **{'keywords':keywords,
+                        'mainidea':mainidea,
+                        'weibonumber':number,
+                        'isPolitic':is_politic})

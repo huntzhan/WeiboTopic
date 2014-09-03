@@ -1,5 +1,7 @@
 {% extends "topics.html" %}
+<!-- title -->
 {% block title %}Index{% endblock %}
+<!-- topics -->
 {% block topics %}
 <table class='table table-striped'>
     {% for entry in topics %}
@@ -7,7 +9,7 @@
         <td>
             <span>
                 <a class='col-md-8' class='btn' data-toggle='modal' href='#topic-dialog'>
-                    {{ entry.summary }}
+                    {{ entry.mainidea }}
                 </a>
                 <span class='col-md-4'>
                     Number of blogs
@@ -20,9 +22,12 @@
             </span>
         </td>
     </tr>
+    {% else %}
+        <em>Unbelievable.  No entries here so far</em>
     {% endfor %}
 </table>
 {% endblock %}
+<!-- political topics -->
 {% block politics %}
 <table class='table table-striped'>
     {% for entry in topics %}
@@ -30,7 +35,7 @@
         <td>
             <span>
                 <a class='col-md-8' class='btn' data-toggle='modal' href='#topic-dialog'>
-                    Political {{ entry.summary }}
+                    Political {{ entry.mainidea }}
                 </a>
                 <span class='col-md-4'>
                     Number of blogs
@@ -43,9 +48,12 @@
             </span>
         </td>
     </tr>
+    {% else %}
+    <em>Unbelievable.  No entries here so far</em>
     {% endfor %}
 </table>
 {% endblock %}
+<!-- subtopic dialog -->
 {% block subtopic %}
 <div id='topic-dialog' class='modal fade' tabindex='-1' role='dialog'>
     <div class='modal-dialog'>
@@ -77,6 +85,7 @@
     </div>
 </div>
 {% endblock %}
+<!-- pagination -->
 {% block pagination %}
 <div class='container' align='center'>
     <ul class="pagination">
