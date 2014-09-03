@@ -1,8 +1,0 @@
-add_subdirectory(bayes)
-add_subdirectory(dbdao)
-add_subdirectory(gen_feature) 
-add_subdirectory(politic_topics) 
-add_subdirectory(singlepass) 
-add_subdirectory(test) 
-add_subdirectory(topic_summary) 
-add_subdirectory(utils) 
