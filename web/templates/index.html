@@ -3,13 +3,15 @@
 {% block title %}Index{% endblock %}
 <!-- topics -->
 {% block topics %}
-<table class='table table-striped'>
+<table id='topics' class='table table-striped'>
     {% for entry in topics %}
     <tr class='row'>
         <td>
             <span>
-                <a class='col-md-8' class='btn' data-toggle='modal' href='#topic-dialog'>
+                <a id="{{ 'get_sub_topics' }}{{ loop.index }}" class='col-md-8' class='btn' data-toggle='modal' href="#">
                     {{ entry.mainidea }}
+                    <input type=hidden size=25 name='id' value={{ entry.id }}>
+                    <input type=hidden size=25 name='timestamp' value={{ entry.timestamp}}>
                 </a>
                 <span class='col-md-4'>
                     blogs: {{ entry.number_of_blogs }}
@@ -98,4 +100,8 @@
         <li><a href="#">&raquo;</a></li>
     </ul>
 </div>
+{% endblock %}
+{% block js %}
+{{ super() }}
+    <script type="text/javascript" src="static/js/subtopic.js"></script>
 {% endblock %}

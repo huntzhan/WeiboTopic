@@ -1,20 +1,14 @@
 {% extends "layout.html" %}
-{% block header %}
+{% block header %} 
+    <!-- time picker -->
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" media="screen"
+      href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">
 {% endblock %}
 {% block body %}
-<section class='jumbotron'>
-<div class="container" align='center'>
-    <div class='row'>
-        <h1>
-            Welcome!
-        </h1>
-        <br>
-        <p>
-        Weibo Topics Mining
-        </p>
-    </div>
-</div>
-</section>
+<!-- jumbotron -->
+{% include 'jumbotron.html' %}
+<!-- tabs -->
 <section class='container'>
 <ul class="nav nav-tabs nav-justified" role="tablist">
     <li class="active"><a data-toggle="tab" href="#common"><h3>Hotest Topics</h3></a></li>
@@ -46,4 +40,7 @@
     </form>
 </div>
 </section>
+{% endblock %}
+{% block js %}
+    <script type="text/javascript" src="static/js/timepicker.js"></script>
 {% endblock %}
