@@ -2,6 +2,7 @@
 
 import sys
 import getopt
+import json
 
 from flask import Flask
 from flask import render_template
@@ -45,7 +46,12 @@ def sub_topics():
     timestamp = request.args.get('timestamp', 0, type=str)
     print 'timestamp: ', timestamp, '   id: ', topic_id
     subtopics = CachedModel.GetSubTopics(timestamp, topic_id)
-    return json.dumps(subtopics)
+    subtopics_dict = {}
+    subtopic_count = 0
+    for subtopic in subtopics:
+        subtopics_dict[str(++subtopic_count)] = subtopic.jsonify()
+    print json.dumps(subtopics_dict, indent=4)
+    return json.dumps(subtopics_dict)
 
 
 @app.route('/about')

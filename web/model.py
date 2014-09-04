@@ -27,6 +27,12 @@ class Blog:
         self.content = _content
         self.keywords = _keywords
 
+    def jsonify(self):
+        return {
+            'content': self.content,
+            'keywords': self.keywords
+        }
+
     def __repr__(self):
         return "content: %s\nkeywords: %s\n" %\
             (self.content.encode('utf8'),
@@ -42,6 +48,18 @@ class SubTopic:
         self.topic_id = _topic_id
         self.number_of_blogs = kwargs['weibonumber']
         self.blogs = kwargs['blogs']
+
+    def jsonify(self):
+        blogs_dict = {}
+        blogs_count = 0
+        for blog in self.blogs:
+            blogs_dict[str(++blogs_count)] = blog.jsonify()
+        return {
+            'timestamp': self.timestamp,
+            'topic_id': self.topic_id,
+            'number_of_blogs': self.number_of_blogs,
+            'blogs': blogs_dict
+        }
 
     def __repr__(self):
         s = "%s_%d, number: %d\nblogs:\n" %\
