@@ -21,6 +21,7 @@
 #include <iterator>
 #include <tuple>
 #include <fstream>
+#include <random>
 
 #include "database/mysql_handler.h"
 #include "utils/dimension_reducer.h"
@@ -45,6 +46,8 @@ using std::istringstream;
 using std::ostringstream;
 using std::tuple;
 using std::make_tuple;
+using std::shuffle;
+using std::default_random_engine;
 
 using mysql_handler::TopicHandler;
 using mysql_handler::SubTopicHandler;
@@ -68,88 +71,12 @@ constexpr const int kMaxProcessSize = 500;
 constexpr const int kPrintSize = 50;
 
 
-// void PrintItemSetInfo(const ListSharedPtrItemSet &item_sets,
-//                       const double &max_cu_value) {
-//   cout << "========================================" << endl;
-//   cout << "Size: " << item_sets.size() << endl;
-// 
-//   if (item_sets.size() > kPrintSize) {
-//     return;
-//   }
-// 
-//   for (const auto &item_set : item_sets) {
-//     cout << "ID: " << item_set->id()
-//          <<  " Messages: " << item_set->items().size() << endl;
-//     cout << "Features: ";
-//     int index = 0;
-//     for (const auto &feature : item_set->features()) {
-//       cout << index++ << ":" << feature << ", ";
-//     }
-//     cout << endl;
-//   }
-//   cout << "Max CU: " << max_cu_value << endl;
-// }
-// 
-// 
-// void PrintClusterResult(const VecSharedPtrClusterResult &results,
-//                         const vector<string> &raw_messages,
-//                         const VecBitset<kDimension> &vectorized_messages,
-//                         const vector<string> &keywords) {
-//   ListSharedPtrItemSet item_sets;
-//   for (const auto &result : results) {
-//     auto item_set = result->GetItemSet();
-//     item_sets.push_back(item_set);
-//   }
-// 
-//   cout << "========================================" << endl;
-//   cout << "Cluster Result" << endl;
-//   for (const auto &item_set : item_sets) {
-//     cout << "ID: " << item_set->id()
-//          <<  " Messages: " << item_set->items().size() << endl;
-//     cout << "Features: ";
-//     int index = 0;
-//     for (const auto &feature : item_set->features()) {
-//       cout << index++ << ":" << feature << ", ";
-//     }
-//     cout << endl << "Contains: " << endl;
-//     index = 0;
-//     for (const auto &item : item_set->items()) {
-//       if (index == 10) break;
-//       int id = item->id();
-//       cout << index << ": " << raw_messages[id] << endl;
-//       ++index;
-//     }
-//     cout << endl;
-//   }
-//   cout << "========================================" << endl;
-//   for (const auto &item_set : item_sets) {
-//     auto items = MaxEvaluationItemInItemSet::TopK(item_sets, item_set, 10);
-//     // top 3 items.
-//     for (const auto &item : items) {
-//       int id = item->id();
-//       cout << "ItemSet " << item_set->id() << ": " << endl
-//            << raw_messages[id] << endl;
-// 
-//       cout << "With features: ";
-//       auto vectorized_message = vectorized_messages[id];
-//       for (size_t index = 0; index != vectorized_message.size(); ++index) {
-//         bool has_feature = vectorized_message[index];
-//         if (has_feature) {
-//           cout << index << ":" << keywords[index] << " ";
-//         }
-//       }
-//       cout << endl;
-//     }
-//     cout << endl;
-//   }
-// 
-//   cout << "========================================" << endl;
-//   int index = 0;
-//   for (const auto &word : keywords) {
-//     cout << index++ << ":" << word << " ";
-//   }
-//   cout << endl;
-// }
+template <typename Iterable>
+void reorder(Iterable *container_ptr) {
+  default_random_engine dre;
+  shuffle(container_ptr->begin(), container_ptr->end(),
+          dre);
+}
 
 
 tuple<string, string> ExtractDBAndTable(const string &text) {
@@ -273,6 +200,7 @@ int main(int args, char **argv) {
   TopicHandler handler(database_name, table_name);
   handler.Init();
   auto raw_messages = handler.GetMessages();
+  reorder(&raw_messages);
   cout << "Got messages." << endl;
 
   TFIDFDimensionReducer<kDimension> reducer;

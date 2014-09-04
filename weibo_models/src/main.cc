@@ -17,6 +17,7 @@
 #include <set>
 #include <string>
 #include <iterator>
+#include <random>
 
 #include "database/mysql_handler.h"
 #include "utils/dimension_reducer.h"
@@ -33,6 +34,8 @@ using std::distance;
 using std::vector;
 using std::set;
 using std::string;
+using std::shuffle;
+using std::default_random_engine;
 
 using mysql_handler::TopicHandler;
 using utils::VecBitset;
@@ -47,6 +50,14 @@ using data_mining::MaxEvaluationItemInItemSet;
 constexpr const int kDimension = 10;
 constexpr const int kMaxProcessSize = 1000;
 constexpr const int kPrintSize = 50;
+
+
+template <typename Iterable>
+void reorder(Iterable *container_ptr) {
+  default_random_engine dre;
+  shuffle(container_ptr->begin(), container_ptr->end(),
+          dre);
+}
 
 
 void PrintItemSetInfo(const ListSharedPtrItemSet &item_sets,
@@ -133,11 +144,13 @@ void PrintClusterResult(const VecSharedPtrClusterResult &results,
 }
 
 
-int main() {
-  // TopicHandler handler("testcase", "SingleTopic");
-  TopicHandler handler("split", "Topic_20140827_4");
+int main(int args, char **argv) {
+  const string database_name = argv[1];
+  const string table_name = argv[2];
+  TopicHandler handler(database_name, table_name);
   handler.Init();
   auto raw_messages = handler.GetMessages();
+  reorder(&raw_messages);
   cout << "Got messages." << endl;
 
   TFIDFDimensionReducer<kDimension> reducer;
