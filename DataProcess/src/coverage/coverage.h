@@ -44,10 +44,11 @@ class CCoverage{
     vector<pair<string,unsigned> > TopicHash;
     map<int,MainTopic> matchTopic;
     vector<TopicCount> TopicSearchCount;
-    unsigned  int disCount;
+    int disCount;
     SimHash sim;
     double JaccardThrethod;
     int SimhashThrethod;
+    string time;
 public:
     map<unsigned,string> TagHash;  //标准的话题
     vector<MainTopic> topicMainIdea; //聚类出的话题
