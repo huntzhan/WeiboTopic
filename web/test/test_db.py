@@ -19,5 +19,15 @@ class TestDB(unittest.TestCase):
         for r in rows:
             print r[1].encode('utf8')
 
+    def test_get_sub_topic(self):
+        No_topic = 1
+        sub_topics = self.db_handler.GetSubTopics(self.demo, No_topic)
+        for sub_topic in sub_topics:
+            for row in sub_topic:
+                print row[0]
+                print row[1]
+                print row[2]
+
+
 if __name__ == '__main__':
     unittest.main()

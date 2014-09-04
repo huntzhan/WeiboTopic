@@ -11,6 +11,13 @@ class TestModel(unittest.TestCase):
             print t
             print ''
 
+    def test_cachemodel(self):
+        demo = '1409670000'
+        No_topic = 1
+        subtopics = CachedModel.GetSubTopics(demo, No_topic)
+        for sub in subtopics:
+            print sub
+
 
 if __name__ == '__main__':
     unittest.main()

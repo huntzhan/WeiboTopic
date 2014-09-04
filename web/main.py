@@ -12,8 +12,8 @@ from util import ToTimestamp
 
 app = Flask(__name__)
 app.config.update(dict(
-    # DEBUG=False
-    DEBUG=True
+    DEBUG=False
+    # DEBUG=True
 ))
 
 
@@ -37,6 +37,15 @@ def index():
             return render_template('index.html')
     # return redirect(url_for('show_entries'))
     # return render_template('index.html', topics=topics)
+
+
+@app.route('/sub_topics')
+def sub_topics():
+    topic_id = request.args.get('id', 0, type=int)
+    timestamp = request.args.get('timestamp', 0, type=str)
+    print 'timestamp: ', timestamp, '   id: ', topic_id
+    subtopics = CachedModel.GetSubTopics(timestamp, topic_id)
+    return json.dumps(subtopics)
 
 
 @app.route('/about')

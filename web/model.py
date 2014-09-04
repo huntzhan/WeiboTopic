@@ -17,26 +17,40 @@ class Topic:
         return "%s-%d, number: %d, is political: %d\n%s\n%s\n" %\
             (self.timestamp, self.id,
              self.number_of_blogs, self.is_politic,
-             self.mainidea, self.keywords)
+             self.mainidea.encode('utf8'), self.keywords.encode('utf8'))
 
 
 class Blog:
     """ @brief Blog instances usually belong to one SubTopic instance
     """
-    def __init__(self, _mid, _content, _keywords):
-        self.mid = _mid
+    def __init__(self, _content, _keywords):
         self.content = _content
         self.keywords = _keywords
 
+    def __repr__(self):
+        return "content: %s\nkeywords: %s\n" %\
+            (self.content.encode('utf8'),
+             self.keywords.encode('utf8'))
+
 
 class SubTopic:
-    """ @brief timestamp&topic_id may has many SubTopic instances
+    """
+    @brief timestamp&topic_id may has many SubTopic instances
     """
     def __init__(self, _timestamp, _topic_id, **kwargs):
         self.timestamp = _timestamp
         self.topic_id = _topic_id
         self.number_of_blogs = kwargs['weibonumber']
         self.blogs = kwargs['blogs']
+
+    def __repr__(self):
+        s = "%s_%d, number: %d\nblogs:\n" %\
+            (self.timestamp.encode('utf8'),
+             self.topic_id,
+             self.number_of_blogs)
+        for blog in self.blogs:
+            s += str(blog)
+        return s
 
 
 class CachedModel:
@@ -52,8 +66,8 @@ class CachedModel:
         @return [] if table doesn't exist
         """
         tar = None
-        for i in range(0, len(cls.cached_topics)-1):
-            if cls.cached_topics[i].timestamp == timestamp:
+        for i in range(0, len(cls.cached_topics)):
+            if (cls.cached_topics[i][0]).timestamp == timestamp:
                 tar = i
         topics = []
         if tar:
@@ -87,3 +101,29 @@ class CachedModel:
                         'mainidea':mainidea,
                         'weibonumber':number,
                         'isPolitic':is_politic})
+
+    @classmethod
+    def GetSubTopics(cls, timestamp, No_topic):
+        """
+        @brief return None if no sub topics
+        """
+        sub_topic_tables = cls.db_handler.GetSubTopics(timestamp, No_topic)
+        if len(sub_topic_tables) == 0:
+            return None
+        sub_topics = []
+        for sub_topic in sub_topic_tables:
+            sub_topics.append(cls._MakeSubTopicFromRows(sub_topic, timestamp, No_topic))
+        return sub_topics
+
+    @classmethod
+    def _MakeSubTopicFromRows(cls, rows, timestamp, No_topic):
+        blogs = []
+        for row in rows:
+            blogs.append(cls._MakeBlogFromRow(row));
+            subtopic = SubTopic(timestamp, No_topic, **{'weibonumber': len(blogs), 'blogs': blogs})
+        return subtopic
+
+    @classmethod
+    def _MakeBlogFromRow(cls, row):
+        blog = Blog(row[1], row[2])
+        return blog
