@@ -287,14 +287,21 @@ void DBoperation::GetOneWeiBo(std::string table_name1,std::string MID,Weibo &one
 /**
  * 查询数据库下面有多少张表
  */
-void DBoperation::ShowTable(std::list<std::string> &tables,int tablenum){
+void  DBoperation::SetAllTable(std::list<std::string> &tables,int from , int to){
 	ResultSet *result;
 	int count=0;
+	char sql[1024];
+	std::string statement = "show tables like '%s'";
 	try {
-		result = state->executeQuery("show tables");
+		std::string table_name=this->topic_table_name+"%";
+		sprintf(sql,statement.c_str(),table_name.c_str());
+		std::cout<<sql<<std::endl;
+		result = state->executeQuery(sql);
 			while (result->next()) {
-			  if(++count>=tablenum)break;
+			
+			  if(count>=from&&count<to)
 				tables.push_back(result->getString(1));
+			  ++count;
 		}
 	} catch (sql::SQLException&e) {
 		perror(e.what());
@@ -583,15 +590,15 @@ std::vector<std::string> DBoperation::stringSplitToVector(std::string  &str,int 
 void DBoperation::DropTable(std::string table_prefix){
   char sql_query[1024];
   std::string statement = "select concat('drop table ',table_name,';') from information_schema.tables "
-      "where table_name like '%s'";
+      "where table_schema = '%s' and table_name like '%s'";
   ResultSet * result;
-  sprintf(sql_query,statement.c_str(),table_prefix.c_str());
+  sprintf(sql_query,statement.c_str(),this->database_name.c_str(),table_prefix.c_str());
   try{
     result = state->executeQuery(sql_query);
     while(result->next()){
       std::string drop_statement = result->getString(1);
       std::cout<<drop_statement<<std::endl;
-//      state->execute(drop_statement.c_str());
+      state->execute(drop_statement.c_str());
     }
   }catch(sql::SQLException &e){
     perror(e.what());

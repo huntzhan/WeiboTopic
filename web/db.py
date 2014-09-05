@@ -38,18 +38,31 @@ class DBOperator:
                 cursor.execute("""select * from %s""" % (table_name))
                 # cursor.execute("""select * from OneDayTopic_FilteredMicroblog1409670000""")
             else:
-                cursor.execute("""select * from %s limit %s""", (table_name, limit))
+                cursor.execute("""select * from %s limit %s""" % (table_name, limit))
             return cursor.fetchall()
         else:
             return None
 
-    def GetSubTopics(self, timestamp, No_topic, limit):
+    def GetSubTopics(self, timestamp, No_topic, limit=0):
         """
         @brief read the sub topic tables of one topic at the specific hour determined by timestamp
         @input limit: 0 for no limit
+        @return empty [] if no sub topics
         """
-        return [[], []];
-        pass
+        table_name_template = self._TimestampToTopicTablename(timestamp)
+        cursor = self.conn.cursor()
+        cursor.execute('SHOW TABLES LIKE "Sub_%%_Topic_FilteredMicroblog%s_%s"' % (timestamp, No_topic))
+        sub_topics = []
+        sub_table_rows = cursor.fetchall()
+        for sub_table_row in sub_table_rows:
+            sub_table_name = sub_table_row[0]
+            if self.IsTableExist(sub_table_name):
+                if limit == 0:
+                    cursor.execute("""select * from %s""" % (sub_table_name))
+                else:
+                    cursor.execute("""select * from %s limit %s""", (table_name, limit))
+                sub_topics.append(cursor.fetchall())
+        return sub_topics
 
     def IsTableExist(self, table_name):
         cursor = self.conn.cursor()

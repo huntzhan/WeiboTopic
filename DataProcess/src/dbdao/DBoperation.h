@@ -57,7 +57,7 @@ public:
 	long GetTablecount();
 	void GetMidandText(long startline, long length,std::list<OneWeibo> &result);
 	void ShowTan();
-	void ShowTable(std::list<std::string> &tables,int tablenum);
+	void SetAllTable(std::list<std::string> &tables,int from , int to);
 
 	void CreateTable(std::string mytablename);
 	int  GetNewserID(std::string OneDayTopic_name);

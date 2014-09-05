@@ -7,6 +7,7 @@
  *      先生成一个数据库的操作类，生成特征词（特征词，主题词，关键词都是指话题生成时的词，只是在不同阶段叫法不一样）
  *      再计算特征词 的共现度，最后一趟聚类生成话题
  */
+#include"Tool.h"
 #include"TestModel.h"
 #include"TopicViewAndPolitics.h"
 #include"TrainModel.h"
@@ -19,9 +20,13 @@
 #include<time.h>
 #define DEBUG
 #define TIME
-
-
-
+/*
+ * @input param
+ *  argv[1] outputfile name 
+ *  argv[2] databasename and querytablename split by '.'
+ *  argv[3] query_table_index start
+ *  argv[4] query_table_index end
+ */
 int main(int argc, char * argv[]) {
 
 #ifdef TIME
@@ -37,7 +42,7 @@ int main(int argc, char * argv[]) {
 	int RAND_SIZE = 10000;
 
 	//计算倒排索引的时候有多少个词出现在一条微博就算这条微博属于这个话题
-	int BELONG_TOPIC_THROD = 2;
+	int BELONG_TOPIC_THROD = 3;
 
 	//提取子话题时提取的单位词的个数
 	int NUM_OF_SUB_WORD = 4;
@@ -53,16 +58,15 @@ int main(int argc, char * argv[]) {
 
 	//话题下的微博数小于这个数时该话题不存入数据库
 	int MIN_TOPIC_MESSAGE_NUM=5;
-	std::cout<<"run 0"<<std::endl;
-
 
 	//链接数据库的信息
 	std::list<std::string> table;
 	std::string database_name;
-	std::string topic_table_name;
+	string topic_table_name;
 	std::string output_filename;
+    int from=0,to=1;
 //从主函数输入参数
-  if(argc!=3){
+  if(argc!=5){
     std::cout<<"参数个数不对，请重新输入"<<std::endl;
     return 0;
   }else{
@@ -74,28 +78,35 @@ int main(int argc, char * argv[]) {
 
       database_name=input.substr(0,position);
       topic_table_name=input.substr(position+1,input.length());
-      table.push_back(topic_table_name);
 
 	  output_filename.assign(argv[1]);
-  }
+	  std::string fromstr(argv[3]);
+	  std::string tostr(argv[4]);
+	  Tool tool;
+	  from = tool.str2int(fromstr);
+	  to = tool.str2int(tostr);
 
-  //开始链接数据库
+	  if(!tool.IsTwoNumValueable(from,to)){
+		return 0;
+	  }
+  }
 	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
 	DBoperation dboper;
-
-
+	
 //	CCoverage m_coverage(&dboper);
 
+   //通过查询数据库来获取数据
 
 	//初始化要使用的数据库
 	dboper.DBinit(database_name,topic_table_name, connpool);
+    // 将所有要访问的表读取到table中
 
+	dboper.SetAllTable(table,from ,to);
 	//设置要访问的表
 	dboper.SetTableName(table.front());
 
 	//查询表中数据量
 	long weibosize=dboper.GetTablecount();
-
 	//初始化第一个表的数据
 	dboper.DBTableInit((int)weibosize,OneTimeReadWeiboNum,0,table);
 
@@ -129,6 +140,5 @@ int main(int argc, char * argv[]) {
 	ends6 = time(NULL);
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
-/******************************************************/
 	return 0;
 }
