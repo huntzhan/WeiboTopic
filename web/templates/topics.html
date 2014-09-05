@@ -1,46 +1,41 @@
 {% extends "layout.html" %}
 {% block header %} 
-    <!-- time picker -->
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" media="screen"
-      href="http://tarruda.github.com/bootstrap-datetimepicker/assets/css/bootstrap-datetimepicker.min.css">
 {% endblock %}
 {% block body %}
 <!-- jumbotron -->
 {% include 'jumbotron.html' %}
 <!-- tabs -->
 <section class='container'>
-<ul class="nav nav-tabs nav-justified" role="tablist">
-    <li class="active"><a data-toggle="tab" href="#common"><h3>Hotest Topics</h3></a></li>
-    <li><a data-toggle="tab" href="#politics"><h3>Politics Topics</h3></a></li>
-</ul>
-<div class="tab-content">
-    <div class="tab-pane active" id="common">
-        {% block topics %} {% endblock %}
-    </div>
-    <div class="tab-pane" id="politics">
-        {% block politics %} {% endblock %}
-    </div>
-</div>
-{% block subtopic %} {% endblock %}
-{% block pagination %} {% endblock %}
-<!-- Time Picker -->
-<div class="well">
-    <form role="form" method="get">
-        <h4 align='center'>Choose another time</h4>
-        <div id="datetimepicker" class="input-append date" align="center">
-            <input data-format="MM/dd/yyyy HH:mm PP" type="text" name="time"></input>
-            <span class="add-on">
-                <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
-            </span>
+    <ul class="nav nav-tabs nav-justified" role="tablist">
+        <li class="active"><a data-toggle="tab" href="#common"><h3>Hotest Topics</h3></a></li>
+        <li><a data-toggle="tab" href="#politics"><h3>Politics Topics</h3></a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="common">
+            {% block topics %} {% endblock %}
         </div>
-        <div align='center'>
-            <button type="submit" class="btn btn-default btn-xs">Go</button>
+        <div class="tab-pane" id="politics">
+            {% block politics %} {% endblock %}
         </div>
-    </form>
-</div>
+    </div>
+    {% block pagination %} {% endblock %}
+    <!-- Time Picker -->
+    <div class="well">
+        <form role="form" method="get">
+            <h4 align='center'>Choose another time</h4>
+            <div id="datetimepicker" class="input-append date" align="center">
+                <input data-format="MM/dd/yyyy HH:mm PP" type="text" name="time"></input>
+                <span class="add-on">
+                    <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                </span>
+            </div>
+            <div align='center'>
+                <button type="submit" class="btn btn-default btn-xs">Go</button>
+            </div>
+        </form>
+    </div>
+    {% block subtopic %}{% endblock %}
 </section>
 {% endblock %}
 {% block js %}
-    <script type="text/javascript" src="static/js/timepicker.js"></script>
 {% endblock %}

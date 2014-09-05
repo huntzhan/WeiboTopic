@@ -1,23 +1,22 @@
-
-<div class='modal-content'>
-    <div class='modal-header'>
-        <button type='button' class='close' data-dismiss='modal'>&times;</button>
-        <h3 id='sub_topic_mainidea'></h3>
-        <h4 id='sub_topic_keywords'></h4>
-    </div>
-    <div class='modal-body'>
-        <table id='sub_topic_table' class='table table-striped'>
-            {% for i in range (1,6): %}
-            <tr>
-                <h4 id='sub_topic'></h4>
-                <ul>
-                    <li id='sub_topic_blog'><p>blog...</p>
-                </ul>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <div class='modal-footer'>
-        <button type='button' class='btn btn-success' data-dismiss='modal'>Close</button>
-    </div>
+<div class='modal-dialog'>
+  <div class='modal-content'>
+      <div class='modal-header'>
+          <button type='button' class='close' data-dismiss='modal'>&times;</button>
+          <h3 id='sub_topic_mainidea'>Mainidea</h3>
+          <h4 id='sub_topic_keywords'>Keywords</h4>
+      </div>
+      <div class='modal-body'>
+          <table id='sub_topic_table' class='table table-striped'>
+              <tr>
+                  <h4 id='sub_topic'>Sub Topics 1</h4>
+                  <ul>
+                      <li id='sub_topic_blog'><p>blog........................................</p>
+                  </ul>
+              </tr>
+          </table>
+      </div>
+      <div class='modal-footer'>
+          <button type='button' class='btn btn-success' data-dismiss='modal'>Close</button>
+      </div>
+  </div>
 </div>

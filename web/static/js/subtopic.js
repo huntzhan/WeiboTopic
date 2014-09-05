@@ -1,8 +1,15 @@
 
 var CreateDialog = function(subtopic) {
-    var dialog = $("<div id='topic-dialog' class='modal fade' tabindex='-1' role='dialog'></div>");
-    dialog.load('templates/subtopic_dialog.html');
-    return dialog.html()
+    var dialog;
+    // $.get('../../templates/subtopic_dialog.html', function(data) {
+    //         alert(data)
+    // }, 'text');
+    $.get('/templates/subtopic_dialog.html', function(data) {
+        // alert(data);
+        $('#topic-dialog').html(data);
+        $('#topic-dialog').modal();
+        // window.location.replace('#topic-dialog');
+    }, 'text');
 }
 
 $(function() {
@@ -12,7 +19,8 @@ $(function() {
                 id: $(this).find('input[name="id"]').val()
         }, function(data){
             // alert(CreateDialog(data));
-            alert('alert');
+            CreateDialog(data);
+            // alert('success');
         });
         return false;
     });

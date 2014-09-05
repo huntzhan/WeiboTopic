@@ -18,6 +18,12 @@ app.config.update(dict(
 ))
 
 
+@app.route('/templates/subtopic_dialog.html')
+def dialog():
+    f = open('templates/subtopic_dialog.html')
+    return f.read()
+
+
 @app.route('/')
 def index():
     tar_time = request.args.get('time', '')
