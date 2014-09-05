@@ -50,15 +50,15 @@ class SubTopic:
         self.blogs = kwargs['blogs']
 
     def jsonify(self):
-        blogs_dict = {}
+        blogs = []
         blogs_count = 0
         for blog in self.blogs:
-            blogs_dict[str(++blogs_count)] = blog.jsonify()
+            blogs.append(blog.jsonify())
         return {
             'timestamp': self.timestamp,
             'topic_id': self.topic_id,
             'number_of_blogs': self.number_of_blogs,
-            'blogs': blogs_dict
+            'blogs': blogs
         }
 
     def __repr__(self):
