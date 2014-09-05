@@ -15,6 +15,7 @@
 build/
 
 outfile*
+run*
 drop*
 result.txt
 run_dataprocess

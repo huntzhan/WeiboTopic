@@ -1,0 +1,50 @@
+usage of run files
+#The usage of run_querytable
+NAME
+	./run_dataprocess
+SYNOPSIS
+
+	cd /DataProcess/bin
+	./run_dataprocess outputfile database_name.table_name 
+
+DESCRIPTION
+	outfile         everytopic tablename
+	database_name   the database which use to generate topic
+	table_name      the tablename which use to generate topic in the database
+
+
+
+#The usage of run_querytable
+
+NAME
+
+	./run_querytable
+SYNOPSIS
+	
+	cd /DataProcess/bin
+	./run_querytable outputfile database_name.table_name start_index end_index 
+
+DESCRIPTION
+	
+	start_index		the start index  table list which to generate topic in one database 
+	end_index		the end index  table list which to generate topic in one database 
+	others			same as before
+
+
+#The usage of run_droptable
+
+NAME
+	
+	./run_droptable		drop tables which name start which  'Topic_' or 'OneDayTopic_'
+
+SYNOPSIS
+
+	cd /DataProcess/bin
+	./run_droptable  database
+
+DESCRIPTION
+	database_name   the database which you want to drop the topic_table
+
+
+
+
