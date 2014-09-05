@@ -43,9 +43,6 @@ int main(int argc, char **argv) {
   TextSpilt::init_ICTCAL();
   Parser parser;
 
-  argv[1]="./output.txt";
-  argv[2]="filter_ref_zombie_source_bayes.Microblog1409824800.";
-
   /// get settings from argv
   ofstream out(argv[1]);
   string db_name, table_name;
@@ -62,7 +59,7 @@ int main(int argc, char **argv) {
      return 0;
   }
 
-  Allocator allo("sina", "Microblog1409824800");
+  Allocator allo(db_name, table_name);
   if (allo.HasNextTable()) {
     RefCount ref;
     std::list<ParsedBlog> parsed_blogs;
@@ -73,6 +70,7 @@ int main(int argc, char **argv) {
       unsigned count = allo.NextBlogs(ROWS_EACH_TIME, blogs);
       // Log::Logging(RUN_T, "get rows from crawler: " + to_string(count));
       for(auto &blog : blogs) {
+    	 //Log::Logging(REF_DIST_1_T, Blog2Str(blog) );
         if (IsSourceNotOk(blog))  /// source tacitc
           continue;
         /// Lexcal Analysis by ICTCLAS50
@@ -96,10 +94,10 @@ int main(int argc, char **argv) {
       if (count > 2)
         continue;
       insert_datas.push_back(i.ToInsertData());
-      Log::Logging(RUN_T, Blog2Str(i.blog_()) );
+     // Log::Logging(RUN_T, Blog2Str(i.blog_()) );
     }
     string output_table_name = "Filtered" + allo.GetCurrentTableName();
-  //  InsertDataToTable(output_table_name, insert_datas);
+    InsertDataToTable(output_table_name, insert_datas);
     out << db_name << "." << output_table_name << endl;
     out.close();
     Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + " ends: >" + std::to_string(insert_datas.size()) + "/" + std::to_string(allo.GetRowsOfCurrentTable()));
