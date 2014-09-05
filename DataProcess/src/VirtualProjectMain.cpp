@@ -129,6 +129,12 @@ int main(int argc, char * argv[]) {
 	ends6 = time(NULL);
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
-/******************************************************/
+	CCoverage coverage(&dboper);
+	coverage.MatchTopicByJaccard(topic_table_name,"OneDayTopic_"+topic_table_name);
+#ifdef TIME
+	time_t ends7;
+	ends7 = time(NULL);
+	std::cout << "计算覆盖率用时：" << difftime(ends7, startmain) << " 秒"<<std::endl;
+#endif
 	return 0;
 }
