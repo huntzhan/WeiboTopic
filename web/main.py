@@ -26,14 +26,17 @@ def dialog():
 
 @app.route('/')
 def index():
+    tar_date = request.args.get('date', '')
     tar_time = request.args.get('time', '')
     if tar_time == '' or\
-       len(tar_time) != len("09/10/2014 02:52 PM"):
+       tar_date == '' or\
+       len(tar_time) != len("02:52 PM") or\
+       len(tar_date) != len("09/10/2014"):
         return render_template('index.html')
     else:
         topics = []
         politic_topics = []
-        timestamp = ToTimestamp(tar_time) # format: 09/28/2014 02:52 PM
+        timestamp = ToTimestamp(tar_date + ' ' + tar_time) # format: 09/28/2014 02:52 PM
         topics = CachedModel.GetOneHourTopic(timestamp)
         for topic in topics:
             if topic.is_politic == 1L:

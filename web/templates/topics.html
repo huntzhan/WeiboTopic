@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block header %} 
+    <link rel="stylesheet" type="text/css" href="static/css/timepicker/jquery.timepicker.css">
+    <link rel="stylesheet" type="text/css" href="static/css/timepicker/bootstrap-datepicker.css">
 {% endblock %}
 {% block body %}
 <!-- jumbotron -->
@@ -23,11 +25,11 @@
     <div class="well">
         <form role="form" method="get">
             <h4 align='center'>Choose another time</h4>
-            <div id="datetimepicker" class="input-append date" align="center">
-                <input data-format="MM/dd/yyyy HH:mm PP" type="text" name="time"></input>
-                <span class="add-on">
-                    <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
-                </span>
+            <div align='center'>
+                <p id="datepairExample">
+                <input type="text" class="date start" name='date'/>
+                <input type="text" class="time start" name='time'/>
+                </p>
             </div>
             <div align='center'>
                 <button type="submit" class="btn btn-default btn-xs">Go</button>
@@ -38,4 +40,22 @@
 </section>
 {% endblock %}
 {% block js %}
+    <script type="text/javascript" src="static/js/timepicker/jquery.timepicker.js"></script>
+    <script type="text/javascript" src="static/js/timepicker/bootstrap-datepicker.js"></script>
+    <script>
+      // initialize input widgets first
+      $('#datepairExample .time').timepicker({
+      'showDuration': true,
+      'timeFormat': 'h:i A',
+      'step': 60
+      });
+
+      $('#datepairExample .date').datepicker({
+        'format': 'mm/dd/yyyy',
+        'autoclose': true
+      });
+
+      // initialize datepair
+      $('#datepairExample').datepair();
+    </script>
 {% endblock %}
