@@ -1,4 +1,18 @@
 {% extends "topics.html" %}
+{% block header %}
+{{super()}}
+<style>
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        padding: 6px 0;
+        font-size: 12px;
+        line-height: 1.42;
+        border-radius: 15px;
+    }
+</style>
+{% endblock %}
 <!-- topics -->
 {% block topics %}
     <table id='topics' class='table table-striped'>
@@ -59,21 +73,38 @@
 <!-- metrics -->
 {% block metrics %}
 <!-- matched -->
-<h4>Matched Topics</h4>
-<ul>
+{% if unmatched_metrics %}
+    <div class='container'>
+        <h3 class='col-md-3'><span class='label label-default'>Recall</span><span class='badge pull-right'>{{ matched_metrics|length / unmatched_metrics|length * 100 }}%</span></h3>
+        <h3 class='col-md-3'><span class='label label-default'>Precision</span><span class='badge pull-right'>{{ matched_metrics|length / topics|length * 100 }}</span></h3>
+    </div>
+    <br>
+{% else %}
+    <h4 align='center'>Unbelievable.  No entries here so far</h4>
+{% endif %}
+<div>
+    <h4>Matched Topics</h4>
+</div>
+<table class='table table-striped'>
     {% for entry in matched_metrics %}
-        <li>{{ entry }}</li>
+        {% if loop.index % 12 == 0 %}
+            <div class="clearfix visible-md-block"></div>
+        {% endif %}
+        <tr class='col-md-1 success'><td>{{ entry }}</td></tr>
     {% endfor %}
-</ul>
+</table>
 <!-- unmatched -->
+<div>
 <h4>UnMatched Topics</h4>
-<ul>
+</div>
+<table class='table table-striped'>
     {% for entry in unmatched_metrics %}
-        <li>{{ entry }}</li>
-    {% else %}
-        <h4 align='center'>Unbelievable.  No entries here so far</h4>
+        <tr class='col-md-1 danger'><td>{{ entry }}</td></tr>
+        {% if loop.index % 12 == 0 %}
+            <div class="clearfix visible-md-block"></div>
+        {% endif %}
     {% endfor %}
-</ul>
+</table>
 {% endblock %}
 
 <!-- pagination -->
