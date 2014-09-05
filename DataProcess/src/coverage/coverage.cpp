@@ -109,9 +109,9 @@ void CCoverage::SortTag() {
 		SortVector.push_back(make_pair(it_map->first, it_map->second));
 	}
 	sort(SortVector.begin(), SortVector.end(), SortCmp);
-	unsigned int count = SortVector.size() > disCount ? disCount : SortVector.size();
+	int count = SortVector.size() > disCount ? disCount : SortVector.size();
 
-	for (unsigned int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++) {
 		string tag = SortVector[i].first;
 		unsigned int hash_value = sim.BlogHash(tag.c_str());
 		//std::cout<<tag<<"|"<<SortVector[i].second.num<<"|"<<sim.BlogHash(SortVector[i].first.c_str())<<std::endl;
@@ -250,7 +250,7 @@ void CCoverage::SearchCountSort() {
 	for (; it_searchcount != end_count; it_searchcount++) {
 		maxlong = 0;
 		index = 0;
-		for (unsigned int i = 0; i < it_searchcount->topic.size(); i++) {
+		for (int i = 0; i < it_searchcount->topic.size(); i++) {
 			if (it_searchcount->topic[i].second > maxlong) {
 				maxlong = it_searchcount->topic[i].second;
 				index = i;
@@ -280,7 +280,7 @@ double CCoverage::Jaccard(std::string str1, std::string str2) {
 	int splitLen = 1;
 	std::wstring substr, strtemp;
 	int count = 0;
-	for (unsigned int i = 0; i < wstr.length(); i += splitLen) {
+	for (int i = 0; i < wstr.length(); i += splitLen) {
 		substr = wstr.substr(i, splitLen);
 		int pos = wstr2.find(substr, 0);
 		if (pos >= 0 && pos < wstr2.length()) {
@@ -368,8 +368,10 @@ void CCoverage::DisplayMatch() {
 }
 
 void CCoverage::OutPutResult() {
-	ofstream matchOutfile("/tmp/JavaProjct-jinfa/OutPut/match.txt");	//写文件
-	ofstream unmatchOutfile("/tmp/JavaProjct-jinfa/OutPut/unmatch.txt");//写文件
+	string outputfile="/tmp/JavaProjct-jinfa/OutPut/match"+time+".txt";
+	string inputfile="/tmp/JavaProjct-jinfa/OutPut/unmatch"+time+".txt";
+	ofstream matchOutfile(outputfile.c_str());	//写文件
+	ofstream unmatchOutfile(inputfile.c_str());//写文件
 
 	map<int, MainTopic>::iterator it_match = matchTopic.begin();
 	map<int, MainTopic>::iterator end_match = matchTopic.end();
@@ -413,6 +415,7 @@ string CCoverage::TramTime(const std::string table) {
 	long pos = table.find("140", 0);
 	string substr = table.substr(pos, strlen("1408179600"));
 	cout << substr << endl;
+	time=substr;
 	long time = atol(substr.c_str());
 	time_t t = (time_t) time;
 	struct tm *ptr;

@@ -112,13 +112,11 @@ def classify_topic_outputs(tables):
 
 
 def intergration():
-    from pprint import pprint
     # data cleaner.
     clean_tables = call_procedure(
         CLEAN_ABS_PATH,
         TopicGenerator.generator_recent_tables(),
     )
-    pprint(clean_tables)
 
     # get topics.
     topic_tables = call_procedure(
@@ -126,19 +124,17 @@ def intergration():
         clean_tables,
     )
     topic_tables, message_tables = classify_topic_outputs(topic_tables)
-    pprint(topic_tables)
-    pprint(message_tables)
 
     # process message_tables.
     sub_topic_tables = call_procedure(
         SUBTOPIC_ABS_PATH,
         make_list_item(message_tables),
     )
-    pprint(sub_topic_tables)
 
 
 def main():
     ONE_HOUR = 3600.0
+    intergration()
     while True:
         schedule = Schedule(ONE_HOUR)
         schedule.add_callback(intergration)
@@ -155,5 +151,5 @@ def test():
 
 
 if __name__ == '__main__':
-    # main()
-    intergration()
+    main()
+    # intergration()
