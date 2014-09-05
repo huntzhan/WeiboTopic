@@ -169,7 +169,7 @@ class CachedModel:
             mainideas = tokens[1:]
             for idea in mainideas:
                 mainidea_match[tokens[0].decode('utf8')].append(idea.decode('utf'))
-            pass
+        topics_match = topics_match[:-1]
         # get unmatched topics
         f_unmatch = open(f_unmatch_name, 'r')
         topics_unmatch = []
