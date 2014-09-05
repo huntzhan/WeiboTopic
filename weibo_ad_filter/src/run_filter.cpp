@@ -37,10 +37,14 @@ inline bool IsMeaninglessBlog(ParsedBlog &pb);
 inline bool IsSourceNotOk(const Blog &b);
 inline bool IsFromZombieUser(const Blog &b);
 void InsertDataToTable(std::string tablename, std::vector<INSERT_DATA> &insert_datas);
+bool IsDuplicateInsertTable(DBpool &insert,string table_name);
 
 int main(int argc, char **argv) {
   TextSpilt::init_ICTCAL();
   Parser parser;
+
+  argv[1]="./output.txt";
+  argv[2]="filter_ref_zombie_source_bayes.Microblog1409824800.";
 
   /// get settings from argv
   ofstream out(argv[1]);
@@ -48,11 +52,17 @@ int main(int argc, char **argv) {
   std::istringstream input(argv[2]);
   std::getline(input, db_name, '.');
   std::getline(input, table_name, '.');
+  //防止重复插入
 
   ConnPool *connpool = ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 50);
   insert.DBinit("use " + db_name, connpool);
 
-  Allocator allo(db_name, table_name);
+  ///重复的表就退出
+  if(IsDuplicateInsertTable(insert,table_name)){
+     return 0;
+  }
+
+  Allocator allo("sina", "Microblog1409824800");
   if (allo.HasNextTable()) {
     RefCount ref;
     std::list<ParsedBlog> parsed_blogs;
@@ -86,14 +96,29 @@ int main(int argc, char **argv) {
       if (count > 2)
         continue;
       insert_datas.push_back(i.ToInsertData());
+      Log::Logging(RUN_T, Blog2Str(i.blog_()) );
     }
     string output_table_name = "Filtered" + allo.GetCurrentTableName();
-    InsertDataToTable(output_table_name, insert_datas);
+  //  InsertDataToTable(output_table_name, insert_datas);
     out << db_name << "." << output_table_name << endl;
     out.close();
-    // Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + " ends: >" + std::to_string(insert_datas.size()) + "/" + std::to_string(allo.GetRowsOfCurrentTable()));
+    Log::Logging(RUN_T, "###Table " + allo.GetCurrentTableName() + " ends: >" + std::to_string(insert_datas.size()) + "/" + std::to_string(allo.GetRowsOfCurrentTable()));
   }
 }
+bool IsDuplicateInsertTable(DBpool &insert,string table_name){
+  std::list<std::string> tables;
+  string output_table_name="Filtered"+table_name;
+  insert.GetTables(tables);
+  cout<<tables.size()<<endl;
+  for(std::string table:tables){
+	  if(table==output_table_name){
+		  cout<<"duplicate table "<< table<<endl;
+		  return true;
+	  }
+  }
+  return false;
+}
+
 
 bool IsMeaninglessBlog(ParsedBlog &pb) {
   const std::vector<Word> &Ws = pb.Words_();

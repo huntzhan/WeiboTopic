@@ -250,7 +250,7 @@ void CCoverage::SearchCountSort() {
 	for (; it_searchcount != end_count; it_searchcount++) {
 		maxlong = 0;
 		index = 0;
-		for (int i = 0; i < it_searchcount->topic.size(); i++) {
+		for (unsigned int i = 0; i < it_searchcount->topic.size(); i++) {
 			if (it_searchcount->topic[i].second > maxlong) {
 				maxlong = it_searchcount->topic[i].second;
 				index = i;
@@ -306,11 +306,11 @@ void CCoverage::_MatchTopicByJaccard() {
 				//比较两个话题是否相似
 				double ja = Jaccard(*it_subTopic, it_tag->second);
 				if (ja >= JaccardThrethod) {
-					cout << ja << endl;
-					printf(
-							"微博热门话题: %-50s   OneDayTopic  %-50s     the id is %d \n",
-							it_tag->second.c_str(), it_subTopic->c_str(),
-							it_topic->id);
+//					cout << ja << endl;
+//					printf(
+//							"微博热门话题: %-50s   OneDayTopic  %-50s     the id is %d \n",
+//							it_tag->second.c_str(), it_subTopic->c_str(),
+//							it_topic->id);
 
 					if (!matchTopic.count(it_topic->id)) {
 						MainTopic maintopic;
@@ -326,6 +326,12 @@ void CCoverage::_MatchTopicByJaccard() {
 	}
 }
 
+/**
+ *  输入 tablename就是程序传递进来要处理的表
+ *  OneDayTopic对应的topic表名字
+ *  输出的文件在/tmp/JavaProjct-jinfa/OutPut/目录下
+ *
+ */
 void CCoverage::MatchTopicByJaccard(const std::string tablename,
 		const std::string OneDayTopic) {
 //	 ///提取包含tag的文本

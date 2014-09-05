@@ -110,7 +110,7 @@ void DBpool::GetTables(std::list<std::string> &tables) {
     resultset = state->executeQuery("show tables");
     while (resultset->next()) {
       std::string table = resultset->getString(1);
-      if (table[0] == 'M') {
+      if (table[0] == 'F') {
         tables.push_back(table);
       }
     }
