@@ -21,9 +21,24 @@
 #define TIME
 
 
+//二选一
+//查询数据库来获取表信息
+#define QUERYTABLE
+//从主函数获取表信息
+//#define MAIN_PARAM
 
+//四选一
+//一趟聚类
+#define SINGLEPASS
+//训练bayes模型
+//#define TRAIN
+//测试bayes模型
+//#define TEST
+//删除表
+#define _DROP_TABLE
 int main(int argc, char * argv[]) {
 
+#ifdef SINGLEPASS
 #ifdef TIME
 	time_t startmain;
 	startmain = time(NULL);
@@ -53,15 +68,18 @@ int main(int argc, char * argv[]) {
 
 	//话题下的微博数小于这个数时该话题不存入数据库
 	int MIN_TOPIC_MESSAGE_NUM=5;
-	std::cout<<"run 0"<<std::endl;
-
 
 	//链接数据库的信息
 	std::list<std::string> table;
 	std::string database_name;
-	std::string topic_table_name;
-	std::string output_filename;
+	string topic_table_name;
+	string output_filename(argv[1]);
+	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
+	DBoperation dboper;
+	
+//	CCoverage m_coverage(&dboper);
 //从主函数输入参数
+#ifdef MAIN_PARAM
   if(argc!=3){
     std::cout<<"参数个数不对，请重新输入"<<std::endl;
     return 0;
@@ -75,21 +93,26 @@ int main(int argc, char * argv[]) {
       database_name=input.substr(0,position);
       topic_table_name=input.substr(position+1,input.length());
       table.push_back(topic_table_name);
-
-	  output_filename.assign(argv[1]);
   }
+#endif
 
-  //开始链接数据库
-	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
-	DBoperation dboper;
+//通过查询数据库来获取数据
+#ifdef QUERYTABLE
+  //查询数据库时查询的表的个数
+  database_name="split";
+  int tablenum=10;
+//dboper.ShowTable(table,tablenum);
+#endif
 
-
-//	CCoverage m_coverage(&dboper);
 
 
 	//初始化要使用的数据库
 	dboper.DBinit(database_name,topic_table_name, connpool);
+#ifdef PROCESS
+#ifdef QUERYTABLE
 
+	dboper.ShowTable(table,tablenum);
+#endif
 	//设置要访问的表
 	dboper.SetTableName(table.front());
 
@@ -123,6 +146,7 @@ int main(int argc, char * argv[]) {
 	view_and_politics.InsterAllTopicToDatabase();
 
 
+#endif
 
 #ifdef TIME
 	time_t ends6;
@@ -130,5 +154,20 @@ int main(int argc, char * argv[]) {
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
 /******************************************************/
+#endif
+#ifdef _DROP_TABLE
+	std::string drop_table_name="Topic_%";
+	dboper.DropTable(drop_table_name);
+	drop_table_name="OneDayTopic_%";
+	dboper.DropTable(drop_table_name);
+#endif
+#ifdef TRAIN
+  TrainModel tm;
+  tm.TrainClassModel();
+#endif
+#ifdef TEST
+  TestModel testmodel;
+  testmodel.ReadTest();
+#endif
 	return 0;
 }

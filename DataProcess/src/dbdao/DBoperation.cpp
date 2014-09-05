@@ -591,7 +591,7 @@ void DBoperation::DropTable(std::string table_prefix){
     while(result->next()){
       std::string drop_statement = result->getString(1);
       std::cout<<drop_statement<<std::endl;
-//      state->execute(drop_statement.c_str());
+      state->execute(drop_statement.c_str());
     }
   }catch(sql::SQLException &e){
     perror(e.what());
