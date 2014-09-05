@@ -35,10 +35,14 @@ int main(int argc, char * argv[]) {
 	ConnPool *connpool=ConnPool::GetInstance("tcp://127.0.0.1:3306", "root", "123456", 10);
 	DBoperation dboper;
 	
-//	CCoverage m_coverage(&dboper);
-
+    if(argc!=2){
+		std::cout<<"参数错误"<<std::endl;
+		return 0;
+	}
+	
   //查询数据库时查询的表的个数
-    database_name="split";
+    database_name.assign(argv[1]);
+	std::cout<<database_name<<std::endl;
 
 	dboper.DBinit(database_name,topic_table_name, connpool);
 
