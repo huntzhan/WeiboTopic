@@ -11,6 +11,7 @@
     <ul class="nav nav-tabs nav-justified" role="tablist">
         <li class="active"><a data-toggle="tab" href="#common"><h3>Hotest Topics</h3></a></li>
         <li><a data-toggle="tab" href="#politics"><h3>Politics Topics</h3></a></li>
+        <li><a data-toggle="tab" href="#metrics"><h3>Metrics</h3></a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="common">
@@ -18,6 +19,9 @@
         </div>
         <div class="tab-pane" id="politics">
             {% block politics %} {% endblock %}
+        </div>
+        <div class="tab-pane" id="metrics">
+            {% block metrics %} {% endblock %}
         </div>
     </div>
     {% block pagination %} {% endblock %}
@@ -38,6 +42,11 @@
     </div>
     {% block subtopic %}{% endblock %}
 </section>
+<!-- Back to Top hook -->
+<div class='container'>
+    <button type='button' href="#top" id ="backToTopBtn" class="btn btn-default">Back To Top</button>
+    <br><br><br><br><br><br><br><br>
+</div>
 {% endblock %}
 {% block js %}
     <script type="text/javascript" src="static/js/timepicker/jquery.timepicker.js"></script>

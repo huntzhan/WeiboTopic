@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import os.path
+
 from db import DBOperator
 
 class Topic:
@@ -145,3 +147,32 @@ class CachedModel:
     def _MakeBlogFromRow(cls, row):
         blog = Blog(row[1], row[2])
         return blog
+
+    @classmethod
+    def GetMetrics(cls, path, timestamp):
+        """
+        @brief return empty results if files not exist
+        """
+        # get matched topics
+        f_match_name = os.path.join(path, 'match'+timestamp+'.txt')
+        f_unmatch_name = os.path.join(path, 'unmatch'+timestamp+'.txt')
+        if not os.path.isfile(f_match_name) or \
+            not os.path.isfile(f_unmatch_name):
+            return [], {}, []
+        f_match = open(f_match_name, 'r')
+        topics_match =[]
+        mainidea_match = {}
+        for line in f_match:
+            tokens = line.strip().split(' ')
+            topics_match.append(tokens[0].decode('utf8'))
+            mainidea_match[tokens[0].decode('utf8')] = []
+            mainideas = tokens[1:]
+            for idea in mainideas:
+                mainidea_match[tokens[0].decode('utf8')].append(idea.decode('utf'))
+            pass
+        # get unmatched topics
+        f_unmatch = open(f_unmatch_name, 'r')
+        topics_unmatch = []
+        for line in f_unmatch:
+            topics_unmatch.append(line.strip().decode('utf8'))
+        return topics_match, mainidea_match, topics_unmatch

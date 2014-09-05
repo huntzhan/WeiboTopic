@@ -22,37 +22,60 @@
         </tr>
         {% else %}
         <tr class='row'>
-            <em>Unbelievable.  No entries here so far</em>
+            <h4 align='center'>Unbelievable.  No entries here so far</h4>
         </tr>
         {% endfor %}
     </table>
 {% endblock %}
 <!-- political topics -->
 {% block politics %}
-<table class='table table-striped'>
-    {% for entry in politic_topics %}
-    <tr class='row'>
-        <td>
-            <span>
-                <a class='col-md-8' class='btn' data-toggle='modal' href='#'>
-                    {{ entry.mainidea }}
-                </a>
-                <span class='col-md-4'>
-                    blogs: {{ entry.number_of_blogs }}
+    <table class='table table-striped'>
+        {% for entry in politic_topics %}
+        <tr class='row'>
+            <td>
+                <span>
+                    <a id="{{ 'get_sub_topics_politic' }}{{ loop.index }}" class='col-md-8' class='btn' data-toggle='modal' href="#">
+                        {{ entry.mainidea }}
+                        <input type=hidden size=25 name='id' value={{ entry.id }}>
+                        <input type=hidden size=25 name='timestamp' value={{ entry.timestamp}}>
+                    </a>
+                    <span class='col-md-4'>
+                        blogs: {{ entry.number_of_blogs }}
+                    </span>
                 </span>
-            </span>
-            <span>
-                <lead>Keywords</lead>: {{ entry.keywords }}
-            </span>
-        </td>
-    </tr>
-    {% else %}
-    <tr class='row'>
-        <em>Unbelievable.  No entries here so far</em>
-    </tr>
-    {% endfor %}
-</table>
+                <span id="topic_keywords_politic{{ loop.index }}">
+                    <lead>Keywords</lead>: {{ entry.keywords }}
+                </span>
+            </td>
+        </tr>
+        {% else %}
+        <tr class='row'>
+            <h4 align='center'>Unbelievable.  No entries here so far</h4>
+        </tr>
+        {% endfor %}
+    </table>
 {% endblock %}
+
+<!-- metrics -->
+{% block metrics %}
+<!-- matched -->
+<h4>Matched Topics</h4>
+<ul>
+    {% for entry in matched_metrics %}
+        <li>{{ entry }}</li>
+    {% endfor %}
+</ul>
+<!-- unmatched -->
+<h4>UnMatched Topics</h4>
+<ul>
+    {% for entry in unmatched_metrics %}
+        <li>{{ entry }}</li>
+    {% else %}
+        <h4 align='center'>Unbelievable.  No entries here so far</h4>
+    {% endfor %}
+</ul>
+{% endblock %}
+
 <!-- pagination -->
 {% block pagination %}
 <div class='container' align='center'>

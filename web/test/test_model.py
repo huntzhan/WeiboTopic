@@ -30,6 +30,20 @@ class TestModel(unittest.TestCase):
             subtopics_dict[str(++subtopic_count)] = subtopic.jsonify()
         print json.dumps(subtopics_dict, indent=4)
 
+    def test_sub_topic_json(self):
+        demo = '1408179600'
+        metrics_path = '/tmp/JavaProjct-jinfa/OutPut'
+        matched_metrics, match_mainideas, unmatched_metrics = \
+            CachedModel.GetMetrics(metrics_path, demo)
+        for item in matched_metrics:
+            print item, match_mainideas[item]
+        print ''
+        for item in unmatched_metrics:
+            print item
+        self.assertTrue(len(matched_metrics) > 0)
+        self.assertTrue(len(match_mainideas) > 0)
+        self.assertTrue(len(unmatched_metrics) > 0)
+
 
 if __name__ == '__main__':
     unittest.main()
