@@ -43,7 +43,7 @@ public:
       return &this->politic_classification;
   }
   //训练样本的主函数
-  void TrainClassModel();
+  void TrainClassModel(std::string otherdir, std::string politicdir);
 
   //读取停用词表
   void Readstopwordset();
@@ -53,7 +53,7 @@ public:
 
   //读取训练集
   void ReadArticle(std::list < std::string > &articlelist,
-      std::list < std::string > &politic_article_list);
+      std::list < std::string > &politic_article_list, std::string otherdir, std::string politicdir);
   //训练集分词和预处理函数
   void SplitWord(std::list < std::string > &articlelist,
       std::list < std::string > &politic_article_list);

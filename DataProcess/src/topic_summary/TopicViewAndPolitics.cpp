@@ -151,7 +151,7 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
     totalnum++;
     if(totalnum>=10000){
       QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
-      this->dboper->InsertData(one_topic,flag,outfile);
+      //this->dboper->InsertData(one_topic,flag,outfile);
       std::cout<<"插入数据库一次，插入了 "<<totalnum<<" 条微博"<<std::endl;
       table_to_weibo.clear();
       one_topic.topic_weibo.clear();
@@ -163,8 +163,8 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
   //最后没有满足5000条的也需要查询数据库插入
   QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
   //暂时切换为输出数据到本地文本
-//  this->SaveFileToLocal(one_topic,topicnum);
-  this->dboper->InsertData(one_topic,flag,outfile);
+    this->SaveFileToLocal(one_topic,topicnum);
+//  this->dboper->InsertData(one_topic,flag,outfile);
   one_topic.topic_weibo.clear();
   std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
 }
@@ -178,7 +178,7 @@ void TopicViewAndPolitics::SaveFileToLocal(Topic &one_topic,int id){
   std::list<Weibo>::iterator it = one_topic.topic_weibo.begin();
   std::string text;
   std::string idstr=intTostring(id);
-  std::string filename = "../TrashFilter/"+idstr+".txt";
+  std::string filename = "TrashFilter/"+idstr+".txt";
   std::ofstream outfile(filename.c_str());
   if(!outfile){
     std::cout<<"打开文件失败!"<<std::endl;

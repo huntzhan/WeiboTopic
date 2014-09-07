@@ -12,9 +12,11 @@
 *.la
 #*.a
 
+BayeData/
 build/
-
+result_bak/
 outfile*
+
 run*
 drop*
 result.txt
