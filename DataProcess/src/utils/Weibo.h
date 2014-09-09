@@ -25,7 +25,8 @@ public:
 	double forword;
 	double mark;
 	double comment;
-
+	unsigned int simhashvalue;
+	int topic_simhash_distance;
 
 	double GetForword() {
 		return this->forword;

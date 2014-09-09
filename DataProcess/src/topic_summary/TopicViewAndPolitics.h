@@ -9,6 +9,7 @@
 
 #ifndef TOPICVIEWANDPOLITICS_H_
 #define TOPICVIEWANDPOLITICS_H_
+#include"TopicSimhash.h"
 #include"Topic.h"
 #include"TopicView.h"
 #include"IsPolitics.h"
@@ -20,6 +21,11 @@ class TopicViewAndPolitics{
 
   //判断是否为政治话题对象
   IsPolitics ispo;
+
+
+  //用simhash计算话题下的微博列表，以此delete掉一些杂乱的微博
+  TopicSimhash topicsimhash;
+
 
   DBoperation * dboper;
   std::vector<Topic>*clusterList;

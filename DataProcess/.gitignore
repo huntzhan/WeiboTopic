@@ -16,7 +16,7 @@ BayeData/
 build/
 result_bak/
 outfile*
-
+TrashFilter/
 run*
 drop*
 result.txt

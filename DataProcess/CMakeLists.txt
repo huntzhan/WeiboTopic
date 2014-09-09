@@ -51,7 +51,7 @@ set(EXECUTABLE_OUTPUT_PATH ${dataprocess_SOURCE_DIR}/bin)
 add_executable(run_dataprocess src/VirtualProjectMain.cpp)
 target_link_libraries(run_dataprocess bayes dboperation connection_pool
 	        cluster gentopic test ispolitics topicviewpolictics util
-coverage_lib parser_lib textsplit_lib simhash_lib)
+			topic_util coverage_lib parser_lib textsplit_lib simhash_lib)
 
 #set the executable file that print the drop table statement
 add_executable(run_droptable src/droptable.cpp)
@@ -59,8 +59,8 @@ target_link_libraries(run_droptable dboperation connection_pool)
 
 add_executable(run_querytable src/VirtualProjectMain_querytable.cpp)
 target_link_libraries(run_querytable bayes dboperation connection_pool
-	cluster gentopic test ispolitics topicviewpolictics util
-	coverage_lib parser_lib textsplit_lib simhash_lib)
+	        cluster gentopic test ispolitics topicviewpolictics util
+			topic_util coverage_lib parser_lib textsplit_lib simhash_lib)
 
 add_executable(run_trainmodel src/bayestrain.cpp)
 target_link_libraries(run_trainmodel bayes)

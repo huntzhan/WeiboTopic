@@ -86,6 +86,6 @@ void printVector(std::vector<PAIR> &sort_vec) {
   for (; it != sort_vec.end(); ++it) {
     std::string word = it->first;
     double value = it->second.m_dFrequency;
-    std::cout << word << "		词频：" << value << std::endl;
+    std::cout << word << "		" << value << std::endl;
   }
 }
