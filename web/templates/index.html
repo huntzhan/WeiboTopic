@@ -76,7 +76,7 @@
 {% if unmatched_metrics %}
     <div class='container'>
         <h3 class='col-md-3'><span class='label label-default'>Recall</span><span class='badge pull-right'>{{ matched_metrics|length / unmatched_metrics|length * 100 }}%</span></h3>
-        <h3 class='col-md-3'><span class='label label-default'>Precision</span><span class='badge pull-right'>{{ matched_metrics|length / topics|length * 100 }}</span></h3>
+        <h3 class='col-md-3'><span class='label label-default'>Precision</span><span class='badge pull-right'>{{ matched_metrics|length / topics|length * 100 }}%</span></h3>
     </div>
     <br>
 {% else %}

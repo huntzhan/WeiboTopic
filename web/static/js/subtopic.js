@@ -4,15 +4,16 @@ var CreateDialog = function(topic_mainidea, topic_keywords, subtopic) {
         var dialog = $(data);
         dialog.find('#topic_mainidea').text(topic_mainidea);
         dialog.find('#topic_keywords').text(topic_keywords);
+        dialog.find('#topic_keywords').text("Number of SubTopics: " + subtopic.sub_topics.length);
         var dialog_body = dialog.find('#dialog_body');
         $.each(subtopic.sub_topics, function(index, sub) {
             var head = $("<h4 id='sub_topic'></h4>").append("Sub Topic " + index.toString());
             dialog_body.append(head);
-            var number_of_blogs = $("<p></p>").append("Number of blogs:" + sub.number_of_blogs.toString());
+            var number_of_blogs = $("<p></p>").append("Number of blogs: <span class='label label-default'>" + sub.number_of_blogs.toString() + "</span>");
             dialog_body.append(number_of_blogs);
             var table = $("<table class='table table-striped'></table>");
             $.each(sub.blogs, function(index_blog, blog) {
-                var row = $("<tr></tr>").html(index_blog.toString() + "  " + blog.keywords + ":<br>" + blog.content + "<br>");
+                var row = $("<tr></tr>").html("<td>" + blog.keywords + ":<br>" + blog.content + "<br></td>");
                 table.append(row);
             });
             dialog_body.append(table);

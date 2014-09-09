@@ -164,7 +164,7 @@ class CachedModel:
         mainidea_match = {}
         for line in f_match:
             tokens = line.strip().split(' ')
-            topics_match.append(tokens[0].decode('utf8'))
+            topics_match.append(tokens[len(tokens)-1].decode('utf8'))
             mainidea_match[tokens[0].decode('utf8')] = []
             mainideas = tokens[1:]
             for idea in mainideas:

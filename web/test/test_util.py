@@ -15,7 +15,8 @@ class TestUtil(unittest.TestCase):
 
     def test_reverse_timestamp(self):
         # for printing only
-        semo = '1408179600'
+        # demo = '1410134400'
+        demo = '1410159600'
         print FromTimestamp(demo)
 
 
