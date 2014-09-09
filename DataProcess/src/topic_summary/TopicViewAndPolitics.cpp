@@ -144,6 +144,8 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
         processed_politic=1;
         //这里需要删除，不然下面会重复查询插入
         one_topic.topic_weibo.clear();
+		//如果话题是垃圾话题，直接return不插入数据库
+		if(one_topic.isTrash==1)return;
 //        std::cout<<"in 50 :"<< one_topic.topic_weibo.size()<<std::endl;
       }
     }
@@ -157,13 +159,20 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
       one_topic.topic_weibo.clear();
       totalnum=0;
       flag=1;
+	
+	  //the model to calculate the simhash and delete the weibo that simhash distance below throd
+	 //this->topicsimhash.CalSimHashAndDeleteWeibo(one_topic);
+
+
     }
   }
   //最后要将没有满5000条的部分插入数据库
   //最后没有满足5000条的也需要查询数据库插入
   QueryWeiboIntime(table_to_weibo, one_topic.topic_weibo);
+
+  //this->topicsimhash. CalSimHashAndDeleteWeibo(one_topic);
   //暂时切换为输出数据到本地文本
-//  this->SaveFileToLocal(one_topic,topicnum);
+   // this->SaveFileToLocal(one_topic,topicnum);
   this->dboper->InsertData(one_topic,flag,outfile);
   one_topic.topic_weibo.clear();
   std::vector<subword>(one_topic.weibo_id_list).swap(one_topic.weibo_id_list);
@@ -178,7 +187,7 @@ void TopicViewAndPolitics::SaveFileToLocal(Topic &one_topic,int id){
   std::list<Weibo>::iterator it = one_topic.topic_weibo.begin();
   std::string text;
   std::string idstr=intTostring(id);
-  std::string filename = "../TrashFilter/"+idstr+".txt";
+  std::string filename = "TrashFilter/"+idstr+".txt";
   std::ofstream outfile(filename.c_str());
   if(!outfile){
     std::cout<<"打开文件失败!"<<std::endl;

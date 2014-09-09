@@ -12,10 +12,10 @@
 *.la
 #*.a
 
+BayeData/
 build/
-
+result_bak/
 outfile*
-run*
-drop*
+TrashFilter/
 result.txt
 run_dataprocess

@@ -7,7 +7,7 @@
 
 #include"TrainModel.h"
 #include<fstream>
-
+#include"ReadDirTool.h"
 bool SortCmp(const PAIR3 &key1, const PAIR3 &key2) {
   if (key1.second.tfidf > key2.second.tfidf)
     return true;
@@ -114,12 +114,12 @@ std::string ICTspilt(const char * sinput,int property) {
 }
 
 
-void TrainModel::TrainClassModel(){
+void TrainModel::TrainClassModel(std::string otherdir,std::string politicdir){
   Readstopwordset();
   std::list < std::string > articlelist;
   std::list < std::string > politic_article_list;
 
-  ReadArticle(articlelist,politic_article_list);
+  ReadArticle(articlelist,politic_article_list, otherdir, politicdir);
   SplitWord(articlelist,politic_article_list);
 }
 
@@ -246,6 +246,16 @@ void TrainModel::SplitWord(std::list < std::string > &articlelist,
 
 
 
+void TrainModel::ReadArticle(std::list<std::string > &articlelist,
+		std::list<std::string>&politic_article_list, std::string otherdir ,std::string politicdir){
+	ReadDirTool readdirtool;
+	readdirtool.listDir(otherdir,articlelist);
+
+	readdirtool.listDir(politicdir,politic_article_list);
+
+
+}
+/*
 void TrainModel::ReadArticle(std::list < std::string > &articlelist,
     std::list < std::string > &politic_article_list) {
 
@@ -310,6 +320,6 @@ void TrainModel::ReadArticle(std::list < std::string > &articlelist,
   }
 }
 
-
+*/
 
 

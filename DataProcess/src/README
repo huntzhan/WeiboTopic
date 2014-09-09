@@ -23,6 +23,9 @@ SYNOPSIS
 	
 	cd /DataProcess/bin
 	./run_querytable outputfile database_name.table_name start_index end_index 
+EXAMPLE
+	
+	./run_querytable outfile filter.Filter 98 108 > result.txt
 
 DESCRIPTION
 	

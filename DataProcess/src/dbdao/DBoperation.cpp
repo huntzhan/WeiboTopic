@@ -337,9 +337,9 @@ void DBoperation::CreateOneDayTopicTable(std::string mytablename) {
 bool DBoperation::QueryIfTableExist(std::string tablename){
   char sql_query[1024];
   ResultSet *result;
-  std::string statement="select table_name from information_schema.tables where table_name='%s'";
+  std::string statement="select table_name from information_schema.tables where table_schema='%s' and table_name='%s'";
 
-  sprintf(sql_query,statement.c_str(),tablename.c_str());
+  sprintf(sql_query,statement.c_str(),this->database_name.c_str(),tablename.c_str());
   std::cout<<"查表语句"<<sql_query<<std::endl;
   try{
     result=state->executeQuery(sql_query);

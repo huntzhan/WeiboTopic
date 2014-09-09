@@ -4,8 +4,7 @@
  *  Created on: 2014年8月3日
  *      Author: hogachen  VirtualProjectMain.cpp
  *  description：
- *      先生成一个数据库的操作类，生成特征词（特征词，主题词，关键词都是指话题生成时的词，只是在不同阶段叫法不一样）
- *      再计算特征词 的共现度，最后一趟聚类生成话题
+ *		use to train the baye model
  */
 #include"TestModel.h"
 #include"TopicViewAndPolitics.h"
@@ -21,12 +20,22 @@
 #define TIME
 
 
+/*
+ *@input param
+	argv[1] : normal or other class data directory
+	argv[2] : politic or trash class data directory
+ */
+
 
 int main(int argc, char * argv[]) {
 
+	 if(argc!=3){
+		 std::cout<<"参数个数错误"<<std::endl;
+		 return 0;
+	 }
+	 std::string otherdir(argv[1]);
+	 std::string politicdir(argv[2]);
 	 TrainModel tm;
-	 tm.TrainClassModel();
-	 TestModel testmodel;
-	 testmodel.ReadTest();
+	 tm.TrainClassModel(otherdir,politicdir);
      return 0;
 }

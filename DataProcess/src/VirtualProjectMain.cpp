@@ -16,7 +16,7 @@
 #include "DEBUG.h"
 #include "coverage.h"
 #include<iostream>
-#include<time.h>
+ #include<time.h>
 #define DEBUG
 #define TIME
 
@@ -53,7 +53,7 @@ int main(int argc, char * argv[]) {
 
 	//话题下的微博数小于这个数时该话题不存入数据库
 	int MIN_TOPIC_MESSAGE_NUM=5;
-	std::cout<<"run 0"<<std::endl;
+	//std::cout<<"run 0"<<std::endl;
 
 
 	//链接数据库的信息

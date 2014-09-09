@@ -57,7 +57,7 @@ int main(int argc, char * argv[]) {
 	int TOPICMAPTHROD = 100000;
 
 	//话题下的微博数小于这个数时该话题不存入数据库
-	int MIN_TOPIC_MESSAGE_NUM=5;
+	int MIN_TOPIC_MESSAGE_NUM=10;
 
 	//链接数据库的信息
 	std::list<std::string> table;
