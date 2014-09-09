@@ -422,7 +422,7 @@ void CCoverage::OutPutResult() {
 }
 
 long CCoverage::TramTime(const std::string table) {
-	long pos = table.find("140", 0);
+	long pos = table.find("1", 0);
 	string substr = table.substr(pos, strlen("1408179600"));
 	cout << substr << endl;
 	timeTOfile=substr;
