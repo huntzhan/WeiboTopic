@@ -48,7 +48,7 @@ class CCoverage{
     SimHash sim;
     double JaccardThrethod;
     int SimhashThrethod;
-    string time;
+    string timeTOfile;
 public:
     map<unsigned,string> TagHash;  //标准的话题
     vector<MainTopic> topicMainIdea; //聚类出的话题
@@ -78,9 +78,10 @@ private:
     void DisplayMatch();
     void GetHourTopic(const char * path);
     void OutPutResult();
-    string TramTime(const std::string table);
+    long TramTime(const std::string table);
     void mGetSearchCount(void);
     void SearchCountSort();
+    string TimeToFileName(long time);
  //  bool SortCmp(const pair<string,TopicTag> &key1,const pair<string,TopicTag> &key2);
 
 };

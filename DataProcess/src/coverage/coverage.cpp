@@ -125,12 +125,16 @@ void CCoverage::GetHourTopic(const char * path) {
 	ifstream infile(path);
 	int i = 0; // 没有意义
 	string temp;
-	if (!infile) {
-		std::cerr
-				<< "################  can not find the topic from sina use the default file###############"
-				<< std::endl;
-		infile.open("/tmp/JavaProjct-jinfa/HopTopic/HourTopic/2014_09_02_12");
+	while(!infile) {
+                i++;
+                long timelong=TramTime(timeTOfile);      
+                string replace=TimeToFileName(timelong+i*3600);
+		std::cerr<< "################  can not find the topic from sina use the next file###############"<<replace<< std::endl;
+                replace="/tmp/JavaProjct-jinfa/HopTopic/HourTopic/"+replace;
+                cout<<replace<<endl;
+		infile.open(replace.c_str());
 	}
+        cout<<path<<endl;
 	while (!infile.eof()) {
 		i++;
 		infile >> temp;
@@ -338,7 +342,9 @@ void CCoverage::MatchTopicByJaccard(const std::string tablename,
 //	 GetTag();
 //	 ///对tag进行排序
 //	 SortTag();
-	std::string hotTopic = TramTime(tablename);
+//	
+	cout<<tablename<<endl;
+	std::string hotTopic =TimeToFileName( TramTime(tablename));
 	string path = "/tmp/JavaProjct-jinfa/HopTopic/HourTopic/" + hotTopic;
 	GetHourTopic(path.c_str());
 	///获得聚类的主要观点
@@ -374,8 +380,8 @@ void CCoverage::DisplayMatch() {
 }
 
 void CCoverage::OutPutResult() {
-	string outputfile="/tmp/JavaProjct-jinfa/OutPut/match"+time+".txt";
-	string inputfile="/tmp/JavaProjct-jinfa/OutPut/unmatch"+time+".txt";
+	string outputfile="/tmp/JavaProjct-jinfa/OutPut/match"+timeTOfile+".txt";
+	string inputfile="/tmp/JavaProjct-jinfa/OutPut/unmatch"+timeTOfile+".txt";
 	ofstream matchOutfile(outputfile.c_str());	//写文件
 	ofstream unmatchOutfile(inputfile.c_str());//写文件
 
@@ -415,20 +421,24 @@ void CCoverage::OutPutResult() {
 	}
 }
 
-string CCoverage::TramTime(const std::string table) {
-	char result[80];
-	string tablename = "";
+long CCoverage::TramTime(const std::string table) {
 	long pos = table.find("140", 0);
 	string substr = table.substr(pos, strlen("1408179600"));
 	cout << substr << endl;
-	time=substr;
+	timeTOfile=substr;
 	long time = atol(substr.c_str());
+        return time;
+}
+
+string CCoverage::TimeToFileName(long time){
+        char result[80];
+        string tablename="";
 	time_t t = (time_t) time;
 	struct tm *ptr;
 	ptr = localtime(&t);
 	sprintf(result, "%4d_%02d_%02d_%02d", ptr->tm_year + 1900, ptr->tm_mon + 1,
 			ptr->tm_mday, ptr->tm_hour);
 	tablename = result;
-	return tablename;
+        return tablename;
 }
 
