@@ -34,15 +34,29 @@ def index():
        len(tar_date) != len("09/10/2014"):
         return render_template('index.html')
     else:
+        # get topics data
         topics = []
         politic_topics = []
         timestamp = ToTimestamp(tar_date + ' ' + tar_time) # format: 09/28/2014 02:52 PM
+        print timestamp
         topics = CachedModel.GetOneHourTopic(timestamp)
         for topic in topics:
             if topic.is_politic == 1L:
                 politic_topics.append(topic)
+        # get metrics data
+        metrics_path = '/tmp/JavaProjct-jinfa/OutPut'
+        matched_metrics, matched_mainideas, unmatched_metrics = \
+            CachedModel.GetMetrics(metrics_path, timestamp);
+        print "#####Metric#####"
+        for item in matched_metrics:
+            print item
         if len(topics) != 0:
-            return render_template('index.html', topics=topics, politic_topics=politic_topics)
+            return render_template('index.html',
+                                   topics=topics,
+                                   politic_topics=politic_topics,
+                                   matched_metrics=matched_metrics,
+                                   matched_mainideas=matched_mainideas,
+                                   unmatched_metrics=unmatched_metrics)
         else:
             return render_template('index.html')
     # return redirect(url_for('show_entries'))
@@ -55,11 +69,11 @@ def sub_topics():
     timestamp = request.args.get('timestamp', 0, type=str)
     print 'timestamp: ', timestamp, '   id: ', topic_id
     subtopics = CachedModel.GetSubTopics(timestamp, topic_id)
-    subtopics_dict = {}
+    subtopics_dict = {"sub_topics": []}
     subtopic_count = 0
     for subtopic in subtopics:
-        subtopics_dict[str(++subtopic_count)] = subtopic.jsonify()
-    print json.dumps(subtopics_dict, indent=4)
+        subtopics_dict["sub_topics"].append(subtopic.jsonify())
+    # print json.dumps(subtopics_dict, indent=4)
     return json.dumps(subtopics_dict)
 
 
@@ -67,10 +81,6 @@ def sub_topics():
 def about():
     return render_template('about.html')
 
-
-@app.route('/metric')
-def metrics():
-    return render_template('metrics.html')
 
 
 if __name__ == '__main__':

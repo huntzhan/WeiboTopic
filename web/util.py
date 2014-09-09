@@ -17,3 +17,13 @@ def ToTimestamp(_datetime):
     t_stru = time.strptime(_datetime, "%m/%d/%Y %H:%M")
     t_secs = long(mktime(t_stru))
     return str(t_secs)
+
+
+def FromTimestamp(_timestamp):
+    """
+    @brief reverse the ToTimestamp
+    """
+    secs = float(_timestamp)
+    t_stru = time.localtime(secs)
+    t_str = time.asctime(t_stru)
+    return t_str
