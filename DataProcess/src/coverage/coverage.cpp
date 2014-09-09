@@ -233,8 +233,10 @@ void CCoverage::mGetSearchCount(void) {
 
 
 void CCoverage::GetSearchCount(const std::string tablename){
+
+    TramTime(tablename);
 	GetTopicMainIdea(tablename);
-	system("ls -al /etc/passwd /etc/shadow");
+	system("/tmp/JavaProjct-jinfa/HopTopic/runGetCount.sh");
 	mGetSearchCount();
 	SearchCountSort();
 }
@@ -267,9 +269,12 @@ void CCoverage::SearchCountSort() {
 	sort(TopicSearchCount.begin(), TopicSearchCount.end(), CountSortCmp);
 	it_searchcount = TopicSearchCount.begin();
 	end_count = TopicSearchCount.end();
+	string filename="/tmp/JavaProjct-jinfa/OutPut/count"+timeTOfile+".txt";
+	ofstream Outfile(filename.c_str());	//写文件
 	for (; it_searchcount != end_count; it_searchcount++) {
 		cout << it_searchcount->hottopic << "-------" << it_searchcount->count
 				<< endl;
+		Outfile<<it_searchcount->hottopic <<" "<<it_searchcount->count<<endl;
 	}
 }
 /*
