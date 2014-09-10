@@ -62,7 +62,7 @@ void GetTopic::GetEveryWordInCurrentHourByWordProperty() {
     }
   }
 
-
+  this->total_weibo_num=num;
   std::cout << "处理数据：" << num << "条" << std::endl;
   this->TOPIC_WORD_NUM=(int)(num/30000.0*1000);
   if(this->TOPIC_WORD_NUM<100){

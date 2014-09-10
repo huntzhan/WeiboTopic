@@ -293,7 +293,8 @@ void  DBoperation::SetAllTable(std::list<std::string> &tables,int from , int to)
 	char sql[1024];
 	std::string statement = "show tables like '%s'";
 	try {
-		std::string table_name=this->topic_table_name+"%";
+	std::string table_name=this->topic_table_name+"%";
+//		std::string table_name="Filter%";
 		sprintf(sql,statement.c_str(),table_name.c_str());
 		std::cout<<sql<<std::endl;
 		result = state->executeQuery(sql);
@@ -371,7 +372,7 @@ void DBoperation::InsertData(Topic &onetopic, int flag, ofstream &outfile) {
   std::string topictablename = "Topic_"+this->topic_table_name+"_";
   int newestID = 0;
 
-  //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
+   //数据插入，如果是第一次插入就要先将topic下的信息先插入数据库，然后再建表
   try {
 //    std::string OneDayTopicTablename = "OneDayTopic_"+Gentime();
     std::string OneDayTopicTablename = "OneDayTopic_"+topic_table_name;

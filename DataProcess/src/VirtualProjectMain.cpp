@@ -55,7 +55,8 @@ int main(int argc, char * argv[]) {
 	int MIN_TOPIC_MESSAGE_NUM=5;
 	//std::cout<<"run 0"<<std::endl;
 
-
+	//现在的策略是处理微博数大于50000就将索引阈值置为3，否则为2
+    int	TOTAL_WEIBO_NUM=50000;
 	//链接数据库的信息
 	std::list<std::string> table;
 	std::string database_name;
@@ -104,7 +105,10 @@ int main(int argc, char * argv[]) {
 	GetTopic gettopic;
 	gettopic.InitGetTopic(&dboper, TOPIC_WORD_NUM,TOPICMAPTHROD);
 	gettopic.GenTopicWordByFrequency();
-
+	if(gettopic.total_weibo_num<TOTAL_WEIBO_NUM)
+		BELONG_TOPIC_THROD=2;
+	else
+		BELONG_TOPIC_THROD=3;
 	//一趟聚类模块
 	std::map<std::string, TopicWord>* topicwordmap;
 	topicwordmap = gettopic.GetTopicWord();

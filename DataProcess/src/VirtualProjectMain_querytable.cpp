@@ -59,6 +59,8 @@ int main(int argc, char * argv[]) {
 	//话题下的微博数小于这个数时该话题不存入数据库
 	int MIN_TOPIC_MESSAGE_NUM=10;
 
+	//现在的策略是处理微博数大于50000就将索引阈值置为3，否则为2
+    int	TOTAL_WEIBO_NUM=50000;
 	//链接数据库的信息
 	std::list<std::string> table;
 	std::string database_name;
@@ -116,6 +118,10 @@ int main(int argc, char * argv[]) {
 	gettopic.InitGetTopic(&dboper, TOPIC_WORD_NUM,TOPICMAPTHROD);
 	gettopic.GenTopicWordByFrequency();
 
+	if(gettopic.total_weibo_num<TOTAL_WEIBO_NUM)
+		BELONG_TOPIC_THROD=2;
+	else
+		BELONG_TOPIC_THROD=3;
 	//一趟聚类模块
 	std::map<std::string, TopicWord>* topicwordmap;
 	topicwordmap = gettopic.GetTopicWord();
@@ -134,11 +140,15 @@ int main(int argc, char * argv[]) {
 	view_and_politics.InsterAllTopicToDatabase();
 
 
-
+ 
 #ifdef TIME
 	time_t ends6;
 	ends6 = time(NULL);
 	std::cout << "整个过程用时：" << difftime(ends6, startmain) << " 秒"<<std::endl;
 #endif
+
+	CCoverage coverage(&dboper);
+	coverage.MatchTopicByJaccard(topic_table_name,"OneDayTopic_"+topic_table_name);
+
 	return 0;
 }

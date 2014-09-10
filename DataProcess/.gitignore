@@ -17,5 +17,5 @@ build/
 result_bak/
 outfile*
 TrashFilter/
-result.txt
-run_dataprocess
+result*
+run_*

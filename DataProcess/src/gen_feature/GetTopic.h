@@ -38,6 +38,9 @@ class GetTopic {
 
 public:
 
+  //total weibonum to process
+  int total_weibo_num;
+  
   int overMapNum;
 
   map<string, TopicWord> *GetTopicWord() {

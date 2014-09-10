@@ -145,7 +145,7 @@ void TopicViewAndPolitics::GetOneTopicWeiboByBatch(Topic &one_topic, int topicnu
         //这里需要删除，不然下面会重复查询插入
         one_topic.topic_weibo.clear();
 		//如果话题是垃圾话题，直接return不插入数据库
-		if(one_topic.isTrash==1)return;
+       if(one_topic.isTrash==1)return;
 //        std::cout<<"in 50 :"<< one_topic.topic_weibo.size()<<std::endl;
       }
     }
