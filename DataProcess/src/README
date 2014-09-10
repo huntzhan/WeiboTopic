@@ -1,5 +1,5 @@
 usage of run files
-#The usage of run_querytable
+#The usage of run_dataprocess
 NAME
 	./run_dataprocess
 SYNOPSIS
@@ -51,3 +51,20 @@ DESCRIPTION
 
 
 
+#The usage of run_trainmodel
+
+NAME
+	
+	./run_trainmodel	train the bayes model 
+
+
+SYNOPSIS
+
+	cd /DataProcess/bin
+	./run_trainmodel normalTrainSetDirectory  trashTrainSetDirectory
+
+DESCRIPTION
+	
+	normalTrainSetDirectory  the directory which contain the dataset to train the normal cluster
+	
+	trashTrainSetDirectory the  the directory which contain the dataset to train the trash or politic cluster
